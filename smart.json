@@ -4,6 +4,7 @@
     "jade": {},
     "isotope": {
       "path": "packages/isotope"
-    }
+    },
+    "bootstrap-3": {}
   }
 }
