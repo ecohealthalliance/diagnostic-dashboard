@@ -5,6 +5,7 @@
     "isotope": {
       "path": "packages/isotope"
     },
-    "bootstrap-3": {}
+    "bootstrap-3": {},
+    "reactive-table": {}
   }
 }

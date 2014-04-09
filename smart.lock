@@ -7,7 +7,8 @@
       "isotope": {
         "path": "packages/isotope"
       },
-      "bootstrap-3": {}
+      "bootstrap-3": {},
+      "reactive-table": {}
     },
     "packages": {
       "iron-router": {
@@ -28,10 +29,20 @@
         "tag": "v3.1.1-1",
         "commit": "63dd38968828bb8963636df93e9a1c45e2dfe67e"
       },
+      "reactive-table": {
+        "git": "https://github.com/ecohealthalliance/reactive-table.git",
+        "tag": "v0.3.2",
+        "commit": "48d4f7b5195ad459bee55882b94dd158649613a0"
+      },
       "blaze-layout": {
         "git": "https://github.com/EventedMind/blaze-layout.git",
         "tag": "v0.2.2",
         "commit": "8bc53798fe5965669ae67c72f91829fcfdceabfd"
+      },
+      "just-i18n": {
+        "git": "https://github.com/subhog/meteor-just-i18n.git",
+        "tag": "v0.2.4",
+        "commit": "91decfcf5b3b5e67f202a67658350b862330bf3d"
       }
     }
   }
