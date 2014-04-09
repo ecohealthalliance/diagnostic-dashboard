@@ -1,6 +1,9 @@
 {
   "packages": {
     "iron-router": {},
-    "jade": {}
+    "jade": {},
+    "isotope": {
+      "path": "packages/isotope"
+    }
   }
 }
