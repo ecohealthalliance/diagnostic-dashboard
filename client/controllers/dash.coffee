@@ -15,7 +15,6 @@ Template.dash.rendered = () ->
 
 Template.dash.events
   "click .pane": (event) ->
-    console.log('click')
     selectedPane = $(event.currentTarget)
     height = window.innerHeight - $('.header').height()
     width = $('#dashboard-container').width()
