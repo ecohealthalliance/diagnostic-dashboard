@@ -5,6 +5,9 @@
     "isotope": {
       "path": "packages/isotope"
     },
+    "tangelo": {
+      "path": "packages/tangelo"
+    },
     "bootstrap-3": {},
     "reactive-table": {}
   }

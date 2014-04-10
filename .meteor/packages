@@ -8,7 +8,8 @@ coffeescript
 stylus
 iron-router
 jade
-isotope
 d3
 bootstrap-3
 reactive-table
+isotope
+tangelo
