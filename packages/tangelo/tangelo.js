@@ -658,6 +658,117 @@ window.tangelo.vtkweb = {};
     };
 })(window.tangelo, window.jQuery, window.d3);
 
+(function(tangelo, $, google, d3) {
+    "use strict";
+    if (!($ && google && d3)) {
+        tangelo.GoogleMapSVG = tangelo.unavailable({
+            plugin: "GoogleMapSVG",
+            required: [ "JQuery", "Google Maps API", "d3" ]
+        });
+        return;
+    }
+    tangelo.GoogleMapSVG = function(elem, mapoptions, cfg, cont) {
+        var that;
+        this.id = "gmsvg-" + tangelo.uniqueID();
+        this.mapdiv = d3.select(elem).append("div").attr("id", this.id).style("width", $(elem).width() + "px").style("height", $(elem).height() + "px").node();
+        this.map = new google.maps.Map(this.mapdiv, mapoptions);
+        this.setMap(this.map);
+        this.size = {
+            width: $(this.mapdiv).width(),
+            height: $(this.mapdiv).height()
+        };
+        that = this;
+        $(this.mapdiv).resize(function() {
+            google.maps.event.trigger(this.map, "resize");
+        });
+        this.cfg = cfg || {};
+        if (cont) {
+            google.maps.event.addListenerOnce(this.map, "idle", function() {
+                cont(that);
+            });
+        }
+    };
+    tangelo.GoogleMapSVG.prototype = new google.maps.OverlayView();
+    tangelo.GoogleMapSVG.prototype.getSVG = function() {
+        return this.svg.node();
+    };
+    tangelo.GoogleMapSVG.prototype.getMap = function() {
+        return this.map;
+    };
+    tangelo.GoogleMapSVG.prototype.computeCBArgs = function() {
+        var el, mattrans, transtext;
+        el = d3.selectAll("#" + this.id + " [style~='cursor:']");
+        transtext = el.style("transform") || el.style("-webkit-transform") || el.style("-o-transform") || el.style("-moz-transform");
+        if (!transtext || transtext === "none") {
+            transtext = "matrix(1, 0, 0, 1, " + el.style("left").slice(0, -2) + ", " + el.style("top").slice(0, -2) + ")";
+        }
+        mattrans = transtext.split(" ").map(function(v, i) {
+            var retval;
+            if (i === 0) {
+                retval = v.slice("matrix(".length, -1);
+            } else {
+                retval = v.slice(0, -1);
+            }
+            return retval;
+        });
+        return {
+            svg: this.svg.node(),
+            projection: this.getProjection(),
+            zoom: this.map.getZoom(),
+            translation: {
+                x: mattrans[4],
+                y: mattrans[5]
+            },
+            transform: mattrans,
+            zooming: mattrans[0] !== "1" || mattrans[3] !== "1"
+        };
+    };
+    tangelo.GoogleMapSVG.prototype.attachListener = function(eventType, callback, how) {
+        var that = this, attacher;
+        if (Object.prototype.toString.call(eventType) === "[object Array]") {
+            $.each(eventType, function(i, v) {
+                that.attachListener(v, callback, how);
+            });
+            return;
+        }
+        if (how === "once") {
+            attacher = google.maps.event.addListenerOnce;
+        } else if (how === "always") {
+            attacher = google.maps.event.addListener;
+        } else {
+            tangelo.fatalError("GoogleMapSVG.attachListener()", "illegal value for argument 'how'");
+        }
+        attacher(this.map, eventType, function() {
+            var args = that.computeCBArgs();
+            if (eventType === "draw") {
+                if (args.zooming) {
+                    window.setTimeout(google.maps.event.trigger, 100, that.map, "draw");
+                }
+            }
+            callback.call(that, args);
+        });
+    };
+    tangelo.GoogleMapSVG.prototype.on = function(eventType, callback) {
+        this.attachListener(eventType, callback, "always");
+    };
+    tangelo.GoogleMapSVG.prototype.onceOn = function(eventType, callback) {
+        this.attachListener(eventType, callback, "once");
+    };
+    tangelo.GoogleMapSVG.prototype.trigger = function(eventType) {
+        google.maps.event.trigger(this.map, eventType);
+    };
+    tangelo.GoogleMapSVG.prototype.shift = function(what, x, y) {
+        d3.select(what).style("-webkit-transform", "translate(" + x + "px, " + y + "px)").style("-moz-transform", "translate(" + x + "px, " + y + "px)").style("-o-transform", "translate(" + x + "px, " + y + "px)").style("transform", "translate(" + x + "px, " + y + "px)");
+    };
+    tangelo.GoogleMapSVG.prototype.onAdd = function() {
+        this.svg = d3.select(this.getPanes().overlayMouseTarget).append("svg").attr("width", this.size.width).attr("height", this.size.height);
+        if (this.cfg.initialize) {
+            this.cfg.initialize.call(this, this.svg.node(), this.getProjection(), this.map.getZoom());
+        }
+    };
+    tangelo.GoogleMapSVG.prototype.draw = $.noop;
+})(window.tangelo, window.jQuery, window.google, window.d3);
+
 (function(tangelo, $, d3) {
     "use strict";
     if (!($ && d3)) {
@@ -1080,6 +1191,124 @@ window.tangelo.vtkweb = {};
     });
 })(window.tangelo, window.jQuery, window.d3);
 
+(function(tangelo, $, vg) {
+    "use strict";
+    if (!($ && $.widget && vg)) {
+        return;
+    }
+    tangelo.widget("tangelo.geodots", {
+        options: {
+            latitude: tangelo.accessor({
+                value: 0
+            }),
+            longitude: tangelo.accessor({
+                value: 0
+            }),
+            size: tangelo.accessor({
+                value: 20
+            }),
+            color: tangelo.accessor({
+                value: 0
+            }),
+            worldGeometry: null,
+            data: null
+        },
+        _create: function() {
+            var that = this, vegaspec = tangelo.vegaspec.geovis(that.options.worldGeometry);
+            this.options = $.extend(true, {}, this._defaults, this.options);
+            vg.parse.spec(vegaspec, function(chart) {
+                that.vis = chart;
+                that._update();
+            });
+        },
+        _update: function() {
+            var that = this;
+            if (this.options.data) {
+                this.options.data.forEach(function(d) {
+                    d.latitude = that.options.latitude(d);
+                    d.longitude = that.options.longitude(d);
+                    d.size = that.options.size(d);
+                    d.color = that.options.color(d);
+                });
+                if (this.vis) {
+                    this.vis({
+                        el: that.element.get(0),
+                        data: {
+                            table: that.options.data,
+                            links: []
+                        }
+                    }).update();
+                }
+            }
+        }
+    });
+})(window.tangelo, window.jQuery, window.vg);
+
+(function(tangelo, $, vg) {
+    "use strict";
+    if (!($ && $.widget && vg)) {
+        return;
+    }
+    tangelo.widget("tangelo.geonodelink", {
+        options: {
+            nodeLatitude: tangelo.accessor({
+                value: 0
+            }),
+            nodeLongitude: tangelo.accessor({
+                value: 0
+            }),
+            nodeSize: tangelo.accessor({
+                value: 20
+            }),
+            nodeColor: tangelo.accessor({
+                value: 0
+            }),
+            linkColor: tangelo.accessor({
+                value: 0
+            }),
+            linkSource: tangelo.accessor({
+                value: 0
+            }),
+            linkTarget: tangelo.accessor({
+                value: 0
+            }),
+            data: null
+        },
+        _create: function() {
+            var that = this, vegaspec = tangelo.vegaspec.geovis(that.options.worldGeometry);
+            vg.parse.spec(vegaspec, function(chart) {
+                that.vis = chart;
+                that._update();
+            });
+        },
+        _update: function() {
+            var that = this;
+            $.each(this.options.data.nodes, function(i, v) {
+                var d = that.options.data.nodes[i];
+                d.latitude = that.options.nodeLatitude(d);
+                d.longitude = that.options.nodeLongitude(d);
+                d.size = that.options.nodeSize(d);
+                d.color = that.options.nodeColor(d);
+            });
+            $.each(this.options.data.links, function(i, v) {
+                var d = that.options.data.links[i];
+                d.color = that.options.linkColor(d);
+                d.source = that.options.linkSource(d);
+                d.target = that.options.linkTarget(d);
+            });
+            if (that.vis) {
+                that.vis({
+                    el: this.element.get(0),
+                    data: {
+                        table: that.options.data.nodes,
+                        links: that.options.data.links
+                    }
+                }).update();
+            }
+        }
+    });
+})(window.tangelo, window.jQuery, window.vg);
+
 (function($, d3, tangelo) {
     "use strict";
     if (!($ && d3)) {
@@ -1228,6 +1457,105 @@ window.tangelo.vtkweb = {};
         $(me.select("a").node()).dropdown();
     };
 })(window.jQuery, window.d3, window.tangelo);
+
+(function(tangelo, google, d3, $) {
+    "use strict";
+    if (!(google && $ && $.widget && d3)) {
+        return;
+    }
+    tangelo.widget("tangelo.mapdots", {
+        options: {
+            hoverContent: tangelo.accessor({
+                value: ""
+            }),
+            size: tangelo.accessor({
+                value: 1
+            }),
+            color: tangelo.accessor({
+                value: ""
+            }),
+            latitude: tangelo.accessor({
+                value: 0
+            }),
+            longitude: tangelo.accessor({
+                value: 0
+            }),
+            opacity: tangelo.accessor({
+                value: 1
+            }),
+            data: null
+        },
+        _create: function() {
+            var el = this.element.get(0), that = this, overlay, options;
+            this.map = new google.maps.Map(el, {
+                zoom: 2,
+                center: new google.maps.LatLng(0, 0),
+                mapTypeId: google.maps.MapTypeId.TERRAIN
+            });
+            d3.select(el).style("width", "100%").style("height", "100%");
+            $(el).resize(function() {
+                google.maps.event.trigger(that.map, "resize");
+            });
+            this.overlay = new google.maps.OverlayView();
+            this.overlay.onAdd = function() {
+                var sizeScale;
+                that.layer = d3.select(this.getPanes().overlayMouseTarget).append("div").style("position", "absolute");
+                that.colorScale = d3.scale.category10();
+                this.draw = function() {
+                    var marker, ptransform = that.transform(this.getProjection());
+                    marker = that.layer.selectAll("svg").data(that.options.data).each(ptransform);
+                    marker.enter().append("svg").each(ptransform).attr("class", "marker").style("cursor", "crosshair").style("position", "absolute").append("circle");
+                    d3.selectAll("svg > circle").data(that.options.data).attr("r", function(d) {
+                        return that.sizeScale(that.options.size(d));
+                    }).attr("cx", function(d) {
+                        return that.sizeScale(that.options.size(d)) + 2;
+                    }).attr("cy", function(d) {
+                        return that.sizeScale(that.options.size(d)) + 2;
+                    }).style("fill", function(d) {
+                        return that.colorScale(that.options.color(d));
+                    }).style("opacity", function(d) {
+                        return that.options.opacity(d);
+                    }).each(function(d) {
+                        var cfg, content = that.options.hoverContent(d);
+                        if (!content) {
+                            return;
+                        }
+                        cfg = {
+                            html: true,
+                            container: "body",
+                            placement: "top",
+                            trigger: "hover",
+                            content: that.options.hoverContent(d),
+                            delay: {
+                                show: 0,
+                                hide: 0
+                            }
+                        };
+                        $(this).popover(cfg);
+                    });
+                    marker.exit().remove();
+                };
+                this.onRemove = function() {};
+            };
+            this.overlay.setMap(this.map);
+        },
+        _update: function() {
+            var that = this;
+            this.sizeScale = d3.scale.sqrt().domain(d3.extent(this.options.data, this.options.size)).range([ 5, 15 ]);
+            this.transform = function(projection) {
+                return function(d) {
+                    var s = that.sizeScale(that.options.size(d));
+                    d = new google.maps.LatLng(that.options.latitude(d), that.options.longitude(d));
+                    d = projection.fromLatLngToDivPixel(d);
+                    return d3.select(this).style("left", d.x - s - 2 + "px").style("top", d.y - s - 2 + "px").style("width", 2 * s + 4 + "px").style("height", 2 * s + 4 + "px");
+                };
+            };
+            if (this.overlay.draw) {
+                this.overlay.draw();
+            }
+        }
+    });
+})(window.tangelo, window.google, window.d3, window.jQuery);
 
 (function(tangelo, $, d3) {
     "use strict";
