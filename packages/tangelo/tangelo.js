@@ -1,6 +1,6 @@
-tangelo = {};
+window.tangelo = {};
 
-(function() {
+(function(tangelo) {
     "use strict";
     tangelo.version = function() {
         return "0.6.1dev";
@@ -110,7 +110,7 @@ tangelo = {};
         }
         return compatible;
     };
-})($);
+})(window.tangelo);
 
 (function(tangelo, $) {
     "use strict";
@@ -261,7 +261,7 @@ tangelo = {};
         func.accessor = true;
         return func;
     };
-})(tangelo, jQuery);
+})(window.tangelo, window.jQuery);
 
 (function(tangelo, $) {
     "use strict";
@@ -314,9 +314,9 @@ tangelo = {};
             $.widget(name, $.tangelo.widget, ptype);
         };
     }
-})(tangelo, jQuery);
+})(window.tangelo, window.jQuery);
 
-tangelo.vegaspec = {};
+window.tangelo.vegaspec = {};
 
 (function(tangelo) {
     "use strict";
@@ -477,9 +477,9 @@ tangelo.vegaspec = {};
         spec.data[0].url = worldGeometryFile;
         return spec;
     };
-})(tangelo);
+})(window.tangelo);
 
-tangelo.vtkweb = {};
+window.tangelo.vtkweb = {};
 
 (function(tangelo, $, vtkWeb) {
     "use strict";
@@ -596,7 +596,7 @@ tangelo.vtkweb = {};
             });
         };
     })();
-})(tangelo, jQuery, vtkWeb);
+})(window.tangelo, window.jQuery, window.vtkWeb);
 
 (function(tangelo, $, d3) {
     "use strict";
@@ -656,7 +656,7 @@ tangelo.vtkweb = {};
         toggle = drawerToggle("#" + id, "#tangelo-drawer-icon-" + tag);
         d3.select("#tangelo-drawer-handle-" + tag).on("click", toggle);
     };
-})(tangelo, jQuery, d3);
+})(window.tangelo, window.jQuery, window.d3);
 
 (function(tangelo, $, d3) {
     "use strict";
@@ -710,7 +710,7 @@ tangelo.vtkweb = {};
             return text_spacing + heightfunc(d, i);
         });
     };
-})(tangelo, jQuery, d3);
+})(window.tangelo, window.jQuery, window.d3);
 
 (function(tangelo, $, d3) {
     "use strict";
@@ -1078,7 +1078,7 @@ tangelo.vtkweb = {};
             });
         }
     });
-})(tangelo, jQuery, d3);
+})(window.tangelo, window.jQuery, window.d3);
 
 (function($, d3, tangelo) {
     "use strict";
@@ -1227,7 +1227,7 @@ tangelo.vtkweb = {};
         });
         $(me.select("a").node()).dropdown();
     };
-})(jQuery, d3, tangelo);
+})(window.jQuery, window.d3, window.tangelo);
 
 (function(tangelo, $, d3) {
     "use strict";
@@ -1440,9 +1440,9 @@ tangelo.vtkweb = {};
             return label;
         }
     });
-})(tangelo, jQuery, d3);
+})(window.tangelo, window.jQuery, window.d3);
 
-tangelo.stream = {};
+window.tangelo.stream = {};
 
 (function(tangelo, $) {
     "use strict";
@@ -1540,9 +1540,9 @@ tangelo.stream = {};
             }
         });
     };
-})(tangelo, $);
+})(window.tangelo, window.$);
 
-tangelo.data = {};
+window.tangelo.data = {};
 
 (function(tangelo) {
     "use strict";
@@ -1576,7 +1576,7 @@ tangelo.data = {};
         });
         return root;
     };
-})(tangelo);
+})(window.tangelo);
 
 (function(tangelo) {
     "use strict";
@@ -1647,4 +1647,4 @@ tangelo.data = {};
         };
     }
     tangelo.data.distanceCluster = cluster;
-})(tangelo);
+})(window.tangelo);
