@@ -7,6 +7,9 @@
       "isotope": {
         "path": "packages/isotope"
       },
+      "tangelo": {
+        "path": "packages/tangelo"
+      },
       "bootstrap-3": {},
       "reactive-table": {}
     },
@@ -24,6 +27,9 @@
       "isotope": {
         "path": "packages/isotope"
       },
+      "tangelo": {
+        "path": "packages/tangelo"
+      },
       "bootstrap-3": {
         "git": "https://github.com/mangasocial/meteor-bootstrap-3.git",
         "tag": "v3.1.1-1",
@@ -31,8 +37,8 @@
       },
       "reactive-table": {
         "git": "https://github.com/ecohealthalliance/reactive-table.git",
-        "tag": "v0.3.2",
-        "commit": "48d4f7b5195ad459bee55882b94dd158649613a0"
+        "tag": "v0.3.4",
+        "commit": "13921f46f63e63e608d763c6ad90e6109e4902c2"
       },
       "blaze-layout": {
         "git": "https://github.com/EventedMind/blaze-layout.git",
