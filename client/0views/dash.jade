@@ -1,9 +1,12 @@
 template(name="dash")
-  #dashboard-container
-    .pane
-      +graph
-    .pane
-      +table
-    .pane
-      +dendrogram
-    .pane Pane 4
+  .dashboard-container
+    .diagnosis
+      p Diagnosis
+    .pane-container
+      .pane
+        +graph
+      .pane
+        +table
+      .pane
+        +dendrogram
+      .pane Pane 4

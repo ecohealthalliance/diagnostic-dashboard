@@ -2,9 +2,6 @@
   "packages": {
     "iron-router": {},
     "jade": {},
-    "isotope": {
-      "path": "packages/isotope"
-    },
     "tangelo": {
       "path": "packages/tangelo"
     },
