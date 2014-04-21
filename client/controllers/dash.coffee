@@ -24,7 +24,7 @@ Template.dash.color = () ->
 Template.dash.tableSettings = () ->
   fields: [
     { key: 'rank', label: 'Rank' },
-    { key: 'name', label: 'Name' },
+    { key: 'name', label: 'Disease' },
     {
       key: 'symptoms'
       label: 'Symptoms'
