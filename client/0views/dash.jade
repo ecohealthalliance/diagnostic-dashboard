@@ -1,7 +1,10 @@
 template(name="dash")
   .dashboard-container
     .diagnosis
-      p Diagnosis
+      +reactiveTable collection=result.diseases settings=tableSettings
+      .symptoms
+        each symptoms
+          .label(style="background-color:#{color}") #{this}
     .pane-container
       .pane
         +graph

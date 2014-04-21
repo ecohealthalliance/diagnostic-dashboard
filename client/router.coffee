@@ -4,7 +4,10 @@ Router.configure
 
 Router.map () ->
 
-  @route "dash"
+  @route("dash",
+    waitOn: () ->
+      Meteor.subscribe('results')
+  )
 
   @route("home",
     path: "/"
