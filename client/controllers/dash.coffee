@@ -12,12 +12,9 @@ Template.dash.rendered = () ->
   setHeights()
   $(window).resize(setHeights)
 
-Template.dash.result = () =>
-  @grits.Results.findOne()
-
-Template.dash.symptoms = () =>
+Template.dash.symptoms = () ->
   symptoms = []
-  _.each @grits.Results.findOne()?.diseases, (disease) ->
+  _.each @diseases, (disease) ->
     symptoms = symptoms.concat disease.symptoms
   _.unique symptoms
 
