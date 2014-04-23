@@ -133,6 +133,8 @@ Template.dendrogram.rendered = function () {
         }).resize(function () {
           $(node).dendrogramLocal("refresh");
         });
+
+        $(node).trigger('datachanged', Session.get('symptoms'));
     });
 };
 
