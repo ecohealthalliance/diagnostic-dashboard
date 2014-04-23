@@ -23,7 +23,15 @@ Template.dash.color = () ->
 
 Template.dash.tableSettings = () ->
   fields: [
+
     { key: 'rank', label: 'Rank' },
+    {
+      key: 'name'
+      label: ' '
+      fn: (name) ->
+        if Session.equals('disease', name)
+          Spacebars.SafeString '<span style="color: green">&#10004;</span>'
+    },
     { key: 'name', label: 'Disease' },
     {
       key: 'symptoms'
