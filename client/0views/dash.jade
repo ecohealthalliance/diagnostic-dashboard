@@ -4,7 +4,11 @@ template(name="dash")
       +reactiveTable collection=diseases settings=tableSettings
       .symptoms
         each symptoms
-          .label(style="background-color:#{color}") #{this}
+          .label(style="background-color:#{color}")
+            if selected
+              | &#10004;&nbsp;#{this}
+            else
+              | #{this}
     .pane-container
       .pane
         +graph

@@ -19,7 +19,10 @@ Template.dash.symptoms = () ->
   _.unique symptoms
 
 Template.dash.color = () ->
-  color this
+  color _.values(this).join('')
+
+Template.dash.selected = () ->
+  _.values(this).join('') in (Session.get('symptoms') or [])
 
 Template.dash.tableSettings = () ->
   fields: [
