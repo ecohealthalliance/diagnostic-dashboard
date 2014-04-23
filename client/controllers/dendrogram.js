@@ -123,7 +123,10 @@ Template.dendrogram.rendered = function () {
         });
 
         $(node).on("datachanged", function (e) {
-            var symptomsLocal = $(arguments).toArray().slice(1);
+            var symptomsLocal = [];
+            _.each($(arguments).toArray().slice(1), function (symptom) {
+                symptomsLocal[symptom] = true;
+            });
             restoreDefaultColor($(node).dendrogramLocal("option", "data"));
             followPath($(node).dendrogramLocal("option", "data"), symptomsLocal);
             $(node).dendrogramLocal("refresh");
