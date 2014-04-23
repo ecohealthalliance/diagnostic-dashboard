@@ -122,12 +122,8 @@ Template.dendrogram.rendered = function () {
             }
         });
 
-        $(node).on("datachanged", function (e, args) {
-            var symptomsLocal = [];
-            $.each(args.symptoms, function (i, v) {
-                symptomsLocal[v.toLowerCase()] = true;
-            });
-
+        $(node).on("datachanged", function (e) {
+            var symptomsLocal = $(arguments).toArray().slice(1);
             restoreDefaultColor($(node).dendrogramLocal("option", "data"));
             followPath($(node).dendrogramLocal("option", "data"), symptomsLocal);
             $(node).dendrogramLocal("refresh");
