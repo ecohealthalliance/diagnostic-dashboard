@@ -52,4 +52,4 @@ Template.dash.events
 
   "click .diagnosis .reactive-table tbody tr" : (event) ->
     Session.set('disease', @name)
-    $('#dendrogram').trigger('datachanged', @symptoms)
+    Session.set('symptoms', @symptoms)
