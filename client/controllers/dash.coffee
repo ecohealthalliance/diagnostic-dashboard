@@ -48,7 +48,7 @@ Template.dash.events
     selectedPane.removeClass('minimized').addClass('maximized')
     setHeights()
     selectedPane.fadeIn()
-    $('#dendrogram').dendrogramLocal('refresh')
+    selectedPane.children().resize()
 
   "click .diagnosis .reactive-table tbody tr" : (event) ->
     Session.set('disease', @name)

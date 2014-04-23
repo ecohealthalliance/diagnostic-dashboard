@@ -127,7 +127,9 @@ Template.dendrogram.rendered = function () {
             restoreDefaultColor($(node).dendrogramLocal("option", "data"));
             followPath($(node).dendrogramLocal("option", "data"), symptomsLocal);
             $(node).dendrogramLocal("refresh");
-        }).resize($(node).dendrogramLocal("refresh"));
+        }).resize(function () {
+          $(node).dendrogramLocal("refresh");
+        });
     });
 };
 
