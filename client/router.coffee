@@ -14,6 +14,8 @@ Router.map () ->
       Results.findOne()
   )
 
+  @route("submit")
+
   @route("home",
     path: "/"
     onAfterAction: () ->
