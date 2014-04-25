@@ -1,3 +1,9 @@
+Template.submit.results = () ->
+  Session.get('results')
+
+Template.submit.features = () ->
+  _.keys(Session.get('results').features)
+
 Template.submit.events
   "click #submit-button": () ->
     text = $('#submit-text').val()
@@ -6,5 +12,6 @@ Template.submit.events
         console.log error
         $('.results').html("Sorry, there was an error")
       else
-        $('.results').html(JSON.stringify(results))
+        console.log results
+        Session.set('results', JSON.parse(results))
     )

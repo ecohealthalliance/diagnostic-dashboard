@@ -3,3 +3,8 @@ template(name="submit")
     textarea#submit-text
     button.btn.btn-large.btn-primary#submit-button Diagnose
     .results
+      if results
+        p Diagnosis: #{results.disease}
+        p Characteristics:
+        each features
+          p #{this}
