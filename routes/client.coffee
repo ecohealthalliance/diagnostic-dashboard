@@ -16,7 +16,7 @@ Router.map () ->
       Results.findOne(@params._id)
   )
 
-  @route("submit",
+  @route("new",
     where: 'client'
   )
 
@@ -24,5 +24,5 @@ Router.map () ->
     path: "/"
     where: 'client'
     onAfterAction: () ->
-      Router.go "submit"
+      Router.go "new"
   )

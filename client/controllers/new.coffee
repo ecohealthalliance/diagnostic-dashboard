@@ -1,4 +1,4 @@
-Template.submit.events
+Template.new.events
   "click #submit-button": () ->
     text = $('#submit-text').val()
     Meteor.call('submit', text, (error, resultId) ->
