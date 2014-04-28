@@ -7,7 +7,7 @@ var getChildren = function (node) {
 Template.dendrogram.rendered = function () {
 
     var node = $('#dendrogram');
-    d3.json("data/decision_tree.json", function (err, data) {
+    d3.json("../data/decision_tree.json", function (err, data) {
         var symptoms,
             qargs;
 
@@ -134,11 +134,11 @@ Template.dendrogram.rendered = function () {
           $(node).dendrogramLocal("refresh");
         });
 
-        $(node).trigger('datachanged', Session.get('symptoms'));
+        $(node).trigger('datachanged', Session.get('features'));
     });
 };
 
 Deps.autorun(function () {
-   var symptoms = Session.get('symptoms');
+   var symptoms = Session.get('features');
    $('#dendrogram').trigger('datachanged', symptoms);
 });

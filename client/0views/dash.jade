@@ -2,8 +2,8 @@ template(name="dash")
   .dashboard-container
     .diagnosis
       +reactiveTable collection=diseases settings=tableSettings
-      .symptoms
-        each symptoms
+      .features
+        each features
           .label(style="background-color:#{color}")
             if selected
               | &#10004;&nbsp;#{this}

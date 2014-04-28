@@ -12,17 +12,17 @@ Template.dash.rendered = () ->
   setHeights()
   $(window).resize(setHeights)
 
-Template.dash.symptoms = () ->
-  symptoms = []
+Template.dash.features = () ->
+  features = []
   _.each @diseases, (disease) ->
-    symptoms = symptoms.concat disease.symptoms
-  _.unique symptoms
+    features = features.concat disease.features
+  _.unique features
 
 Template.dash.color = () ->
   color _.values(this).join('')
 
 Template.dash.selected = () ->
-  _.values(this).join('') in (Session.get('symptoms') or [])
+  _.values(this).join('') in (Session.get('features') or [])
 
 Template.dash.tableSettings = () ->
   fields: [
@@ -37,13 +37,13 @@ Template.dash.tableSettings = () ->
     },
     { key: 'name', label: 'Disease' },
     {
-      key: 'symptoms'
-      label: 'Symptoms'
-      fn: (symptoms) ->
+      key: 'features'
+      label: 'Characteristics'
+      fn: (features) ->
         html = ""
-        _.each symptoms, (symptom) ->
-          symptomColor = color symptom
-          html += "<span style='background-color:#{symptomColor}'>&nbsp;</span>&ensp;"
+        _.each features, (feature) ->
+          featureColor = color feature
+          html += "<span style='background-color:#{featureColor}'>&nbsp;</span>&ensp;"
         Spacebars.SafeString html
     }
   ]
@@ -63,4 +63,4 @@ Template.dash.events
 
   "click .diagnosis .reactive-table tbody tr" : (event) ->
     Session.set('disease', @name)
-    Session.set('symptoms', @symptoms)
+    Session.set('features', @features)

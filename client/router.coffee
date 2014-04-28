@@ -8,10 +8,11 @@ Router.configure
 Router.map () ->
 
   @route("dash",
+    path: '/dash/:_id'
     waitOn: () ->
       Meteor.subscribe('results')
     data: () ->
-      Results.findOne()
+      Results.findOne(@params._id)
   )
 
   @route("submit")
@@ -19,5 +20,5 @@ Router.map () ->
   @route("home",
     path: "/"
     onAfterAction: () ->
-      Router.go "dash"
+      Router.go "submit"
   )
