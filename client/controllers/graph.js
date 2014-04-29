@@ -1,34 +1,86 @@
-Template.graph.rendered = function () {
-    var data = {
-        nodes: [
-            {value: 10, group: 'a', name: 'node 1'},
-            {value: 20, group: 'a', name: 'node 2'},
-            {value: 30, group: 'b', name: 'node 3'},
-            {value: 40, group: 'b', name: 'node 4'},
-            {value: 50, group: 'c', name: 'node 5'},
-            {value: 60, group: 'c', name: 'node 6'},
-            {value: 70, group: 'd', name: 'node 7'}
-        ],
-        links: [
-            {s: 0, t: 1},
-            {s: 1, t: 2},
-            {s: 2, t: 3},
-            {s: 3, t: 4},
-            {s: 4, t: 5},
-            {s: 5, t: 6},
-            {s: 6, t: 0}
-        ]
+function shuffle(a) {
+
+    function swap(i, j) {
+        var tmp = a[i];
+        a[i] = a[j];
+        a[j] = tmp;
     };
 
-    $("#graph").nodelink({
-        data: data,
-        nodeCharge: {value: -400},
-        linkSource: {field: "s"},
-        linkTarget: {field: "t"},
-        nodeSize: {field: "value"},
-        nodeColor: {field: "group"},
-        nodeLabel: {field: "name"},
-        width: 200,
-        height: 200
+    // return a randomly shuffled copy of 'a'
+    var b = a.slice();
+    b.forEach(function (d, i) {
+        var j = Math.floor(Math.random() * b.length);
+        swap(i, j);
+    });
+    return b;
+};
+
+Template.graph.rendered = function () {
+    var node = $('#graph');
+    var spacemap,
+        constraints = [],
+        dataStack = [],
+        types = [
+            "link",
+            "x",
+            "y",
+            "ordinalx",
+            "ordinaly",
+            "xy",
+            "map"
+        ],
+        currentData,
+        spacemapInitialized = false,
+        maxDataSize = 100;
+
+    function updateData(data) {
+        var fieldMap = {},
+            fields = [];
+
+        data = shuffle(data).slice(0, maxDataSize);
+        currentData = data;
+
+        // Discover fields
+        data.forEach(function (d, i) {
+            var field, subfield;
+            for (field in d) {
+                if (d.hasOwnProperty(field) && !fieldMap[field]) {
+                    if (tangelo.isObject(d[field])) {
+                        for (subfield in d[field]) {
+                            if (d[field].hasOwnProperty(subfield) && !fieldMap[field + "." + subfield]) {
+                                fieldMap[field + "." + subfield] = true;
+                                fields.push(field + "." + subfield);
+                            }
+                        }
+                    }
+                    fieldMap[field] = true;
+                    fields.push(field);
+                }
+            }
+        });
+
+        spacemap = $(node).spacemap({
+            data: data,
+            constraints: constraints
+        }).data("spacemap");
+
+        if (!spacemapInitialized) {
+            spacemapInitialized = true;
+        }
+    }
+
+    $(node).on('datachanged', function (evt, arg) {
+        updateData(arg.data.filter(function (d) {
+            return d.properties.score >= arg.threshold;
+        }));
+    });
+
+
+    d3.json('../data/hmData.json', function (err, newData) {
+        // Add new data to the data array
+        if (newData.features.length === 0) {
+            return;
+        }
+        updateData(newData.features);
     });
 };
