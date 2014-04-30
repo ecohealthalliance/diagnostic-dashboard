@@ -20,15 +20,6 @@ Template.graph.rendered = function () {
     var spacemap,
         constraints = [],
         dataStack = [],
-        types = [
-            "link",
-            "x",
-            "y",
-            "ordinalx",
-            "ordinaly",
-            "xy",
-            "map"
-        ],
         currentData,
         spacemapInitialized = false,
         maxDataSize = 100;

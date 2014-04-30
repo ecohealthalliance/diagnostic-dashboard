@@ -12,7 +12,6 @@ Package.on_use(function (api) {
   api.add_files('autobahn.min.js', 'client');
   api.add_files('vtkweb-all.min.js', 'client');
   api.add_files('tangelo.js', 'client');
-  api.add_files('google-maps-api.js', 'client');
   api.add_files('spacemap.js', 'client');
   api.add_files('post.js', 'client');
 
