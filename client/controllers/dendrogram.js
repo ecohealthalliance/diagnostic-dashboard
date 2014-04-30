@@ -1,144 +1,144 @@
-var getChildren = function (node) {
-    return [].concat(node.children && node.children[0] ? getChildren(node.children[0]) : [],
-                     tangelo.isArray(node.symptom.name) ? node.symptom.name : [],
-                     node.children && node.children[1] ? getChildren(node.children[1]) : []);
-};
+/*jslint browser: true, unparam: true*/
+/*global d3, $, Template*/
+(function () {
+    var root = {},
+        target = {
+            symptoms: ["myalgia", "diarrhea", "headache", "skin rash", "eosinophilia"],
+            unknown: []
+        };
 
-Template.dendrogram.rendered = function () {
+    function load(callBack) {
+        d3.json('../data/decision_tree.json', function (err, data) {
+            root = data;
+            callBack();
+        });
+    }
 
-    var node = $('#dendrogram');
-    d3.json("../data/decision_tree.json", function (err, data) {
-        var symptoms,
-            qargs;
+    var node = '#dendrogram';
 
-        if (err) {
-            console.log(err);
-            return;
+    function processTree (root) {
+        root.symptom = root.symptom.name;
+        root.collapse = true;
+        if (Array.isArray(root.symptom)) {
+            root.symptom = root.symptom.join(', ');
         }
-
-        function defaultColor(node) {
-            node.color = "lightsteelblue";
-            $.each(node.children, function (i, v) {
-                defaultColor(v);
-            });
+        root.symptom = root.symptom.toLowerCase();
+        if (root.children && root.children.length) {
+            root.disease = false;
+            root._children = root.children.slice();
+            processTree(root.children[0]);
+            processTree(root.children[1]);
+        } else {
+            root._children = [];
+            root.disease = root.symptom;
+            root.symptom = null;
         }
-        defaultColor(data);
+    }
 
-        function followPath(node, symptoms) {
-            var way;
+    function calculate (root, distance) {
+        distance = distance || 0;
+        root.distance = distance;
+        root.collapse = root.collapse && !!distance;
 
-            if (Object.keys(symptoms).length === 0) {
-                return;
-            }
+        if (root._children.length) {
 
-            if (!node.children || node.children.length === 0) {
-                node.color = "red";
+            if (target.symptoms.indexOf(root.symptom) >= 0) {
+                calculate(root._children[0], distance + 1);
+                calculate(root._children[1], distance);
+            } else if (target.unknown.indexOf(root.symptom) >= 0) {
+                calculate(root._children[0], distance);
+                calculate(root._children[1], distance);
             } else {
-                node.color = "pink";
-
-                way = symptoms.hasOwnProperty(node.symptom.name.toLowerCase()) ? 0 : 1;
-                followPath(node.children[way], symptoms);
+                calculate(root._children[0], distance);
+                calculate(root._children[1], distance + 1);
             }
         }
+    }
 
-        function restoreDefaultColor(node) {
-            if (node.collapsed) {
-                node.color = "blue";
-            } else {
-                node.color = "lightsteelblue";
-            }
-
-            if (node.children) {
-                $.each(node.children, function (i, v) {
-                    restoreDefaultColor(v);
-                });
-            }
+    function lineWidth (d) {
+        if (!d.target.distance) {
+            return 1.5;
         }
+        return 0.5;
+    }
 
-        qargs = tangelo.queryArguments();
-        if (qargs.hasOwnProperty("symptoms")) {
-            symptoms = {};
-            $.each(qargs.symptoms.split(",").map(function (s) {
-                return s.toLowerCase();
-            }), function (_, v) {
-                symptoms[v] = true;
-            });
-
-            followPath(data, symptoms);
-        }
-
-        $(node).dendrogramLocal({
-            data: data,
-            orientation: "vertical",
-            id: {field: "id"},
-            textsize: 14,
-            nodesize: 5,
-            nodeColor: {field: "color"},
-            hoverNodeColor: {value: "firebrick"},
-            collapsedNodeColor: {value: "blue"},
-            onNodeCreate: function (d) {
-                var left,
-                    right,
-                    html;
-
-                if (!tangelo.isArray(d.symptom.name)) {
-                    left = d.children && d.children[0] ? getChildren(d.children[0]) : [];
-                    right = d.children && d.children[1] ? getChildren(d.children[1]) : [];
-
-                    html = "<p><b>Symptom: </b>" + d.symptom.name + "</p>";
-                    html += "<p><b>Disease count: </b>" + (left.length + right.length) + "</p>";
-                    html += "<p><b>Present: </b>" + left.join(", ") + "</p>";
-                    html += "<p><b>Absent: </b>" + right.join(", ") + "</p>";
-                } else {
-                    html = "<p><b>Diseases: </b>" + d.symptom.name.join(", ") + "</p>";
+    function nodeColor(d) {
+        if (!d.distance) {
+            if (!d.disease) {
+                if (target.symptoms.indexOf(d.symptom) >= 0) {
+                    return 'red';
                 }
+                if (target.unknown.indexOf(d.symptom) >= 0) {
+                    return 'yellow';
+                }
+                return 'green';
+            }
+            return 'black';
+        }
+        if (!d.disease) {
+            return 'blue';
+        }
+        return 'white';
+    }
 
-                $(this).popover({
-                    animation: true,
-                    html: true,
-                    placement: $(node).dendrogramLocal("option", "orientation") === "horizontal" ? "auto right" : "auto bottom",
-                    trigger: "manual",
-                    content: html,
-                    container: "body"
-                });
-
-                d3.select(this)
-                    .on("click.popover", function (d) {
-                        if (d3.event.shiftKey) {
-                            $(this).popover("hide");
-                        } else {
-                            $(this).popover("toggle");
-                        }
-                    });
+    function draw() {
+        calculate(root);
+        $(node).dendrogram({
+            margin: {
+                top: 25,
+                bottom: 50,
+                left: 50,
+                right: 50
             },
-            onNodeDestroy: function (d) {
-                $(this).popover("destroy");
+            data: root,
+            expanded: function (d) {
+                return !d.distance || !d.collapse;
+            },
+            nodeColor: nodeColor,
+            lineWidth: lineWidth,
+            on: {
+                click: function (d) {
+                    var i, j;
+                    if (!d.distance) {
+                        i = target.symptoms.indexOf(d.symptom);
+                        j = target.unknown.indexOf(d.symptom);
+                        if (i >= 0) {
+                            target.symptoms.splice(i, 1);
+                            target.unknown.push(d.symptom);
+                        } else if (j >= 0) {
+                            target.unknown.splice(j, 1);
+                        } else {
+                            target.symptoms.push(d.symptom);
+                        }
+                        calculate(root);
+                        return false;
+                    }
+                    return true;
+                }
+            },
+            label: function (d) {
+                return d.symptom || d.disease;
+            },
+            labelPosition: function (d) {
+                return d.disease ? 'below' : 'above';
             }
         });
+    }
 
-        $(node).dendrogramLocal("on", "click.collapse", function (d, i, elt) {
-            if (d3.event.shiftKey) {
-                this.action("collapse").call(elt, d, i);
-            }
-        });
+    function init() {
+        processTree(root);
+        draw();
+    }
 
-        $(node).on("datachanged", function (e) {
-            var symptomsLocal = [];
-            _.each($(arguments).toArray().slice(1), function (symptom) {
-                symptomsLocal[symptom] = true;
-            });
-            restoreDefaultColor($(node).dendrogramLocal("option", "data"));
-            followPath($(node).dendrogramLocal("option", "data"), symptomsLocal);
-            $(node).dendrogramLocal("refresh");
-        }).resize(function () {
-          $(node).dendrogramLocal("refresh");
-        });
+    Template.dendrogram.rendered = function () {
+        if (!this.initialized) {
+            load(init);
+        } else {
+            draw();
+        }
+    };
 
-        $(node).trigger('datachanged', Session.get('features'));
+    $(node).parent().resize(function () {
+        $(node).dendrogram('resize');
     });
-};
-
-Deps.autorun(function () {
-   var symptoms = Session.get('features');
-   $('#dendrogram').trigger('datachanged', symptoms);
-});
+}());
