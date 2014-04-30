@@ -8,13 +8,19 @@
         "path": "packages/tangelo"
       },
       "bootstrap-3": {},
-      "reactive-table": {}
+      "reactive-table": {},
+      "d3": {}
     },
     "packages": {
       "iron-router": {
         "git": "https://github.com/EventedMind/iron-router.git",
         "tag": "v0.7.1",
         "commit": "d1ffb3f06ea4c112132b030f2eb1a70b81675ecb"
+      },
+      "jade": {
+        "git": "https://github.com/mquandalle/meteor-jade.git",
+        "tag": "v0.2.1",
+        "commit": "969fc3dd0adbb15304e3e13c3e27260398d89503"
       },
       "tangelo": {
         "path": "packages/tangelo"
@@ -26,8 +32,13 @@
       },
       "reactive-table": {
         "git": "https://github.com/ecohealthalliance/reactive-table.git",
-        "tag": "v0.3.4",
-        "commit": "13921f46f63e63e608d763c6ad90e6109e4902c2"
+        "tag": "v0.3.6",
+        "commit": "c3d37f5ce5129133b8b88985f7f9c4a56548a1ed"
+      },
+      "d3": {
+        "git": "https://github.com/sergeyt/meteor-d3.git",
+        "tag": "v3.4.1",
+        "commit": "bdfee250a332b516a158ed0913ec9363850afe0d"
       },
       "blaze-layout": {
         "git": "https://github.com/EventedMind/blaze-layout.git",

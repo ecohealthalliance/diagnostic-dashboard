@@ -1,6 +1,6 @@
 /*jslint browser: true, nomen: true */
 
-(function (tangelo, $, d3, google) {
+(function (tangelo, $, d3) {
     "use strict";
 
     if (!($ && $.widget && d3)) {
@@ -25,43 +25,10 @@
 
         _create: function () {
             var options,
-                mapConfig,
-                mapOptions,
                 that = this;
 
             this.force = d3.layout.force();
 
-            mapConfig = {
-                initialize: function (svg) {
-                    that.svg = d3.select(svg);
-                    that._update();
-                },
-
-                draw: function (d) {
-                    this.shift(that.svg.node(), -d.translation.x, -d.translation.y);
-                    that.nodes.forEach(function(node) {
-                        var loc, googleLoc, pixelLoc;
-                        if (node.constraint && node.constraint.type === "map") {
-                            loc = node.constraint.accessor(node.data);
-                            googleLoc = new google.maps.LatLng(loc.lat, loc.lng);
-                            pixelLoc = d.projection.fromLatLngToContainerPixel(googleLoc);
-                            node.mapX = pixelLoc.x;
-                            node.mapY = pixelLoc.y;
-                        }
-                    });
-                    that.force.start();
-                    that._tick();
-                }
-            };
-
-            // Some options for initializing the google map.
-            mapOptions = {
-                zoom: 2,
-                center: new google.maps.LatLng(15, 0),
-                mapTypeId: google.maps.MapTypeId.ROADMAP
-            };
-            // this.map = new tangelo.GoogleMapSVG(this.element.get(0), mapOptions, mapConfig);
-            // this.map.on(["draw", "drag", "zoom_changed"], mapConfig.draw);
             this.svg = d3.select(this.element.get(0)).append("svg").style("width", "100%").style("height", "100%");
             this.linkLayer = this.svg.append("g");
             this.nodeLayer = this.svg.append("g");
@@ -90,8 +57,8 @@
                 nodeLabelEnter,
                 oldNodes = this.nodes,
                 sortedNodes,
-                i,
-                fontSize;
+                fontSize,
+                i;
 
             if (!this.svg) {
                 return;
@@ -99,7 +66,6 @@
 
             this.nodes = [];
             this.links = [];
-            this.mapOpacity = 0;
 
             this.options.data.forEach(function (d) {
                 var node = {data: d, degree: 0};
@@ -113,68 +79,24 @@
                 constraint.nodeMap = {};
                 constraint.index = i;
 
-                if (constraint.type === "x") {
-                    scale = d3.scale.linear()
-                        .domain(d3.extent(that.options.data, constraint.accessor))
-                        .range([0, that.options.width]);
-                    constraint.constrain = function (d) {
-                        d.x = scale(constraint.accessor(d.data));
-                    };
-                } else if (constraint.type === "y") {
-                    scale = d3.scale.linear()
-                        .domain(d3.extent(that.options.data, constraint.accessor))
-                        .range([0, that.options.height]);
-                    constraint.constrain = function (d) {
-                        d.y = scale(constraint.accessor(d.data));
-                    };
-                } else if (constraint.type === "ordinalx") {
-                    scale = d3.scale.ordinal()
-                        .domain(that.options.data.map(constraint.accessor))
-                        .rangePoints([0, that.options.width], 1);
-                    constraint.constrain = function (d) {
-                        d.x = scale(constraint.accessor(d.data));
-                    };
-                } else if (constraint.type === "ordinaly") {
-                    scale = d3.scale.ordinal()
-                        .domain(that.options.data.map(constraint.accessor))
-                        .rangePoints([0, that.options.height], 1);
-                    constraint.constrain = function (d) {
-                        d.y = scale(constraint.accessor(d.data));
-                    };
-                } else if (constraint.type === "xy") {
-                    xScale = d3.scale.linear()
-                        .domain(d3.extent(that.options.data, function (d) {
-                            return constraint.accessor(d).x;
-                        }))
-                        .range([0, that.options.width]);
-                    yScale = d3.scale.linear()
-                        .domain(d3.extent(that.options.data, function (d) {
-                            return constraint.accessor(d).y;
-                        }))
-                        .range([0, that.options.height]);
-                    constraint.constrain = function (d) {
-                        d.x = xScale(constraint.accessor(d.data).x);
-                        d.y = yScale(constraint.accessor(d.data).y);
-                    };
-                } else if (constraint.type === "map") {
-                    that.mapOpacity = Math.max(that.mapOpacity, constraint.strength);
-                    constraint.constrain = function (d) {
-                        d.x = d.mapX;
-                        d.y = d.mapY;
-                    };
-                } else if (constraint.type === "link") {
-                    constraint.constrain = function () {};
+                if (constraint.type === "link") {
+                    constraint.constrain = $.noop;
+                } else {
+                    tangelo.fatalError(
+                        '$.spacemap()',
+                        'Invalid constraint type "' + constraint.type + '"'
+                    );
                 }
                 dataNodes.forEach(function (node) {
                     var values = constraint.accessor(node.data),
-                        i,
+                        j,
                         value,
                         constraintNode;
                     if (!tangelo.isArray(values)) {
                         values = [values];
                     }
-                    for (i = 0; i < values.length; i += 1) {
-                        value = values[i];
+                    for (j = 0; j < values.length; j += 1) {
+                        value = values[j];
                         if (!tangelo.isString(value)) {
                             value = JSON.stringify(value);
                         }
@@ -297,10 +219,12 @@
                 .style("stroke", "black")
                 .style("fill", function (d) { return colorScale(d.constraint ? d.constraint.index : -1); });
 
-            this.force.on("tick", function () { that._tick.call(that); });
+            this.force.on("tick", function () {
+                var tick = that._tick;
+                tick.call(that);
+            });
 
             this.force.resume();
-            // this.map.trigger("draw");
         },
 
         _tick: function() {
@@ -323,4 +247,4 @@
             that.nodeLabel.attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")"; });
         }
     });
-}(window.tangelo, window.jQuery, window.d3, window.google));
+}(window.tangelo, window.jQuery, window.d3));

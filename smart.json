@@ -6,6 +6,7 @@
       "path": "packages/tangelo"
     },
     "bootstrap-3": {},
-    "reactive-table": {}
+    "reactive-table": {},
+    "d3": {}
   }
 }
