@@ -1,11 +1,7 @@
 /*jslint browser: true, unparam: true*/
 /*global d3, $, Template*/
 (function () {
-    var root = {},
-        target = {
-            symptoms: ["myalgia", "diarrhea", "headache", "skin rash", "eosinophilia"],
-            unknown: []
-        };
+    var root = {};
 
     function load(callBack) {
         d3.json('../data/decision_tree.json', function (err, data) {
@@ -35,34 +31,34 @@
         }
     }
 
-    function calculate (root, distance) {
+    function calculate (root, target, distance) {
         distance = distance || 0;
         root.distance = distance;
         root.collapse = root.collapse && !!distance;
 
-        if (root._children.length) {
+        if (root._children && root._children.length) {
 
             if (target.symptoms.indexOf(root.symptom) >= 0) {
-                calculate(root._children[0], distance + 1);
-                calculate(root._children[1], distance);
+                calculate(root._children[0], target, distance + 1);
+                calculate(root._children[1], target, distance);
             } else if (target.unknown.indexOf(root.symptom) >= 0) {
-                calculate(root._children[0], distance);
-                calculate(root._children[1], distance);
+                calculate(root._children[0], target, distance);
+                calculate(root._children[1], target, distance);
             } else {
-                calculate(root._children[0], distance);
-                calculate(root._children[1], distance + 1);
+                calculate(root._children[0], target, distance);
+                calculate(root._children[1], target, distance + 1);
             }
         }
     }
 
-    function lineWidth (d) {
+    function lineWidth (d, target) {
         if (!d.target.distance) {
             return 1.5;
         }
         return 0.5;
     }
 
-    function nodeColor(d) {
+    function nodeColor(d, target) {
         if (!d.distance) {
             if (!d.disease) {
                 if (target.symptoms.indexOf(d.symptom) >= 0) {
@@ -81,8 +77,15 @@
         return 'white';
     }
 
-    function draw() {
-        calculate(root);
+    function draw(target) {
+        calculate(root, target);
+
+        var lineWidthForTarget = function (d) {
+            return lineWidth(d, target);
+        };
+        var nodeColorForTarget = function (d) {
+            return nodeColor(d, target);
+        };
         $(node).dendrogram({
             margin: {
                 top: 25,
@@ -94,8 +97,8 @@
             expanded: function (d) {
                 return !d.distance || !d.collapse;
             },
-            nodeColor: nodeColor,
-            lineWidth: lineWidth,
+            nodeColor: nodeColorForTarget,
+            lineWidth: lineWidthForTarget,
             on: {
                 click: function (d) {
                     var i, j;
@@ -110,7 +113,7 @@
                         } else {
                             target.symptoms.push(d.symptom);
                         }
-                        calculate(root);
+                        calculate(root, target);
                         return false;
                     }
                     return true;
@@ -127,7 +130,11 @@
 
     function init() {
         processTree(root);
-        draw();
+        var target = {
+            symptoms: Session.get('features') || [],
+            unknown: []
+        };
+        draw(target);
         $(node).resize(function () {
             $(node).dendrogram('resize');
         });
@@ -137,8 +144,20 @@
         if (!this.initialized) {
             load(init);
         } else {
-            draw();
+            var target = {
+                symptoms: Session.get('features') || [],
+                unknown: []
+            };
+            draw(target);
         }
     };
+
+    Deps.autorun(function () {
+        var target = {
+            symptoms: Session.get('features') || [],
+            unknown: []
+        };
+        draw(target);
+    });
 
 }());
