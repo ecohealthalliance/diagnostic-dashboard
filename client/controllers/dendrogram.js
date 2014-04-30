@@ -128,6 +128,9 @@
     function init() {
         processTree(root);
         draw();
+        $(node).resize(function () {
+            $(node).dendrogram('resize');
+        });
     }
 
     Template.dendrogram.rendered = function () {
@@ -138,7 +141,4 @@
         }
     };
 
-    $(node).parent().resize(function () {
-        $(node).dendrogram('resize');
-    });
 }());
