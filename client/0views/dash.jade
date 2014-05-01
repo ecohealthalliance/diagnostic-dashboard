@@ -6,9 +6,9 @@ template(name="dash")
         each features
           .label(style="background-color:#{color}")
             if selected
-              | &#10004;&nbsp;#{this}
+              | &#10004;&nbsp;#{value}
             else
-              | #{this}
+              | #{value}
     .pane-container
       .pane
         +graph

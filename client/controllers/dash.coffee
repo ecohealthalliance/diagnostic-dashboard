@@ -12,22 +12,20 @@ Template.dash.rendered = () ->
   setHeights()
   $(window).resize(setHeights)
 
-Template.dash.features = () ->
-  features = []
-  _.each @diseases, (disease) ->
-    features = features.concat disease.features
-  _.unique features
-
 Template.dash.color = () ->
-  color _.values(this).join('')
+  color @value
 
 Template.dash.selected = () ->
   _.values(this).join('') in (Session.get('features') or [])
 
 Template.dash.tableSettings = () ->
   fields: [
-
-    { key: 'rank', label: 'Rank' },
+    {
+      key: 'probability'
+      label: 'Probability'
+      fn: (prob) ->
+        Math.round(prob * 1000) / 1000
+    },
     {
       key: 'name'
       label: ' '
@@ -37,12 +35,12 @@ Template.dash.tableSettings = () ->
     },
     { key: 'name', label: 'Disease' },
     {
-      key: 'features'
+      key: 'keywords'
       label: 'Characteristics'
       fn: (features) ->
         html = ""
         _.each features, (feature) ->
-          featureColor = color feature
+          featureColor = color feature.name
           html += "<span style='background-color:#{featureColor}'>&nbsp;</span>&ensp;"
         Spacebars.SafeString html
     }
