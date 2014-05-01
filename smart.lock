@@ -4,6 +4,9 @@
     "basePackages": {
       "iron-router": {},
       "jade": {},
+      "geojs": {
+        "path": "packages/geojs"
+      },
       "tangelo": {
         "path": "packages/tangelo"
       },
@@ -19,8 +22,11 @@
       },
       "jade": {
         "git": "https://github.com/mquandalle/meteor-jade.git",
-        "tag": "v0.2.1",
-        "commit": "969fc3dd0adbb15304e3e13c3e27260398d89503"
+        "tag": "v0.2.2",
+        "commit": "0391abab7d592b17ff74d9b9beaa721051970729"
+      },
+      "geojs": {
+        "path": "packages/geojs"
       },
       "tangelo": {
         "path": "packages/tangelo"

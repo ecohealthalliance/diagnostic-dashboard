@@ -17,6 +17,7 @@ Template.dash.rendered = () ->
       data = obj.features
       dataHandler.setTargetIncident(data[0])
       dataHandler.setData(data)
+      $('.pane').children().trigger('resize')
     )
     this.initialized = true
 
