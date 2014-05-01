@@ -64,27 +64,5 @@
             });
             this.initialized = true;
         }
-        d3.json('../data/hmData.json', function (err, obj) {
-            var d = obj.features;
-            if (d.length) {
-                var start, end;
-                start = new Date(d[0].properties.date);
-                end = new Date(d[0].properties.date);
-                d.forEach(function (e) {
-                    e.properties.date = new Date(e.properties.date);
-                    if (e.properties.date < start) {
-                        start = e.properties.date;
-                    }
-                    if (e.properties.date > end) {
-                        end = e.properties.date;
-                    }
-                });
-                $(node).trigger('datachanged', {
-                    data: d,
-                    dataStart: start,
-                    dataEnd: end
-                });
-            }
-        });
     };
 }(window.$, window.d3));

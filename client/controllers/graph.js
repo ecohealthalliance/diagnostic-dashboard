@@ -67,11 +67,4 @@ Template.graph.rendered = function () {
     });
 
 
-    d3.json('../data/hmData.json', function (err, newData) {
-        // Add new data to the data array
-        if (newData.features.length === 0) {
-            return;
-        }
-        updateData(newData.features);
-    });
 };
