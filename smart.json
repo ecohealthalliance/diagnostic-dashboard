@@ -2,6 +2,9 @@
   "packages": {
     "iron-router": {},
     "jade": {},
+    "geojs": {
+      "path": "packages/geojs"
+    },
     "tangelo": {
       "path": "packages/tangelo"
     },

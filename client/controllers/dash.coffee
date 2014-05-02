@@ -12,6 +12,15 @@ Template.dash.rendered = () ->
   setHeights()
   $(window).resize(setHeights)
 
+  if !this.initialized
+    d3.json('../data/hmData.json', (err, obj) ->
+      data = obj.features
+      dataHandler.setTargetIncident(data[0])
+      dataHandler.setData(data)
+      $('.pane').children().trigger('resize')
+    )
+    this.initialized = true
+
 Template.dash.color = () ->
   color @value
 
