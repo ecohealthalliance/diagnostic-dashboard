@@ -1,8 +1,19 @@
 setHeights = () ->
+  paneCount = $('.pane').length
   height = $(window).height() - $('.header').height() - 50
-  $('.pane').height(height / 2)
-  $('.minimized').height(height / 4)
+  columns = Math.round(Math.sqrt(paneCount))
+  rows = Math.ceil(paneCount / columns)
+  $('.pane').height(height / rows)
+  $('.pane').width((Math.floor(100 / columns) - 2) + '%')
+
+  minPaneCount = paneCount - 1
+  minPaneCols = Math.round(1.5 * Math.sqrt(minPaneCount))
+  minPaneRows = Math.ceil(minPaneCount / minPaneCols)
+  $('.minimized').height(height / (4 * minPaneRows))
+  $('.minimized').width((Math.floor(100 / minPaneCols) - 2) + '%')
   $('.maximized').height(height * 3 / 4)
+  $('.maximized').width('100%')
+
   $('.diagnosis').height(height)
 
 color = d3.scale.category20()
