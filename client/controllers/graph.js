@@ -64,6 +64,9 @@ Template.graph.rendered = function () {
         updateData(arg.data.filter(function (d) {
             return d.properties.score >= arg.threshold;
         }));
+    }).
+    on('resizeApp', function (evt, obj) {
+        $(node).spacemap(obj);
     });
 
 

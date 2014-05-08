@@ -1,34 +1,67 @@
+
+maximized = null
+
 setHeights = () ->
   paneCount = $('.pane').length
-  height = $(window).height() - $('.header').height() - 50
   columns = Math.round(Math.sqrt(paneCount))
   rows = Math.ceil(paneCount / columns)
-  $('.pane').height(height / rows)
-  $('.pane').width((Math.floor(100 / columns) - 2) + '%')
 
   minPaneCount = paneCount - 1
   minPaneCols = Math.round(1.5 * Math.sqrt(minPaneCount))
   minPaneRows = Math.ceil(minPaneCount / minPaneCols)
-  $('.minimized').height(height / (4 * minPaneRows))
-  $('.minimized').width((Math.floor(100 / minPaneCols) - 2) + '%')
-  $('.maximized').height(height * 3 / 4)
-  $('.maximized').width('100%')
 
-  $('.diagnosis').height(height)
+  diagnosisWidth = Math.floor($(window).width() * 0.25)
 
+  fullHeight = $(window).height() - $('.header').height() - 50
+  fullWidth = $(window).width() - diagnosisWidth
+
+  defaultHeight = Math.floor(fullHeight / rows)
+  defaultWidth = Math.floor(fullWidth / columns)
+
+  maximizedHeight = Math.floor(fullHeight * 0.75)
+  maximizedWidth = fullWidth
+
+  minimizedHeight = Math.floor((fullHeight * 0.25) / minPaneRows)
+  minimizedWidth = Math.floor(fullWidth / minPaneCols)
+
+  $('.pane').height(defaultHeight)
+  $('.pane').width(defaultWidth)
+
+  $('.minimized').height(minimizedHeight)
+  $('.minimized').width(minimizedWidth)
+  $('.maximized').height(maximizedHeight)
+  $('.maximized').width(maximizedWidth)
+
+  $('.diagnosis').height(fullHeight)
+  $('.diagnosis').width(diagnosisWidth)
+
+  $('.pane').each (i, node) ->
+    n = $(node)
+    if not maximized
+      width = defaultWidth
+      height = defaultHeight
+    else if maximized == node
+      width = maximizedWidth
+      height = maximizedHeight
+    else
+      width = minimizedWidth
+      height = minimizedHeight
+    n.children().trigger('resizeApp', {
+      width: width
+      height: height
+    })
 color = d3.scale.category20()
 
 
 Template.dash.rendered = () ->
-  setHeights()
-  $(window).resize(setHeights)
 
   if !this.initialized
     d3.json('../data/hmData.json', (err, obj) ->
+      setHeights()
       data = obj.features
       dataHandler.setTargetIncident(data[0])
       dataHandler.setData(data)
-      $('.pane').children().trigger('resize')
+      $(window).resize(setHeights)
     )
     this.initialized = true
 
@@ -83,13 +116,13 @@ Template.dash.tableSettings = () ->
 
 Template.dash.events
   "click .pane:not(.maximized)": (event) ->
+    maximized = event.currentTarget
     selectedPane = $(event.currentTarget)
     selectedPane.hide()
     $('.pane').removeClass('maximized').addClass('minimized')
     selectedPane.removeClass('minimized').addClass('maximized')
     setHeights()
     selectedPane.fadeIn()
-    $('.pane').children().trigger('resize')
 
   "click .diagnosis .reactive-table tbody tr" : (event) ->
     Session.set('disease', @name)

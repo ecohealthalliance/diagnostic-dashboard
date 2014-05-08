@@ -53,13 +53,15 @@
                     transition: 250,
                     padding: padding
                 });
-            }).on('resize.div', function () {
+            }).on('resizeApp', function (evt, obj) {
                 $(node).timeline({
                     data: data,
                     x: { field: 'time' },
                     y: { field: 'value' },
                     transition: 0,
-                    padding: padding
+                    padding: padding,
+                    width: obj.width,
+                    height: obj.height
                 });
             });
             this.initialized = true;

@@ -36,11 +36,10 @@
                 .on('datachanged', function (evt, arg){
                     target = arg.target;
                     threshold = arg.threshold;
-                    $(node).correlationPlot('data', arg.data);
-                    $(node).trigger('draw');
+                    $(node).correlationPlot({'data': arg.data});
             })
-                .resize(function () {
-                $(node).trigger('draw');
+                .on('resizeApp', function (evt, obj) {
+                $(node).correlationPlot(obj);
             });
             this.initialized = true;
         }

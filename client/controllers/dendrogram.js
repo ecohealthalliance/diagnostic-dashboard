@@ -1,7 +1,9 @@
 /*jslint browser: true, unparam: true*/
 /*global d3, $, Template*/
 (function () {
-    var root = {};
+    var root = {},
+        duration = 500;
+
 
     function load(callBack) {
         d3.json('../data/decision_tree.json', function (err, data) {
@@ -135,8 +137,11 @@
             unknown: []
         };
         draw(target);
-        $(node).resize(function () {
-            $(node).dendrogram('resize');
+        $(node).on('resizeApp', function (evt, obj) {
+            $(node)
+              .dendrogram({'duration': 0})
+              .dendrogram(obj)
+              .dendrogram({'duration': duration});
         });
     }
 

@@ -1683,7 +1683,7 @@ window.tangelo.vtkweb = {};
             if (!(that.x && that.y)) {
                 throw "x and y accessors are not set";
             }
-            var padding = options.padding || 7.5, width = (that.width || $(node).width()) - 2 * padding, height = (that.height || $(node).height()) - 2 * padding, xAx = d3.scale.linear().range([ 0, width ]).domain([ 0, 1 ]), yAx = d3.scale.linear().range([ height, 0 ]).domain([ 0, 1 ]), opacity = options.opacity || 1, duration = options.duration || 0, selection;
+            var padding = options.padding || 7.5, width = Math.max((that.width || $(node).width()) - 2 * padding, 0), height = Math.max((that.height || $(node).height()) - 2 * padding, 0), xAx = d3.scale.linear().range([ 0, width ]).domain([ 0, 1 ]), yAx = d3.scale.linear().range([ height, 0 ]).domain([ 0, 1 ]), opacity = options.opacity || 1, duration = options.duration || 0, selection;
             svg.attr("transform", "translate(" + padding + "," + padding + ")");
             rect.attr("width", width).attr("height", height);
             selection = svg.selectAll(".point").data(that.data, that.idx);
@@ -1726,7 +1726,7 @@ window.tangelo.vtkweb = {};
                 return;
             }
             var full = options.full, padding = options.padding || 10, offset = 15, oWidth = that.width || $(node).width(), oHeight = that.height || $(node).height(), rWidth = Math.min(oWidth, oHeight), width = rWidth - 2 * padding - offset, height = rWidth - 2 * padding - offset, eWidth = (oWidth - rWidth) / 2, eHeight = (oHeight - rWidth) / 2, nvars = that.variables.length, nblocks = nvars - (full ? 0 : 1), sWidth = width / nblocks, sHeight = height / nblocks, plotSelection, table = [], xlabels, ylabels;
-            svgC.attr("width", oWidth + 2 * padding).attr("height", oHeight + 2 * padding);
+            svgC.attr("width", oWidth).attr("height", oHeight);
             svg.attr("transform", "translate(" + (padding + eWidth + offset) + "," + (padding + eHeight + offset) + ")");
             that.variables.forEach(function(d, i) {
                 that.variables.forEach(function(e, j) {
@@ -1801,7 +1801,9 @@ window.tangelo.vtkweb = {};
             color: tangelo.accessor({
                 value: "steelblue"
             }),
-            full: false
+            full: false,
+            width: null,
+            height: null
         },
         _create: function() {
             this.obj = new CorrelationPlotter($.extend({
@@ -1811,6 +1813,7 @@ window.tangelo.vtkweb = {};
         },
         _update: function() {
             $.extend(this.obj, this.options);
+            this.obj.draw();
         },
         variables: function(v) {
             this.obj.variables = v;
@@ -1842,7 +1845,9 @@ window.tangelo.vtkweb = {};
                 field: "value"
             }),
             padding: 30,
-            transition: 0
+            transition: 0,
+            width: null,
+            height: null
         },
         _create: function() {
             this.svg = d3.select(this.element.get(0)).append("svg").attr("class", "timeline");
@@ -1853,7 +1858,7 @@ window.tangelo.vtkweb = {};
             this.path = this.plot.append("path").attr("class", "path");
         },
         _update: function() {
-            var axisPadding = 15, padding = this.options.padding, xAcc = tangelo.accessor(this.options.x), yAcc = tangelo.accessor(this.options.y), width = this.element.width() - 2 * padding - axisPadding, height = this.element.height() - 2 * padding - axisPadding, data = this.options.data, x = d3.time.scale().domain(d3.extent(data, xAcc)).range([ 0, width ]).nice(), y = d3.scale.linear().domain(d3.extent(data, yAcc)).range([ height, 0 ]).nice(), xaxis = d3.svg.axis().scale(x).orient("bottom"), yaxis = d3.svg.axis().scale(y).orient("left"), line = d3.svg.line().x(function(d) {
+            var axisPadding = 15, padding = this.options.padding, xAcc = tangelo.accessor(this.options.x), yAcc = tangelo.accessor(this.options.y), width = (this.options.width || this.element.width()) - 2 * padding - axisPadding, height = (this.options.height || this.element.height()) - 2 * padding - axisPadding, data = this.options.data, x = d3.time.scale().domain(d3.extent(data, xAcc)).range([ 0, width ]).nice(), y = d3.scale.linear().domain(d3.extent(data, yAcc)).range([ height, 0 ]).nice(), xaxis = d3.svg.axis().scale(x).orient("bottom"), yaxis = d3.svg.axis().scale(y).orient("left"), line = d3.svg.line().x(function(d) {
                 return x(xAcc(d));
             }).y(function(d) {
                 return y(yAcc(d));
@@ -1874,15 +1879,15 @@ window.tangelo.vtkweb = {};
     }
     tangelo.widget("tangelo.geojsMap", {
         options: {
-            zoom: tangelo.accessor({
-                value: 3
-            })
+            zoom: 3,
+            width: null,
+            heigth: null
         },
         latlng2display: function(pt) {
-            return this.map.gcsToDisplay(pt);
+            return this._map.gcsToDisplay(pt);
         },
         display2latlng: function(pt) {
-            return this.map.displayToGcs(pt);
+            return this._map.displayToGcs(pt);
         },
         svg: function() {
             return this.svgGroup;
@@ -1891,33 +1896,46 @@ window.tangelo.vtkweb = {};
             throw "Legend layer not yet implemented";
         },
         map: function() {
-            return this.map;
+            return this._map;
         },
         _create: function() {
-            var that = this, node = this.element.get(0), opts = {
-                zoom: this.options.zoom(),
+            var node = this.element.get(0), opts = {
+                zoom: this.options.zoom,
                 node: node
-            };
-            this.map = geo.map(opts);
-            this.map.addLayer(geo.osmLayer({
+            }, that = this;
+            this._map = geo.map(opts);
+            this._map.addLayer(geo.osmLayer({
                 renderer: "vglRenderer"
             }).referenceLayer(true));
             this.svgLayer = geo.featureLayer({
                 renderer: "d3Renderer"
             });
-            this.map.addLayer(this.svgLayer);
+            this._map.addLayer(this.svgLayer);
             this.svgContext = this.svgLayer.renderer().canvas();
             this.svgGroup = this.svgContext.append("g").node();
-            function resize() {
-                var width = $(node).width(), height = $(node).height();
-                that.map.resize(0, 0, width, height);
-                $(node).trigger("draw");
-            }
-            resize();
-            $(window).resize(resize);
-            this.map.on([ geo.event.pan, geo.event.zoom ], function() {
+            this._resize();
+            $(window).resize(function() {
+                that._resize();
+            });
+            this._map.on([ geo.event.pan, geo.event.zoom ], function() {
                 $(node).trigger("draw");
             });
+        },
+        _update: $.noop,
+        _resize: function() {
+            var w = this.options.width || this.element.width(), h = this.options.height || this.element.height();
+            if (!this._map) {
+                return;
+            }
+            this._map.resize(0, 0, w, h);
+            this.element.trigger("draw");
+        },
+        _setOption: function(key, value) {
+            this.options[key] = value;
+            if (key === "width" || key === "height") {
+                this._resize();
+            }
+            this._update();
         }
     });
 })(window.tangelo, window.geo, window.d3, window.jQuery);
@@ -1945,17 +1963,15 @@ window.tangelo.vtkweb = {};
         },
         _create: function() {
             var that = this;
+            this.colorScale = d3.scale.category10();
             this._super();
-            this.size = tangelo.accessor(this.options.size);
-            this.color = tangelo.accessor(this.options.color);
-            this._update();
             this.element.on("draw", function() {
                 that._update();
             });
         },
         _update: function() {
             var svg = this.svg(), that = this, lat = tangelo.accessor(this.options.latitude), lng = tangelo.accessor(this.options.longitude), pt, selection, enter, exit;
-            if (this.options.data) {
+            if (this.options.data && this.map()) {
                 this.options.data.forEach(function(d) {
                     pt = geo.latlng(lat(d), lng(d));
                     d._georef = that.latlng2display(pt)[0];
@@ -1968,7 +1984,9 @@ window.tangelo.vtkweb = {};
                     field: "_georef.x"
                 })).attr("cy", tangelo.accessor({
                     field: "_georef.y"
-                })).attr("r", this.size).style("fill", this.color);
+                })).attr("r", tangelo.accessor(this.options.size)).style("fill", function(d) {
+                    return that.colorScale(tangelo.accessor(that.options.color)(d));
+                });
                 exit.remove();
             }
         }
