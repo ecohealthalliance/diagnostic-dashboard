@@ -33,12 +33,12 @@
                 variables: comp,
                 color: color
             })
-                .on('datachanged', function (evt, arg){
-                    target = arg.target;
-                    threshold = arg.threshold;
-                    $(node).correlationPlot({'data': arg.data});
+            .on('datachanged', function (evt, arg){
+                target = arg.target;
+                threshold = arg.threshold;
+                $(node).correlationPlot({'data': arg.data});
             })
-                .on('resizeApp', function (evt, obj) {
+            .on('resizeApp', function (evt, obj) {
                 $(node).correlationPlot(obj);
             });
             this.initialized = true;
