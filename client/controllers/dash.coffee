@@ -1,6 +1,3 @@
-
-maximized = null
-
 setHeights = () ->
   paneCount = $('.pane').length
   columns = Math.round(Math.sqrt(paneCount))
@@ -37,18 +34,9 @@ setHeights = () ->
 
   $('.pane').each (i, node) ->
     n = $(node)
-    if not maximized
-      width = defaultWidth
-      height = defaultHeight
-    else if maximized == node
-      width = maximizedWidth
-      height = maximizedHeight
-    else
-      width = minimizedWidth
-      height = minimizedHeight
     n.children().trigger('resizeApp', {
-      width: width
-      height: height
+      width: n.width()
+      height: n.height()
     })
 color = d3.scale.category20()
 
@@ -61,8 +49,8 @@ Template.dash.rendered = () ->
       data = obj.features
       dataHandler.setTargetIncident(data[0])
       dataHandler.setData(data)
-      $(window).resize(setHeights)
     )
+    $(window).resize(setHeights)
     this.initialized = true
 
 Template.dash.isKeyword = () ->
@@ -116,7 +104,6 @@ Template.dash.tableSettings = () ->
 
 Template.dash.events
   "click .pane:not(.maximized)": (event) ->
-    maximized = event.currentTarget
     selectedPane = $(event.currentTarget)
     selectedPane.hide()
     $('.pane').removeClass('maximized').addClass('minimized')
