@@ -3,12 +3,25 @@ template(name="dash")
     .diagnosis
       +reactiveTable collection=diseases settings=tableSettings
       .features
-        each features
-          .label(style="background-color:#{color}")
-            if selected
-              | &#10004;&nbsp;#{value}
-            else
-              | #{value}
+        .feature-section.keywords
+          h4 Keywords
+          each features
+            if isKeyword
+              .label(style="background-color:#{color}")
+                if selected
+                  | &#10004;&nbsp;#{value}
+                else
+                  | #{value}
+        .feature-section.dates
+          h4 Dates
+          each features
+            if isDate
+              .label #{parseDate}
+        .feature-section.case-counts
+          h4 Case Counts
+          each features
+            if isCaseCount
+              .label #{value} cases
     .pane-container
       .pane
         +geomap

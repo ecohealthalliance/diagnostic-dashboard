@@ -32,6 +32,18 @@ Template.dash.rendered = () ->
     )
     this.initialized = true
 
+Template.dash.isKeyword = () ->
+  @type is 'keyword'
+
+Template.dash.isDate = () ->
+  @type is 'datetime'
+
+Template.dash.parseDate = () ->
+  new Date(Date.parse(@value))
+
+Template.dash.isCaseCount = () ->
+  @type is 'caseCount'
+
 Template.dash.color = () ->
   color @value
 
