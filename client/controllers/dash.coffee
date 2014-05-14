@@ -33,10 +33,13 @@ Template.dash.rendered = () ->
     this.initialized = true
 
 Template.dash.isKeyword = () ->
-  @type is 'keyword'
+  not @type
 
 Template.dash.isDate = () ->
   @type is 'datetime'
+  
+Template.dash.eq = (a, b) ->
+  a == b
 
 Template.dash.parseDate = () ->
   new Date(Date.parse(@value))
@@ -48,7 +51,7 @@ Template.dash.color = () ->
   color @value
 
 Template.dash.selected = () ->
-  _.values(this).join('') in (Session.get('features') or [])
+  @name == Session.get('disease')
 
 Template.dash.tableSettings = () ->
   fields: [

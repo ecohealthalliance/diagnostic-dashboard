@@ -5,13 +5,14 @@ template(name="dash")
       .features
         .feature-section.keywords
           h4 Keywords
-          each features
-            if isKeyword
-              .label(style="background-color:#{color}")
-                if selected
-                  | &#10004;&nbsp;#{value}
-                else
-                  | #{value}
+          each diseases
+            if selected
+              each keywords
+                .label(style="background-color:#{color name}")
+                  p keyword: #{name}
+                  p categories:
+                  each categories
+                    .category #{this}
         .feature-section.dates
           h4 Dates
           each features
@@ -20,8 +21,27 @@ template(name="dash")
         .feature-section.case-counts
           h4 Case Counts
           each features
-            if isCaseCount
-              .label #{value} cases
+            if eq type "caseCount"
+              div
+                p value: #{value}
+                p text: #{text}
+        .feature-section.case-counts
+          h4 Death Counts
+          each features
+            if eq type "deathCount"
+              div
+                p value: #{value}
+                p text: #{text}
+        .feature-section.locations
+          h4 Locations
+          each features
+            if eq type "cluster"
+              p Cluster Center:
+                each centroid
+                  p {{this}}
+                a(href="https://www.google.com/maps/preview/@{{{centroid.[1]}}},8z") {{centroid.[0]}}
+              each locations
+                .location #{name}
     .pane-container
       .pane
         +geomap
