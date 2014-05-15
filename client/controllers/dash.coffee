@@ -1,4 +1,17 @@
 setHeights = () ->
+
+  # minimum sizes for minimized panes
+  minimizedWidth = 350
+  minimizedHeight = 150
+
+  # width of the diagnostic side panal
+  diagnosisWidth = 375
+
+  # minimum sizes for the maximized pane
+  maximizedWidth = 600
+  maximizedHeight = 500
+
+  # determine the layout
   paneCount = $('.pane').length
   columns = Math.round(Math.sqrt(paneCount))
   rows = Math.ceil(paneCount / columns)
@@ -7,9 +20,11 @@ setHeights = () ->
   minPaneCols = Math.round(1.5 * Math.sqrt(minPaneCount))
   minPaneRows = Math.ceil(minPaneCount / minPaneCols)
 
-  diagnosisWidth = Math.floor($(window).width() * 0.25)
-
-  fullHeight = $(window).height() - $('.header').height() - 50
+  # get the absolute position of the bottom of the header
+  top = $('.header').outerHeight(true)
+  
+  # get the full size for vis panes
+  fullHeight = $(window).height() - top
   fullWidth = $(window).width() - diagnosisWidth
 
   defaultHeight = Math.floor(fullHeight / rows)
