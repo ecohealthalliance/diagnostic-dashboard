@@ -38,14 +38,10 @@ template(name="dash")
                 .location #{name}, {{[country code]}}
     .pane-container
       .pane
-        +geomap
+        +geomapSimple
       .pane
-        +correlation
+        +timelineSimple
       .pane
         +dendrogram
-      .pane
-        +timeline
-      .pane
-        +graph
       .pane
         +text

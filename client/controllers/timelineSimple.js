@@ -23,7 +23,7 @@
         }
         for (i = 0; i < data.length; i++) {
             d = data[i];
-            j = Math.floor((d.properties.date.valueOf() - s) / dt);
+            j = Math.floor((d.date.valueOf() - s) / dt);
             if (j >= 0 && j < nBins) {
                 bins[j].value += 1;
             }
@@ -41,11 +41,22 @@
         return bins;
     }
     
-    Template.timeline.rendered = function () {
+    Template.timelineSimple.rendered = function () {
         var data = [];
         if (!this.initialized) {
             $(node).on('datachanged', function (evt, args) {
-                data = binData(args.data, args.dataStart, args.dataEnd);
+                if (!args.data.length) {
+                    return;
+                }
+                var start = args.data[0].date, end = args.data[0].date;
+                args.data.forEach(function (d) {
+                    if (d.date < start) {
+                        start = d.date;
+                    } else if (d.date > end) {
+                        end = d.date;
+                    }
+                });
+                data = binData(args.data, start, end);
                 $(node).timeline({
                     data: data,
                     x: { field: 'time' },
