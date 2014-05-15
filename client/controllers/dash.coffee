@@ -58,7 +58,8 @@ Template.dash.rendered = () ->
         return {
           latitude: d.geometry.coordinates[1],
           longitude: d.geometry.coordinates[0],
-          date: new Date(d.properties.date)
+          date: new Date(d.properties.date),
+          location: d.properties.country
         }
       )
       $('.pane').children().trigger('datachanged', { data: data } )

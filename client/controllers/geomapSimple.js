@@ -40,8 +40,7 @@
             // function for adding a pop over on mouse over
             function makePopOver(data) {
                 var msg = [];
-                msg.push('<b>Latitude:</b>' + data.latitude);
-                msg.push('<b>Longitude:</b>' + data.longitude);
+                msg.push('<b>Location: </b>' + data.location);
                 $(this).popover({
                     html: true,
                     container: 'body',
