@@ -44,6 +44,10 @@ Template.dash.eq = (a, b) ->
 Template.dash.parseDate = () ->
   new Date(Date.parse(@value))
 
+Template.dash.dateLink = (d) ->
+  months = "January February March April May June July August September October November December".split(" ")
+  d.year + '/' + months[d.month] + (if d.day then '/' + d.day else '')
+
 Template.dash.isCaseCount = () ->
   @type is 'caseCount'
 

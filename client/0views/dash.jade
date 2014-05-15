@@ -8,7 +8,7 @@ template(name="dash")
           each diseases
             if selected
               each keywords
-                .label(style="background-color:#{color name}")
+                .label(style="background-color:{{color name}}")
                   p keyword: #{name}
                   p categories:
                   each categories
@@ -17,7 +17,7 @@ template(name="dash")
           h4 Dates
           each features
             if isDate
-              .label #{parseDate}
+              a(href="http://en.wikinews.org/wiki/Wikinews:{{dateLink dateInformation}}") #{text}
         .feature-section.case-counts
           h4 Case Counts
           each features
@@ -37,11 +37,9 @@ template(name="dash")
           each features
             if eq type "cluster"
               p Cluster Center:
-                each centroid
-                  p {{this}}
-                a(href="https://www.google.com/maps/preview/@{{{centroid.[1]}}},8z") {{centroid.[0]}}
+                a(href="https://www.google.com/maps/preview/@#{centroid.latitude},#{centroid.longitude},8z") #{centroid.latitude}, #{centroid.longitude}
               each locations
-                .location #{name}
+                .location #{name}, {{[country code]}}
     .pane-container
       .pane
         +geomap
