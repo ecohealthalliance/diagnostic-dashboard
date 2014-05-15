@@ -60,11 +60,18 @@ Template.dash.rendered = () ->
 
   if !this.initialized
     d3.json('../data/hmData.json', (err, obj) ->
-      setHeights()
-      data = obj.features
-      dataHandler.setTargetIncident(data[0])
-      dataHandler.setData(data)
+
+      # transform the geojson data into simplified format
+      data = obj.features.map( (d) ->
+        return {
+          latitude: d.geometry.coordinates[1],
+          longitude: d.geometry.coordinates[0],
+          date: d.properties.date
+        }
+      )
+      $('.pane').children().trigger('datachanged', { data: data } )
     )
+    setHeights()
     $(window).resize(setHeights)
     this.initialized = true
 
