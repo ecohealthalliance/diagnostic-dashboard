@@ -22,16 +22,12 @@ template(name="dash")
           h4 Case Counts
           each features
             if eq type "caseCount"
-              div
-                p value: #{value}
-                p text: #{text}
-        .feature-section.case-counts
+              .label #{text}
+        .feature-section.death-counts
           h4 Death Counts
           each features
             if eq type "deathCount"
-              div
-                p value: #{value}
-                p text: #{text}
+              .label #{text}
         .feature-section.locations
           h4 Locations
           each features
