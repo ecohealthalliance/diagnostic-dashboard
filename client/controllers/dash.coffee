@@ -1,35 +1,71 @@
 setHeights = () ->
+
+  # width of the diagnostic side panal
+  diagnosisWidth = 375
+
+  # determine the layout
   paneCount = $('.pane').length
-  height = $(window).height() - $('.header').height() - 50
   columns = Math.round(Math.sqrt(paneCount))
   rows = Math.ceil(paneCount / columns)
-  $('.pane').height(height / rows)
-  $('.pane').width((Math.floor(100 / columns) - 2) + '%')
 
   minPaneCount = paneCount - 1
   minPaneCols = Math.round(1.5 * Math.sqrt(minPaneCount))
   minPaneRows = Math.ceil(minPaneCount / minPaneCols)
-  $('.minimized').height(height / (4 * minPaneRows))
-  $('.minimized').width((Math.floor(100 / minPaneCols) - 2) + '%')
-  $('.maximized').height(height * 3 / 4)
-  $('.maximized').width('100%')
 
-  $('.diagnosis').height(height)
+  # get the absolute position of the bottom of the header
+  top = $('.header').outerHeight(true)
+  
+  # get the full size for vis panes
+  fullHeight = $(window).height() - top
+  fullWidth = $(window).width() - diagnosisWidth
 
+  defaultHeight = Math.floor(fullHeight / rows)
+  defaultWidth = Math.floor(fullWidth / columns)
+
+  maximizedHeight = Math.floor(fullHeight * 0.75)
+  maximizedWidth = fullWidth
+
+  minimizedHeight = Math.floor((fullHeight * 0.25) / minPaneRows)
+  minimizedWidth = Math.floor(fullWidth / minPaneCols)
+
+  $('.pane').height(defaultHeight)
+  $('.pane').width(defaultWidth)
+
+  $('.minimized').height(minimizedHeight)
+  $('.minimized').width(minimizedWidth)
+  $('.maximized').height(maximizedHeight)
+  $('.maximized').width(maximizedWidth)
+
+  $('.diagnosis').height(fullHeight)
+  $('.diagnosis').width(diagnosisWidth)
+
+  $('.pane').each (i, node) ->
+    n = $(node)
+    n.children().trigger('resizeApp', {
+      width: n.width()
+      height: n.height()
+    })
 color = d3.scale.category20()
 
 
 Template.dash.rendered = () ->
-  setHeights()
-  $(window).resize(setHeights)
 
   if !this.initialized
     d3.json('../data/hmData.json', (err, obj) ->
-      data = obj.features
-      dataHandler.setTargetIncident(data[0])
-      dataHandler.setData(data)
-      $('.pane').children().trigger('resize')
+
+      # transform the geojson data into simplified format
+      data = obj.features.map( (d) ->
+        return {
+          latitude: d.geometry.coordinates[1],
+          longitude: d.geometry.coordinates[0],
+          date: new Date(d.properties.date),
+          location: d.properties.country
+        }
+      )
+      $('.pane').children().trigger('datachanged', { data: data } )
     )
+    setHeights()
+    $(window).resize(setHeights)
     this.initialized = true
 
 Template.dash.isKeyword = () ->
@@ -89,7 +125,6 @@ Template.dash.events
     selectedPane.removeClass('minimized').addClass('maximized')
     setHeights()
     selectedPane.fadeIn()
-    $('.pane').children().trigger('resize')
 
   "click .diagnosis .reactive-table tbody tr" : (event) ->
     Session.set('disease', @name)

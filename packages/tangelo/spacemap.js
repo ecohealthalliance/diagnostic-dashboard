@@ -29,7 +29,7 @@
 
             this.force = d3.layout.force();
 
-            this.svg = d3.select(this.element.get(0)).append("svg").style("width", "100%").style("height", "100%");
+            this.svg = d3.select(this.element.get(0)).append("svg");
             this.linkLayer = this.svg.append("g");
             this.nodeLayer = this.svg.append("g");
             this.nodeLabelLayer = this.svg.append("g");
@@ -41,11 +41,6 @@
             this._setOptions(options);
             this._update();
 
-            function resize() {
-                that._setOptions({width: that.element.width(), height: that.element.height()});
-            }
-            $(window).resize(resize);
-            resize();
 
         },
 
@@ -63,6 +58,8 @@
             if (!this.svg) {
                 return;
             }
+            this.svg.attr('width', this.options.width)
+                    .attr('height', this.options.height);
 
             this.nodes = [];
             this.links = [];
