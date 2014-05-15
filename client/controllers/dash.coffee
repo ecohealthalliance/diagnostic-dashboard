@@ -1,15 +1,7 @@
 setHeights = () ->
 
-  # minimum sizes for minimized panes
-  minimizedWidth = 350
-  minimizedHeight = 150
-
   # width of the diagnostic side panal
   diagnosisWidth = 375
-
-  # minimum sizes for the maximized pane
-  maximizedWidth = 600
-  maximizedHeight = 500
 
   # determine the layout
   paneCount = $('.pane').length
