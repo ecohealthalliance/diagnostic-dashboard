@@ -133,6 +133,7 @@ Template.dash.tableSettings = () ->
     {
       key: 'probability'
       label: 'Probability'
+      sort: -1
       fn: (prob) ->
         Math.round(prob * 1000) / 1000
     },
