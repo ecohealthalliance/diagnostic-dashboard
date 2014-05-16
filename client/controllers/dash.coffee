@@ -88,10 +88,6 @@ Template.dash.hasCategory = (keywordCategories, category) ->
     keywordCategory.indexOf(category) >= 0
   )
 
-Template.dash.dateLink = (d) ->
-  months = "January February March April May June July August September October November December".split(" ")
-  d.year + '/' + months[d.month - 1] + (if d.day then '/' + d.day else '')
-
 Template.dash.color = () ->
   color @name
 

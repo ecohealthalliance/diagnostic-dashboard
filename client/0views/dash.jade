@@ -32,7 +32,7 @@ template(name="dash")
             h4 Dates
             each features
               if eq type "datetime"
-                a(href="http://en.wikinews.org/wiki/Wikinews:{{dateLink dateInformation}}") #{text}
+                .label #{text}
         if showCategory 'caseCount'
           .feature-section.case-counts
             h4 Case Counts
