@@ -50,10 +50,8 @@ template(name="dash")
             h4 Locations
             each features
               if eq type "cluster"
-                p Cluster Center:
-                  a(href="https://www.google.com/maps/preview/@#{centroid.latitude},#{centroid.longitude},8z") #{centroid.latitude}, #{centroid.longitude}
                 each locations
-                  .location #{name}, {{[country code]}}
+                  .label.location #{formatLocation}
     .pane-container
       .pane
         +geomapSimple

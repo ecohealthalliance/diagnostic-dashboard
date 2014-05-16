@@ -88,6 +88,14 @@ Template.dash.hasCategory = (keywordCategories, category) ->
     keywordCategory.indexOf(category) >= 0
   )
 
+Template.dash.formatLocation = () ->
+  location = "#{@name}"
+  admin1Code = @['admin1 code'] # e.g., state
+  location += ", #{admin1Code}" if admin1Code and /^[a-z]+$/i.test(admin1Code)
+  countryCode = @['country code']
+  location += ", #{countryCode}" if countryCode
+  location
+
 Template.dash.color = () ->
   color @name
 
