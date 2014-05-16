@@ -68,29 +68,29 @@ Template.dash.rendered = () ->
     $(window).resize(setHeights)
     this.initialized = true
 
-Template.dash.isKeyword = () ->
-  not @type
-
-Template.dash.isDate = () ->
-  @type is 'datetime'
-
 Template.dash.eq = (a, b) ->
   a == b
+
+Template.dash.showCategory = (category) ->
+  if category in ['datetime', 'caseCount', 'deathCount', 'cluster']
+    _.any(@features, (feature) ->
+      feature.type is category
+    )
+  else
+    _.any(@keywords, (keyword) ->
+      _.any(keyword.categories, (keywordCategory) ->
+        keywordCategory.indexOf(category) >= 0
+      )
+    )
 
 Template.dash.hasCategory = (keywordCategories, category) ->
   _.any(keywordCategories, (keywordCategory) ->
     keywordCategory.indexOf(category) >= 0
   )
 
-Template.dash.parseDate = () ->
-  new Date(Date.parse(@value))
-
 Template.dash.dateLink = (d) ->
   months = "January February March April May June July August September October November December".split(" ")
   d.year + '/' + months[d.month - 1] + (if d.day then '/' + d.day else '')
-
-Template.dash.isCaseCount = () ->
-  @type is 'caseCount'
 
 Template.dash.color = () ->
   color @name

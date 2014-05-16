@@ -3,49 +3,57 @@ template(name="dash")
     .diagnosis
       +reactiveTable collection=diseases settings=tableSettings
       .features
-        .feature-section.symptoms
-          h4 Symptoms
-          each keywords
-            if hasCategory categories 'symptom'
-              .label(style="background-color:{{color}}") #{name}
-        .feature-section.hosts
-          h4 Hosts
-          each keywords
-            if hasCategory categories 'host'
-              .label(style="background-color:{{color}}") #{name}
-        .feature-section.pathogens
-          h4 Pathogens
-          each keywords
-            if hasCategory categories 'pathogen'
-              .label(style="background-color:{{color}}") #{name}
-        .feature-section.transmission
-          h4 Modes of Transmission
-          each keywords
-            if hasCategory categories 'transmi'
-              .label(style="background-color:{{color}}") #{name}
-        .feature-section.dates
-          h4 Dates
-          each features
-            if isDate
-              a(href="http://en.wikinews.org/wiki/Wikinews:{{dateLink dateInformation}}") #{text}
-        .feature-section.case-counts
-          h4 Case Counts
-          each features
-            if eq type "caseCount"
-              .label #{text}
-        .feature-section.death-counts
-          h4 Death Counts
-          each features
-            if eq type "deathCount"
-              .label #{text}
-        .feature-section.locations
-          h4 Locations
-          each features
-            if eq type "cluster"
-              p Cluster Center:
-                a(href="https://www.google.com/maps/preview/@#{centroid.latitude},#{centroid.longitude},8z") #{centroid.latitude}, #{centroid.longitude}
-              each locations
-                .location #{name}, {{[country code]}}
+        if showCategory 'symptom'
+          .feature-section.symptoms
+            h4 Symptoms
+            each keywords
+              if hasCategory categories 'symptom'
+                .label(style="background-color:{{color}}") #{name}
+        if showCategory 'host'
+          .feature-section.hosts
+            h4 Hosts
+            each keywords
+              if hasCategory categories 'host'
+                .label(style="background-color:{{color}}") #{name}
+        if showCategory 'pathogen'
+          .feature-section.pathogens
+            h4 Pathogens
+            each keywords
+              if hasCategory categories 'pathogen'
+                .label(style="background-color:{{color}}") #{name}
+        if showCategory 'transmi'
+          .feature-section.transmission
+            h4 Modes of Transmission
+            each keywords
+              if hasCategory categories 'transmi'
+                .label(style="background-color:{{color}}") #{name}
+        if showCategory 'datetime'
+          .feature-section.dates
+            h4 Dates
+            each features
+              if eq type "datetime"
+                a(href="http://en.wikinews.org/wiki/Wikinews:{{dateLink dateInformation}}") #{text}
+        if showCategory 'caseCount'
+          .feature-section.case-counts
+            h4 Case Counts
+            each features
+              if eq type "caseCount"
+                .label #{text}
+        if showCategory 'deathCount'
+          .feature-section.death-counts
+            h4 Death Counts
+            each features
+              if eq type "deathCount"
+                .label #{text}
+        if showCategory 'cluster'
+          .feature-section.locations
+            h4 Locations
+            each features
+              if eq type "cluster"
+                p Cluster Center:
+                  a(href="https://www.google.com/maps/preview/@#{centroid.latitude},#{centroid.longitude},8z") #{centroid.latitude}, #{centroid.longitude}
+                each locations
+                  .location #{name}, {{[country code]}}
     .pane-container
       .pane
         +geomapSimple
