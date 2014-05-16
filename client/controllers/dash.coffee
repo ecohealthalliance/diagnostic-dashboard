@@ -118,6 +118,10 @@ Template.dash.formatLocation = () ->
   location += ", #{countryCode}" if countryCode
   location
 
+Template.dash.formatDate = () ->
+  date = new Date(@value)
+  date.toLocaleDateString()
+
 Template.dash.color = () ->
   color @name
 
