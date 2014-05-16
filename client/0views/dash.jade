@@ -1,4 +1,5 @@
 template(name="dash")
+  div(style="display:none") #{updatePanes}
   .dashboard-container
     .diagnosis
       +reactiveTable collection=diseases settings=tableSettings
