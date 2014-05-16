@@ -14,7 +14,7 @@ setHeights = () ->
 
   # get the absolute position of the bottom of the header
   top = $('.header').outerHeight(true)
-  
+
   # get the full size for vis panes
   fullHeight = $(window).height() - top
   fullWidth = $(window).width() - diagnosisWidth
@@ -73,9 +73,14 @@ Template.dash.isKeyword = () ->
 
 Template.dash.isDate = () ->
   @type is 'datetime'
-  
+
 Template.dash.eq = (a, b) ->
   a == b
+
+Template.dash.hasCategory = (keywordCategories, category) ->
+  _.any(keywordCategories, (keywordCategory) ->
+    keywordCategory.indexOf(category) >= 0
+  )
 
 Template.dash.parseDate = () ->
   new Date(Date.parse(@value))
@@ -88,7 +93,7 @@ Template.dash.isCaseCount = () ->
   @type is 'caseCount'
 
 Template.dash.color = () ->
-  color @value
+  color @name
 
 Template.dash.selected = () ->
   @name == Session.get('disease')

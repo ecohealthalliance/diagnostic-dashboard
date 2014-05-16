@@ -9,6 +9,7 @@ submit = (content) ->
       content: content
       diseases: result.diseases
       features: result.features
+      keywords: result.keywords_found
       ready: true
     })
   )

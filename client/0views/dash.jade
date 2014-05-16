@@ -3,16 +3,26 @@ template(name="dash")
     .diagnosis
       +reactiveTable collection=diseases settings=tableSettings
       .features
-        .feature-section.keywords
-          h4 Keywords
-          each diseases
-            if selected
-              each keywords
-                .label(style="background-color:{{color name}}")
-                  p keyword: #{name}
-                  p categories:
-                  each categories
-                    .category #{this}
+        .feature-section.symptoms
+          h4 Symptoms
+          each keywords
+            if hasCategory categories 'symptom'
+              .label(style="background-color:{{color}}") #{name}
+        .feature-section.hosts
+          h4 Hosts
+          each keywords
+            if hasCategory categories 'host'
+              .label(style="background-color:{{color}}") #{name}
+        .feature-section.pathogens
+          h4 Pathogens
+          each keywords
+            if hasCategory categories 'pathogen'
+              .label(style="background-color:{{color}}") #{name}
+        .feature-section.transmission
+          h4 Modes of Transmission
+          each keywords
+            if hasCategory categories 'transmi'
+              .label(style="background-color:{{color}}") #{name}
         .feature-section.dates
           h4 Dates
           each features
