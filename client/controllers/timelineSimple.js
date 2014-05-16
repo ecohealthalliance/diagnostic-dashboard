@@ -50,18 +50,19 @@
                 if (!args.data.length) {
                     return;
                 }
-                var start = args.data[0].date, end = args.data[0].date;
+                var start = null, end = null;
                 args.data.forEach(function (d) {
                     if (!d.date) {
                         return;
                     }
-                    if (d.date < start) {
+                    if (!start || d.date < start) {
                         start = d.date;
-                    } else if (d.date > end) {
+                    }
+                    if (!end || d.date > end) {
                         end = d.date;
                     }
                 });
-                if (start) {
+                if (start && end) {
                     data = binData(args.data, start, end);
                 } else {
                     data = [];
