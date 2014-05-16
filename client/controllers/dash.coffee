@@ -63,7 +63,7 @@ Template.dash.updatePanes = () ->
   )
   data = _.map(dateFeatures, (feature) ->
     {
-      date: feature.value
+      date: new Date(feature.value)
       latitude: null
       longitude: null
       location: null
