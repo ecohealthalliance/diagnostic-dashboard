@@ -3,13 +3,16 @@ template(name="dash")
   .dashboard-container
     .diagnosis
       .controls
-        a.nav-btn(href="https://grits.ecohealth.io/gritsdb") Girder DB
-        a.nav-btn(href="/new") Diagnose New Article
+        a.nav-btn(href="https://grits.ecohealth.io/gritsdb")
+          //I would use fa-database but it's not working.
+          i.fa.fa-hdd-o
+          p Girder DB
+        a.nav-btn(href="/new")
+          i.fa.fa-file-text-o.fa-file-text-o-large
+          p Diagnose New Article
         .nav-btn.reset-panels
-          div
-          div
-          div
-          div
+          i.fa.fa-th-large.fa-th-large
+          p Reset Panels
       +reactiveTable collection=diseases settings=tableSettings
       .features
         .feature-section.keywords

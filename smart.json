@@ -10,6 +10,7 @@
     },
     "bootstrap-3": {},
     "reactive-table": {},
-    "d3": {}
+    "d3": {},
+    "font-awesome": {}
   }
 }

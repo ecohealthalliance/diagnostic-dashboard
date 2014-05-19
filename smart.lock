@@ -12,7 +12,8 @@
       },
       "bootstrap-3": {},
       "reactive-table": {},
-      "d3": {}
+      "d3": {},
+      "font-awesome": {}
     },
     "packages": {
       "iron-router": {
@@ -38,13 +39,18 @@
       },
       "reactive-table": {
         "git": "https://github.com/ecohealthalliance/reactive-table.git",
-        "tag": "v0.3.8",
-        "commit": "a14a61c4ac4940ba8c0bc1a8fcdb5f3bf44afa7e"
+        "tag": "v0.3.11",
+        "commit": "9ec88b8bcded8ced97cc8736f3d2ecbe3e7b926d"
       },
       "d3": {
         "git": "https://github.com/sergeyt/meteor-d3.git",
         "tag": "v3.4.1",
         "commit": "bdfee250a332b516a158ed0913ec9363850afe0d"
+      },
+      "font-awesome": {
+        "git": "https://github.com/nate-strauser/meteor-font-awesome.git",
+        "tag": "v4.0.3",
+        "commit": "61e9361384347547ae144f8228faa4deffda23db"
       },
       "blaze-layout": {
         "git": "https://github.com/EventedMind/blaze-layout.git",
