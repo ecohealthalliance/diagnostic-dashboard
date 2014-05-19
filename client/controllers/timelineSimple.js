@@ -23,9 +23,11 @@
         }
         for (i = 0; i < data.length; i++) {
             d = data[i];
-            j = Math.floor((d.date.valueOf() - s) / dt);
-            if (j >= 0 && j < nBins) {
-                bins[j].value += 1;
+            if (d.date) {
+                j = Math.floor((d.date.valueOf() - s) / dt);
+                if (j >= 0 && j < nBins) {
+                    bins[j].value += 1;
+                }
             }
         }
         tangelo.data.smooth({
@@ -48,15 +50,23 @@
                 if (!args.data.length) {
                     return;
                 }
-                var start = args.data[0].date, end = args.data[0].date;
+                var start = null, end = null;
                 args.data.forEach(function (d) {
-                    if (d.date < start) {
+                    if (!d.date) {
+                        return;
+                    }
+                    if (!start || d.date < start) {
                         start = d.date;
-                    } else if (d.date > end) {
+                    }
+                    if (!end || d.date > end) {
                         end = d.date;
                     }
                 });
-                data = binData(args.data, start, end);
+                if (start && end) {
+                    data = binData(args.data, start, end);
+                } else {
+                    data = [];
+                }
                 $(node).timeline({
                     data: data,
                     x: { field: 'time' },

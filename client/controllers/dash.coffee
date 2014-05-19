@@ -14,7 +14,7 @@ setHeights = () ->
 
   # get the absolute position of the bottom of the header
   top = $('.header').outerHeight(true)
-  
+
   # get the full size for vis panes
   fullHeight = $(window).height() - top
   fullWidth = $(window).width() - diagnosisWidth
@@ -51,46 +51,90 @@ color = d3.scale.category20()
 Template.dash.rendered = () ->
 
   if !this.initialized
-    d3.json('../data/hmData.json', (err, obj) ->
-
-      # transform the geojson data into simplified format
-      data = obj.features.map( (d) ->
-        return {
-          latitude: d.geometry.coordinates[1],
-          longitude: d.geometry.coordinates[0],
-          date: new Date(d.properties.date),
-          location: d.properties.country
-        }
-      )
-      $('.pane').children().trigger('datachanged', { data: data } )
-    )
     setHeights()
     $(window).resize(setHeights)
     this.initialized = true
 
-Template.dash.isKeyword = () ->
-  @type is 'keyword'
 
-Template.dash.isDate = () ->
-  @type is 'datetime'
+Template.dash.updatePanes = () ->
+  # updating the panes as a side effect of a template call is temporary
+  dateFeatures = _.filter(@features, (feature) ->
+    feature.type is 'datetime'
+  )
+  data = _.map(dateFeatures, (feature) ->
+    {
+      date: new Date(feature.value)
+      latitude: null
+      longitude: null
+      location: null
+    }
+  )
 
-Template.dash.parseDate = () ->
-  new Date(Date.parse(@value))
+  locationFeatures = _.filter(@features, (feature) ->
+    feature.type is 'cluster'
+  )
 
-Template.dash.isCaseCount = () ->
-  @type is 'caseCount'
+  _.each(locationFeatures, (cluster) ->
+    _.each(cluster.locations, (locationFeature) ->
+        data.push {
+          date: null
+          latitude: locationFeature.latitude
+          longitude: locationFeature.longitude
+          location: locationFeature.name
+        }
+    )
+  )
+
+
+  $('.pane').children().trigger('datachanged', { data: data })
+  ''
+
+
+Template.dash.eq = (a, b) ->
+  a == b
+
+Template.dash.showCategory = (category) ->
+  if category in ['datetime', 'caseCount', 'deathCount', 'cluster']
+    _.any(@features, (feature) ->
+      feature.type is category
+    )
+  else
+    _.any(@keywords, (keyword) ->
+      _.any(keyword.categories, (keywordCategory) ->
+        keywordCategory.indexOf(category) >= 0
+      )
+    )
+
+Template.dash.hasCategory = (keywordCategories, category) ->
+  _.any(keywordCategories, (keywordCategory) ->
+    keywordCategory.indexOf(category) >= 0
+  )
+
+Template.dash.formatLocation = () ->
+  location = "#{@name}"
+  admin1Code = @['admin1 code'] # e.g., state
+  location += ", #{admin1Code}" if admin1Code and /^[a-z]+$/i.test(admin1Code)
+  countryCode = @['country code']
+  location += ", #{countryCode}" if countryCode
+  location
+
+Template.dash.formatDate = () ->
+  date = new Date(@value)
+  date.setDate(date.getDate() + 1)
+  date.toLocaleDateString()
 
 Template.dash.color = () ->
-  color @value
+  color @name
 
 Template.dash.selected = () ->
-  _.values(this).join('') in (Session.get('features') or [])
+  @name == Session.get('disease')
 
 Template.dash.tableSettings = () ->
   fields: [
     {
       key: 'probability'
       label: 'Probability'
+      sort: -1
       fn: (prob) ->
         Math.round(prob * 1000) / 1000
     },
