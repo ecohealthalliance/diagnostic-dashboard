@@ -120,6 +120,7 @@ Template.dash.formatLocation = () ->
 
 Template.dash.formatDate = () ->
   date = new Date(@value)
+  date.setDate(date.getDate() + 1)
   date.toLocaleDateString()
 
 Template.dash.color = () ->
