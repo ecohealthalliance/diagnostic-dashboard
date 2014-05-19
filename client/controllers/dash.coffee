@@ -53,6 +53,10 @@ Template.dash.rendered = () ->
   if !this.initialized
     setHeights()
     $(window).resize(setHeights)
+    $('.pane-container').on('resetPanes', () ->
+      $('.pane').removeClass('maximized').removeClass('minimized')
+      setHeights()
+    )
     this.initialized = true
 
 
@@ -173,3 +177,7 @@ Template.dash.events
   "click .diagnosis .reactive-table tbody tr" : (event) ->
     Session.set('disease', @name)
     Session.set('features', keyword.name for keyword in @keywords)
+
+  "click .reset-panels": (event) ->
+
+      setHeights()
