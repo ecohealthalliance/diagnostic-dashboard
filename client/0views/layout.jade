@@ -12,7 +12,8 @@ template(name="layout")
     a.nav-btn(href="/new")
       i.fa.fa-file-text-o.fa-file-text-o-large
       p Diagnose New Article
-    .nav-btn.reset-panels
-      i.fa.fa-th-large.fa-th-large
-      p Reset Panels
+    if isDashboard
+      .nav-btn.reset-panels
+        i.fa.fa-th-large.fa-th-large
+        p Reset Panels
   +yield
