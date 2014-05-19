@@ -8,12 +8,12 @@ template(name="layout")
     a.nav-btn(href="https://grits.ecohealth.io/gritsdb")
       //I would use fa-database but it's not working.
       i.fa.fa-hdd-o
-      p Girder DB
+      p Database
     a.nav-btn(href="/new")
       i.fa.fa-file-text-o.fa-file-text-o-large
-      p Diagnose New Article
+      p New Diagnosis
     if isDashboard
       .nav-btn.reset-panels
         i.fa.fa-th-large.fa-th-large
-        p Reset Panels
+        p All Panes
   +yield
