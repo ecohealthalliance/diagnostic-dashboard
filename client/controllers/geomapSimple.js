@@ -19,19 +19,21 @@
         _update: function () {
             var that = this,
                 svg = d3.select(this.svgGroup),
-                data = this.options.data,
-                select = svg.selectAll('.marker')
-                            .data(data),
-                enter = select.enter(),
-                exit = select.exit(),
+                data = [],
+                select,
+                enter,
+                exit,
                 lat = tangelo.accessor({'field': '_georef.y'}),
                 lng = tangelo.accessor({'field': '_georef.x'}),
                 radius;
 
             // georeference the data
-            data.forEach(function (d) {
-                var pt = geo.latlng(d.latitude, d.longitude);
-                d._georef = that.latlng2display(pt)[0];
+            this.options.data.forEach(function (d) {
+                if (Number.isFinite(d.latitude) && Number.isFinite(d.longitude)) {
+                    var pt = geo.latlng(d.latitude, d.longitude);
+                    d._georef = that.latlng2display(pt)[0];
+                    data.push(d);
+                }
             });
             
             // set the circle size
@@ -55,6 +57,11 @@
                     $(this).popover('hide');
                 });
             }
+
+            select = svg.selectAll('.marker')
+                        .data(data);
+            enter = select.enter();
+            exit = select.exit();
 
             enter
               .append('circle')
