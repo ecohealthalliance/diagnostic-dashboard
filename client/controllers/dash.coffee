@@ -51,22 +51,44 @@ color = d3.scale.category20()
 Template.dash.rendered = () ->
 
   if !this.initialized
-    d3.json('../data/hmData.json', (err, obj) ->
-
-      # transform the geojson data into simplified format
-      data = obj.features.map( (d) ->
-        return {
-          latitude: d.geometry.coordinates[1],
-          longitude: d.geometry.coordinates[0],
-          date: new Date(d.properties.date),
-          location: d.properties.country
-        }
-      )
-      $('.pane').children().trigger('datachanged', { data: data } )
-    )
     setHeights()
     $(window).resize(setHeights)
     this.initialized = true
+
+
+Template.dash.updatePanes = () ->
+  # updating the panes as a side effect of a template call is temporary
+  dateFeatures = _.filter(@features, (feature) ->
+    feature.type is 'datetime'
+  )
+  data = _.map(dateFeatures, (feature) ->
+    {
+      date: new Date(feature.value)
+      latitude: null
+      longitude: null
+      location: null
+    }
+  )
+
+  locationFeatures = _.filter(@features, (feature) ->
+    feature.type is 'cluster'
+  )
+
+  _.each(locationFeatures, (cluster) ->
+    _.each(cluster.locations, (locationFeature) ->
+        data.push {
+          date: null
+          latitude: locationFeature.latitude
+          longitude: locationFeature.longitude
+          location: locationFeature.name
+        }
+    )
+  )
+
+
+  $('.pane').children().trigger('datachanged', { data: data })
+  ''
+
 
 Template.dash.eq = (a, b) ->
   a == b
@@ -98,6 +120,7 @@ Template.dash.formatLocation = () ->
 
 Template.dash.formatDate = () ->
   date = new Date(@value)
+  date.setDate(date.getDate() + 1)
   date.toLocaleDateString()
 
 Template.dash.color = () ->
@@ -111,6 +134,7 @@ Template.dash.tableSettings = () ->
     {
       key: 'probability'
       label: 'Probability'
+      sort: -1
       fn: (prob) ->
         Math.round(prob * 1000) / 1000
     },
