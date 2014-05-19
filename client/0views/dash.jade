@@ -1,15 +1,6 @@
 template(name="dash")
-
   .dashboard-container
     .diagnosis
-      .controls
-        a.nav-btn(href="https://grits.ecohealth.io/gritsdb") Girder DB
-        a.nav-btn(href="/new") Diagnose New Article
-        .nav-btn.reset-panels
-          div
-          div
-          div
-          div
       +reactiveTable collection=diseases settings=tableSettings
       .features
         .feature-section.keywords
