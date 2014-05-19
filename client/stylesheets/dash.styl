@@ -49,3 +49,40 @@
 
 .pane.minimized > div
   pointer-events none
+
+navbar-height = 65px
+
+.controls
+  position absolute
+  top 0
+  right 0
+.nav-btn
+  background-color #111
+  border 1px solid #555
+  display inline-block
+  margin-right 2px
+  padding 5px
+  font-weight bold
+  width 160px
+  height navbar-height - 2
+  text-align center
+  vertical-align top
+  color #eee
+.nav-btn:hover
+  background-color #444
+  text-decoration none
+  color white
+  div
+    border-color white
+
+.reset-panels
+  padding 2px
+  width navbar-height - 2
+  line-height 0
+  div
+    display inline-block
+    border 1px solid #eee
+    margin 1px
+    width ((navbar-height - 2) / 2) - 6
+    height ((navbar-height - 2) / 2) - 6
+  

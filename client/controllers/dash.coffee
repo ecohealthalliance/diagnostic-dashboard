@@ -129,3 +129,7 @@ Template.dash.events
   "click .diagnosis .reactive-table tbody tr" : (event) ->
     Session.set('disease', @name)
     Session.set('features', keyword.name for keyword in @keywords)
+
+  "click .reset-panels": (event) ->
+      $('.pane').removeClass('maximized').removeClass('minimized')
+      setHeights()
