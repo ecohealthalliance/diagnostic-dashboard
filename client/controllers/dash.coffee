@@ -14,7 +14,7 @@ setHeights = () ->
 
   # get the absolute position of the bottom of the header
   top = $('.header').outerHeight(true)
-  
+
   # get the full size for vis panes
   fullHeight = $(window).height() - top
   fullWidth = $(window).width() - diagnosisWidth
@@ -68,23 +68,43 @@ Template.dash.rendered = () ->
     $(window).resize(setHeights)
     this.initialized = true
 
-Template.dash.isKeyword = () ->
-  @type is 'keyword'
+Template.dash.eq = (a, b) ->
+  a == b
 
-Template.dash.isDate = () ->
-  @type is 'datetime'
+Template.dash.showCategory = (category) ->
+  if category in ['datetime', 'caseCount', 'deathCount', 'cluster']
+    _.any(@features, (feature) ->
+      feature.type is category
+    )
+  else
+    _.any(@keywords, (keyword) ->
+      _.any(keyword.categories, (keywordCategory) ->
+        keywordCategory.indexOf(category) >= 0
+      )
+    )
 
-Template.dash.parseDate = () ->
-  new Date(Date.parse(@value))
+Template.dash.hasCategory = (keywordCategories, category) ->
+  _.any(keywordCategories, (keywordCategory) ->
+    keywordCategory.indexOf(category) >= 0
+  )
 
-Template.dash.isCaseCount = () ->
-  @type is 'caseCount'
+Template.dash.formatLocation = () ->
+  location = "#{@name}"
+  admin1Code = @['admin1 code'] # e.g., state
+  location += ", #{admin1Code}" if admin1Code and /^[a-z]+$/i.test(admin1Code)
+  countryCode = @['country code']
+  location += ", #{countryCode}" if countryCode
+  location
+
+Template.dash.formatDate = () ->
+  date = new Date(@value)
+  date.toLocaleDateString()
 
 Template.dash.color = () ->
-  color @value
+  color @name
 
 Template.dash.selected = () ->
-  _.values(this).join('') in (Session.get('features') or [])
+  @name == Session.get('disease')
 
 Template.dash.tableSettings = () ->
   fields: [
