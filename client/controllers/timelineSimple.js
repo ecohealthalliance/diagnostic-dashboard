@@ -5,8 +5,24 @@
 
     var nBins = 250,
         radius = 10/nBins,
-        padding = 30,
+        margin = {
+            top: 25,
+            left: 30,
+            right: 40,
+            bottom: 55
+        },
+        xTicks = 6,
+        yTicks = 6,
         node = '#timeline';
+
+    function applyAxisStyle() {
+        d3.select(node)
+            .selectAll('.x-axis text')
+            .style('text-anchor', 'start')
+            .attr('transform', 'rotate(45)')
+            .attr('dx', '0.5em')
+            .attr('dy', '0.1em');
+    }
 
     function binData(data, start, end) {
         var bins = [], 
@@ -72,18 +88,22 @@
                     x: { field: 'time' },
                     y: { field: 'value' },
                     transition: 250,
-                    padding: padding
+                    margin: margin,
+                    xTicks: xTicks,
+                    yTicks: yTicks
                 });
+                applyAxisStyle();
             }).on('resizeApp', function (evt, obj) {
                 $(node).timeline({
                     data: data,
                     x: { field: 'time' },
                     y: { field: 'value' },
                     transition: 0,
-                    padding: padding,
+                    margin: margin,
                     width: obj.width,
                     height: obj.height
                 });
+                applyAxisStyle();
             });
             this.initialized = true;
         }
