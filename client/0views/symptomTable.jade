@@ -1,9 +1,9 @@
-template(name="dash")
+template(name="symptomTable")
   div(style="display:none") #{updatePanes}
   .dashboard-container
-    .diagnosis
-      +reactiveTable collection=diseases settings=tableSettings
-      a(href='/symptomTable/#{diagnosisId}') Detailed diagnosis
+    .diagnosis(style="flex: 0 0 100%;")
+      +reactiveTable collection=symptomTableCollection settings=tableSettings
+      a(href='/dash/#{diagnosisId}') Less detailed diagnosis
       .features
         if showCategory 'symptom'
           .feature-section.symptoms
@@ -54,12 +54,3 @@ template(name="dash")
               if eq type "cluster"
                 each locations
                   .label.location #{formatLocation}
-    .pane-container
-      .pane
-        +geomapSimple
-      .pane
-        +timelineSimple
-      .pane
-        +dendrogram
-      .pane
-        +text

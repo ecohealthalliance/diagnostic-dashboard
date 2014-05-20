@@ -15,6 +15,15 @@ Router.map () ->
     data: () ->
       Results.findOne(@params._id)
   )
+  
+  @route("symptomTable",
+    path: '/symptomTable/:_id'
+    where: 'client'
+    waitOn: () ->
+      Meteor.subscribe('results')
+    data: () ->
+      Results.findOne(@params._id)
+  )
 
   @route("new",
     where: 'client'
