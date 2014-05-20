@@ -133,9 +133,6 @@ Template.dash.color = () ->
 Template.dash.selected = () ->
   @name == Session.get('disease')
 
-Template.dash.diagnosisId = () ->
-  window.location.pathname.split('/').pop()
-
 Template.dash.tableSettings = () ->
   fields: [
     {
