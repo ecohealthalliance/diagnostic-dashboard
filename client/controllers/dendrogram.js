@@ -130,10 +130,16 @@
         });
     }
 
+    function arrayToLower(a) {
+        return (a || []).map(function (d) {
+            return d.toLowerCase();
+        });
+    }
+
     function init() {
         processTree(root);
         var target = {
-            symptoms: Session.get('features') || [],
+            symptoms: arrayToLower(Session.get('features')),
             unknown: []
         };
         draw(target);
@@ -150,7 +156,7 @@
             load(init);
         } else {
             var target = {
-                symptoms: Session.get('features') || [],
+                symptoms: arrayToLower(Session.get('features')),
                 unknown: []
             };
             draw(target);
@@ -159,7 +165,7 @@
 
     Deps.autorun(function () {
         var target = {
-            symptoms: Session.get('features') || [],
+            symptoms: arrayToLower(Session.get('features')),
             unknown: []
         };
         draw(target);
