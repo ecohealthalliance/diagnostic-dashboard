@@ -182,5 +182,22 @@ Template.dash.events
     Session.set('features', keyword.name for keyword in @keywords)
 
   "click .reset-panels": (event) ->
+    setHeights()
 
-      setHeights()
+  "click .submit-feedback": (event) =>
+    if $(event.currentTarget).hasClass('disabled') then return
+    $(event.currentTarget).addClass('disabled')
+    feedbackItem = _.object(_.map($('form.feedback').serializeArray(), (pair)->
+      if pair.value == "true" or pair.value == "false"
+        [pair.name, pair.value == "true"]
+      else
+        [pair.name, pair.value]
+    ))
+    @grits.feedback.insert(feedbackItem)
+    $('form.feedback').hide()
+
+  "click .open-feedback": (event) =>
+    $('form.feedback').show()
+
+  "click .close-feedback": (event) =>
+    $('form.feedback').hide()
