@@ -68,12 +68,12 @@
         if (!d.distance) {
             if (!d.disease) {
                 if (target.symptoms.indexOf(d.symptom) >= 0) {
-                    return 'red';
+                    return 'green';
                 }
                 if (target.unknown.indexOf(d.symptom) >= 0) {
                     return 'yellow';
                 }
-                return 'green';
+                return 'red';
             }
             return 'black';
         }
