@@ -3,31 +3,29 @@ template(name="dash")
   .dashboard-container
     .diagnosis
       +reactiveTable collection=diseases settings=tableSettings
-      each diseases
-        if selected
-          a.open-feedback(style="float:right;") Feedback?
-          form.feedback(style="display:none")
-            .form-group
-              label Disease: {{name}}
-              input(name="disease" type="hidden" value="{{name}}")
-              .correct-question
-                label.control-label(for="correct") Was this diagnosis correct?
-                | &nbsp;
-                input.correct(type="radio" name="correct" value="true")
-                | Yes
-                | &nbsp;
-                input.correct(type="radio" name="correct" value="false")
-                | No
-              label.control-label(for="better_diagnosis") What should it have been?:
-              textarea.form-control(name="better_diagnosis")
-              label.control-label(for="comments") Diagnosis Comments:
-              textarea.form-control(name="comments")
-              label.control-label(for="general_comments") General Dashboard Feedback:
-              textarea.form-control(name="general_comments")
-              p
-              button.btn.btn-primary.submit-feedback(type="button") Submit
-              span &nbsp;
-              button.btn.btn-danger.close-feedback(type="button") Cancel
+      a.btn.btn-default.open-feedback(style="float:right;") Feedback?
+      form.feedback(style="display:none; overflow:scroll;")
+        .form-group
+          each diseases
+            label Disease: {{name}}
+            .correct-question
+              label.control-label(for="{{name}}-correct") Was this diagnosis correct?
+              | &nbsp;
+              input.correct(type="radio" name="{{name}}-correct" value="true")
+              | Yes
+              | &nbsp;
+              input.correct(type="radio" name="{{name}}-correct" value="false")
+              | No
+          label.control-label(for="missing_diseases") Please list any missing diseases separated by commas:
+          textarea.form-control(name="missing_diseases")
+          label.control-label(for="comments") Diagnosis Comments:
+          textarea.form-control(name="comments")
+          label.control-label(for="general_comments") General Dashboard Feedback:
+          textarea.form-control(name="general_comments")
+          p
+          button.btn.btn-primary.submit-feedback(type="button") Submit
+          span &nbsp;
+          button.btn.btn-danger.close-feedback(type="button") Cancel
               
       .features
         if showCategory 'symptom'

@@ -184,12 +184,11 @@ Template.dash.events
   "click .submit-feedback": (event) =>
     if $(event.currentTarget).hasClass('disabled') then return
     $(event.currentTarget).addClass('disabled')
-    feedbackItem = _.object(_.map($('form.feedback').serializeArray(), (pair)->
-      if pair.value == "true" or pair.value == "false"
-        [pair.name, pair.value == "true"]
-      else
-        [pair.name, pair.value]
-    ))
+    feedbackItem = {
+      diagnosisId : window.location.pathname.split('/').pop(),
+      form : $('form.feedback').serializeArray()  
+    }
+    console.log feedbackItem
     @grits.feedback.insert(feedbackItem)
     $('form.feedback').hide()
 
