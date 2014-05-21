@@ -14,6 +14,9 @@ Router.map () ->
       Meteor.subscribe('results')
     data: () ->
       Results.findOne(@params._id)
+    unload: () ->
+      Session.set('disease', null)
+      Session.set('features', [])
   )
 
   @route("new",
