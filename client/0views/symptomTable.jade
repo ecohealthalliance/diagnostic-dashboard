@@ -1,32 +1,9 @@
-template(name="dash")
+template(name="symptomTable")
   div(style="display:none") #{updatePanes}
   .dashboard-container
-    .diagnosis
-      +reactiveTable collection=diseases settings=tableSettings
-      a.btn.btn-default(href='/symptomTable/#{diagnosisId}') Detailed diagnosis
-      a.btn.btn-default.open-feedback(style="float:right;") Feedback?
-      form.feedback(style="display:none; overflow:scroll;")
-        .form-group
-          each diseases
-            label Disease: {{name}}
-            .correct-question
-              label.control-label(for="{{name}}-correct") Was this diagnosis correct?
-              | &nbsp;
-              input.correct(type="radio" name="{{name}}-correct" value="true")
-              | Yes
-              | &nbsp;
-              input.correct(type="radio" name="{{name}}-correct" value="false")
-              | No
-          label.control-label(for="missing_diseases") Please list any missing diseases separated by commas:
-          textarea.form-control(name="missing_diseases")
-          label.control-label(for="comments") Diagnosis Comments:
-          textarea.form-control(name="comments")
-          label.control-label(for="general_comments") General Dashboard Feedback:
-          textarea.form-control(name="general_comments")
-          p
-          button.btn.btn-primary.submit-feedback(type="button") Submit
-          span &nbsp;
-          button.btn.btn-danger.close-feedback(type="button") Cancel
+    .diagnosis(style="flex: 0 0 100%;")
+      +reactiveTable collection=symptomTableCollection settings=tableSettings
+      a.btn.btn-default(href='/dash/#{diagnosisId}') Less detailed diagnosis
       .features
         if showCategory 'symptom'
           .feature-section.symptoms
@@ -77,12 +54,3 @@ template(name="dash")
               if eq type "cluster"
                 each locations
                   .label.location #{formatLocation}
-    .pane-container
-      .pane
-        +geomapSimple
-      .pane
-        +timelineSimple
-      .pane
-        +dendrogram
-      .pane
-        +text

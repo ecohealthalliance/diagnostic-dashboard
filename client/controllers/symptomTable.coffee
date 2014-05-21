@@ -48,7 +48,7 @@ setHeights = () ->
 color = d3.scale.category20()
 
 
-Template.dash.rendered = () ->
+Template.symptomTable.rendered = () ->
 
   if !this.initialized
     setHeights()
@@ -60,7 +60,7 @@ Template.dash.rendered = () ->
     this.initialized = true
 
 
-Template.dash.updatePanes = () ->
+Template.symptomTable.updatePanes = () ->
   # updating the panes as a side effect of a template call is temporary
   dateFeatures = _.filter(@features, (feature) ->
     feature.type is 'datetime'
@@ -94,10 +94,10 @@ Template.dash.updatePanes = () ->
   ''
 
 
-Template.dash.eq = (a, b) ->
+Template.symptomTable.eq = (a, b) ->
   a == b
 
-Template.dash.showCategory = (category) ->
+Template.symptomTable.showCategory = (category) ->
   if category in ['datetime', 'caseCount', 'deathCount', 'cluster']
     _.any(@features, (feature) ->
       feature.type is category
@@ -109,12 +109,12 @@ Template.dash.showCategory = (category) ->
       )
     )
 
-Template.dash.hasCategory = (keywordCategories, category) ->
+Template.symptomTable.hasCategory = (keywordCategories, category) ->
   _.any(keywordCategories, (keywordCategory) ->
     keywordCategory.indexOf(category) >= 0
   )
 
-Template.dash.formatLocation = () ->
+Template.symptomTable.formatLocation = () ->
   location = "#{@name}"
   admin1Code = @['admin1 code'] # e.g., state
   location += ", #{admin1Code}" if admin1Code and /^[a-z]+$/i.test(admin1Code)
@@ -122,21 +122,36 @@ Template.dash.formatLocation = () ->
   location += ", #{countryCode}" if countryCode
   location
 
-Template.dash.formatDate = () ->
+Template.symptomTable.formatDate = () ->
   date = new Date(@value)
   date.setDate(date.getDate() + 1)
   date.toLocaleDateString()
 
-Template.dash.color = () ->
+Template.symptomTable.color = () ->
   color @name
 
-Template.dash.selected = () ->
+Template.symptomTable.selected = () ->
   @name == Session.get('disease')
-
-Template.dash.diagnosisId = () ->
+  
+Template.symptomTable.diagnosisId = () ->
   window.location.pathname.split('/').pop()
 
-Template.dash.tableSettings = () ->
+Template.symptomTable.symptomTableCollection = ()->
+  if @diseases
+    _.map @diseases, (disease)->
+      diseaseClone = _.clone(disease)
+      for kw in disease.keywords
+        diseaseClone[kw.name] = kw.score
+      diseaseClone
+
+Template.symptomTable.tableSettings = () ->
+  symptoms =
+    _.chain(@diseases)
+     .reduce( (sofar, disease) ->
+         sofar.concat(_.pluck(disease.keywords, 'name'))
+     , [])
+     .uniq()
+     .value()
   fields: [
     {
       key: 'probability'
@@ -163,12 +178,19 @@ Template.dash.tableSettings = () ->
           html += "<span style='background-color:#{featureColor}'>&nbsp;</span>&ensp;"
         Spacebars.SafeString html
     }
-  ]
+  ].concat(_.map symptoms, (name)->
+    {
+      key: name
+      label: name
+      fn: (score) ->
+        Math.round(score * 1000) / 1000
+    }
+  )
   showNavigation: 'never'
   showFilter: false
 
 
-Template.dash.events
+Template.symptomTable.events
   "click .pane:not(.maximized)": (event) ->
     selectedPane = $(event.currentTarget)
     selectedPane.hide()
@@ -182,21 +204,5 @@ Template.dash.events
     Session.set('features', keyword.name for keyword in @keywords)
 
   "click .reset-panels": (event) ->
-    setHeights()
 
-  "click .submit-feedback": (event) =>
-    if $(event.currentTarget).hasClass('disabled') then return
-    $(event.currentTarget).addClass('disabled')
-    feedbackItem = {
-      diagnosisId : window.location.pathname.split('/').pop(),
-      form : $('form.feedback').serializeArray()  
-    }
-    console.log feedbackItem
-    @grits.feedback.insert(feedbackItem)
-    $('form.feedback').hide()
-
-  "click .open-feedback": (event) =>
-    $('form.feedback').show()
-
-  "click .close-feedback": (event) =>
-    $('form.feedback').hide()
+      setHeights()
