@@ -3,7 +3,7 @@ template(name="dash")
   .dashboard-container
     .diagnosis
       +reactiveTable collection=diseases settings=tableSettings
-      a(href='/symptomTable/#{diagnosisId}') Detailed diagnosis
+      a.btn.btn-default(href='/symptomTable/#{diagnosisId}') Detailed diagnosis
       .features
         if showCategory 'symptom'
           .feature-section.symptoms

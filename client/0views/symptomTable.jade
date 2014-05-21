@@ -3,7 +3,7 @@ template(name="symptomTable")
   .dashboard-container
     .diagnosis(style="flex: 0 0 100%;")
       +reactiveTable collection=symptomTableCollection settings=tableSettings
-      a(href='/dash/#{diagnosisId}') Less detailed diagnosis
+      a.btn.btn-default(href='/dash/#{diagnosisId}') Less detailed diagnosis
       .features
         if showCategory 'symptom'
           .feature-section.symptoms
