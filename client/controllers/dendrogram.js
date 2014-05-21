@@ -24,6 +24,10 @@
         if (root.children && root.children.length) {
             root.disease = false;
             root._children = root.children.slice();
+
+            root._children[0].labelPosition = 'above';
+            root._children[1].labelPosition = 'below';
+
             processTree(root.children[0]);
             processTree(root.children[1]);
         } else {
@@ -125,12 +129,13 @@
                 return d.symptom || d.disease;
             },
             labelPosition: function (d) {
-                return d.disease ? 'below' : 'above';
+                return d.labelPosition;
             }
         });
     }
 
     function init() {
+        root.labelPosition = 'above';
         processTree(root);
         var target = {
             symptoms: Session.get('features') || [],
