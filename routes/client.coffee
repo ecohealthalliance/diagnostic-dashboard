@@ -14,11 +14,11 @@ Router.map () ->
       Meteor.subscribe('results')
     data: () ->
       Results.findOne(@params._id)
-    unload: () ->
+    onStop: () ->
       Session.set('disease', null)
       Session.set('features', [])
   )
-  
+
   @route("symptomTable",
     path: '/symptomTable/:_id'
     where: 'client'
