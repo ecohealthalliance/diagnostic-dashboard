@@ -45,7 +45,9 @@ setHeights = () ->
       width: n.width()
       height: n.height()
     })
-color = d3.scale.category20()
+
+color = (text) =>
+  @grits.services.color text
 
 
 Template.dash.rendered = () ->
@@ -181,6 +183,9 @@ Template.dash.events
     Session.set('disease', @name)
     Session.set('features', keyword.name for keyword in @keywords)
 
+  "click .diagnosis .label" : (event) ->
+    Session.set('features', [@name or @text])
+
   "click .reset-panels": (event) ->
     setHeights()
 
@@ -189,7 +194,7 @@ Template.dash.events
     $(event.currentTarget).addClass('disabled')
     feedbackItem = {
       diagnosisId : window.location.pathname.split('/').pop(),
-      form : $('form.feedback').serializeArray()  
+      form : $('form.feedback').serializeArray()
     }
     console.log feedbackItem
     @grits.feedback.insert(feedbackItem)
