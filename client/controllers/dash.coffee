@@ -189,19 +189,5 @@ Template.dash.events
   "click .reset-panels": (event) ->
     setHeights()
 
-  "click .submit-feedback": (event) =>
-    if $(event.currentTarget).hasClass('disabled') then return
-    $(event.currentTarget).addClass('disabled')
-    feedbackItem = {
-      diagnosisId : window.location.pathname.split('/').pop(),
-      form : $('form.feedback').serializeArray()
-    }
-    console.log feedbackItem
-    @grits.feedback.insert(feedbackItem)
-    $('form.feedback').hide()
-
   "click .open-feedback": (event) =>
     $('form.feedback').show()
-
-  "click .close-feedback": (event) =>
-    $('form.feedback').hide()

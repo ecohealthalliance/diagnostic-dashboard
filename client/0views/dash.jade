@@ -5,28 +5,7 @@ template(name="dash")
       +reactiveTable collection=diseases settings=tableSettings
       a.btn.btn-default(href='/symptomTable/#{diagnosisId}') Detailed diagnosis
       a.btn.btn-default.open-feedback(style="float:right;") Feedback?
-      form.feedback(style="display:none; overflow:scroll;")
-        .form-group
-          each diseases
-            label Disease: {{name}}
-            .correct-question
-              label.control-label(for="{{name}}-correct") Was this diagnosis correct?
-              | &nbsp;
-              input.correct(type="radio" name="{{name}}-correct" value="true")
-              | Yes
-              | &nbsp;
-              input.correct(type="radio" name="{{name}}-correct" value="false")
-              | No
-          label.control-label(for="missing_diseases") Please list any missing diseases separated by commas:
-          textarea.form-control(name="missing_diseases")
-          label.control-label(for="comments") Diagnosis Comments:
-          textarea.form-control(name="comments")
-          label.control-label(for="general_comments") General Dashboard Feedback:
-          textarea.form-control(name="general_comments")
-          p
-          button.btn.btn-primary.submit-feedback(type="button") Submit
-          span &nbsp;
-          button.btn.btn-danger.close-feedback(type="button") Cancel
+      +feedback
       .features
         if showCategory 'symptom'
           .feature-section.symptoms
