@@ -11,6 +11,7 @@
     "bootstrap-3": {},
     "reactive-table": {},
     "d3": {},
-    "font-awesome": {}
+    "font-awesome": {},
+    "accounts-entry": {}
   }
 }

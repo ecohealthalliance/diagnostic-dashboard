@@ -10,6 +10,8 @@ Router.map () ->
   @route("dash",
     path: '/dash/:_id'
     where: 'client'
+    onBeforeAction: () ->
+      AccountsEntry.signInRequired(@)
     waitOn: () ->
       Meteor.subscribe('results')
     data: () ->
@@ -22,6 +24,8 @@ Router.map () ->
   @route("symptomTable",
     path: '/symptomTable/:_id'
     where: 'client'
+    onBeforeAction: () ->
+      AccountsEntry.signInRequired(@)
     waitOn: () ->
       Meteor.subscribe('results')
     data: () ->
@@ -30,6 +34,8 @@ Router.map () ->
 
   @route("new",
     where: 'client'
+    onBeforeAction: () ->
+      AccountsEntry.signInRequired(@)
   )
 
   @route("home",
