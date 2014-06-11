@@ -3,6 +3,8 @@ Router.map () ->
     path: '/diagnose'
     where: 'server'
     action: () ->
+      # Temporarily disabled until we decide how to authenticate
+      @response.writeHead(400)
       text = @request.body.content
       if not text
         @response.writeHead(400)
@@ -20,6 +22,8 @@ Router.map () ->
     path: '/submit'
     where: 'server'
     action: () ->
+      # Temporarily disabled until we decide how to authenticate
+      @response.writeHead(400)
       text = @request.body.content
       host = @request.headers.host
       method = if @request.connection.encrypted then 'https' else 'http'
