@@ -7,30 +7,13 @@ template(name="dash")
       a.btn.btn-default.open-feedback(style="float:right;") Feedback?
       +feedback
       .features
-        if showCategory 'symptom'
-          .feature-section.symptoms
-            h4 Symptoms
-            each keywords
-              if hasCategory categories 'symptom'
-                .label(style="background-color:{{color}}") #{name}
-        if showCategory 'host'
-          .feature-section.hosts
-            h4 Hosts
-            each keywords
-              if hasCategory categories 'host'
-                .label(style="background-color:{{color}}") #{name}
-        if showCategory 'pathogen'
-          .feature-section.pathogens
-            h4 Pathogens
-            each keywords
-              if hasCategory categories 'pathogen'
-                .label(style="background-color:{{color}}") #{name}
-        if showCategory 'transmi'
-          .feature-section.transmission
-            h4 Modes of Transmission
-            each keywords
-              if hasCategory categories 'transmi'
-                .label(style="background-color:{{color}}") #{name}
+        each keywordCategories
+          if showCategory pattern ../keywords
+            .feature-section
+              h4 #{label}
+              each ../keywords
+                if hasCategory categories ../pattern
+                  .label(style="background-color:{{color}}") #{name}
         if showCategory 'datetime'
           .feature-section.dates
             h4 Dates

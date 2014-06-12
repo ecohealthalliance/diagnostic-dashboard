@@ -99,13 +99,13 @@ Template.dash.updatePanes = () ->
 Template.dash.eq = (a, b) ->
   a == b
 
-Template.dash.showCategory = (category) ->
+Template.dash.showCategory = (category, keywords) ->
   if category in ['datetime', 'caseCount', 'deathCount', 'cluster']
     _.any(@features, (feature) ->
       feature.type is category
     )
   else
-    _.any(@keywords, (keyword) ->
+    _.any(@keywords or keywords, (keyword) ->
       _.any(keyword.categories, (keywordCategory) ->
         keywordCategory.indexOf(category) >= 0
       )
@@ -168,6 +168,9 @@ Template.dash.tableSettings = () ->
   ]
   showNavigation: 'never'
   showFilter: false
+
+Template.dash.keywordCategories = () =>
+  @grits.KEYWORD_CATEGORIES
 
 
 Template.dash.events
