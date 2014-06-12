@@ -15,54 +15,24 @@ template(name="dash")
       +reactiveTable collection=diseases settings=tableSettings
       +feedback
       .features
-        if showCategory 'symptom'
-          .feature-section.symptoms
-            with keywords
-              h4.symptom Symptoms
-            each keywords
-              if hasCategory categories 'symptom'
-                .label(id="{{getIdKey this }}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color) #{name}
-        if showCategory 'host'
-          .feature-section.hosts
-            h4.host Hosts
-            each keywords
-              if hasCategory categories 'host'
-                .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color) #{name}
-        if showCategory 'pathogen'
-          .feature-section.pathogens
-            h4.pathogen Pathogens
-            each keywords
-              if hasCategory categories 'pathogen'
-                .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color) #{name}
-        if showCategory 'transmi'
-          .feature-section.transmission
-            h4.transmi Modes of Transmission
-            each keywords
-              if hasCategory categories 'transmi'
-                .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color) #{name}
+        each keywordCategories
+          if showCategory pattern ../keywords
+            .feature-section
+              h4 #{label}
+              each ../keywords
+                if hasCategory categories ../pattern
+                  .label(style="background-color:{{color}}") #{name}
         if showCategory 'datetime'
           .feature-section.dates
             h4.datetime Dates
             each features
               if eq type "datetime"
                 .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color) #{formatDate}
-        if showCategory 'caseCount'
-          .feature-section.case-counts
-            h4.caseCount Case Counts
-            each features
-              if eq type "caseCount"
-                .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color) #{value}
         if showCategory 'deathCount'
           .feature-section.death-counts
             h4.deathCount Death Counts
             each features
               if eq type "deathCount"
-                .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color) #{value}
-        if showCategory 'hospitalizationCount'
-          .feature-section.hospitalization-counts
-            h4.hospitalizationCount Hospitalization Counts
-            each features
-              if eq type "hospitalizationCount"
                 .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color) #{value}
         if showCategory 'location'
           .feature-section.locations
