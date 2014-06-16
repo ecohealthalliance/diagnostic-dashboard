@@ -6,7 +6,6 @@
 standard-app-packages
 coffeescript
 stylus
-iron-router
 jade
 d3
 bootstrap-3
@@ -15,3 +14,6 @@ tangelo
 http
 geojs
 font-awesome
+accounts-entry
+accounts-password
+iron-router

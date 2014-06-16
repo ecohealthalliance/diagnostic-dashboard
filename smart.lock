@@ -13,7 +13,8 @@
       "bootstrap-3": {},
       "reactive-table": {},
       "d3": {},
-      "font-awesome": {}
+      "font-awesome": {},
+      "accounts-entry": {}
     },
     "packages": {
       "iron-router": {
@@ -23,8 +24,8 @@
       },
       "jade": {
         "git": "https://github.com/mquandalle/meteor-jade.git",
-        "tag": "v0.2.2",
-        "commit": "0391abab7d592b17ff74d9b9beaa721051970729"
+        "tag": "v0.2.4",
+        "commit": "a47a4c59daaa57e7fe5f1544d4ea76d95a5c9abf"
       },
       "geojs": {
         "path": "packages/geojs"
@@ -39,8 +40,8 @@
       },
       "reactive-table": {
         "git": "https://github.com/ecohealthalliance/reactive-table.git",
-        "tag": "v0.3.11",
-        "commit": "9ec88b8bcded8ced97cc8736f3d2ecbe3e7b926d"
+        "tag": "v0.3.13",
+        "commit": "4ac599148eddfe05aa7732d64a2d7b6fb1b601dd"
       },
       "d3": {
         "git": "https://github.com/sergeyt/meteor-d3.git",
@@ -52,6 +53,11 @@
         "tag": "v4.1.0",
         "commit": "ce6b1e92715d1938babc5d69c655c17e387f5926"
       },
+      "accounts-entry": {
+        "git": "https://github.com/Differential/accounts-entry.git",
+        "tag": "v0.7.3",
+        "commit": "7facaa045d3720eeeba3420c28e48d5709188fe3"
+      },
       "blaze-layout": {
         "git": "https://github.com/EventedMind/blaze-layout.git",
         "tag": "v0.2.4",
@@ -61,6 +67,11 @@
         "git": "https://github.com/subhog/meteor-just-i18n.git",
         "tag": "v0.2.4",
         "commit": "91decfcf5b3b5e67f202a67658350b862330bf3d"
+      },
+      "accounts-t9n": {
+        "git": "https://github.com/softwarerero/meteor-accounts-t9n.git",
+        "tag": "v0.0.5",
+        "commit": "ad9539a8818049d5d9fa050d8b2a1f62706483b1"
       }
     }
   }

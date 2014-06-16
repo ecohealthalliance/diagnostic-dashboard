@@ -16,4 +16,8 @@ template(name="layout")
       a.nav-btn.reset-panels(href="#")
         i.fa.fa-th-large.fa-th-large
         p All Panes
+    if signedIn
+      a.nav-btn.sign-out(href="/sign-out")
+        i.fa.fa-sign-out.sign-out
+        p Sign Out
   +yield
