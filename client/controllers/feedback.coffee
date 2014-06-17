@@ -3,7 +3,9 @@ Template.feedback.events
     if $(event.currentTarget).hasClass('disabled') then return
     $(event.currentTarget).addClass('disabled')
     feedbackItem = {
-      diagnosisId : window.location.pathname.split('/').pop(),
+      diagnosisId : window.location.pathname.split('/').pop()
+      userId : Meteor.userId()
+      version: "0.0.1"
       form : $('form.feedback').serializeArray()
     }
     @grits.feedback.insert(feedbackItem)
