@@ -6,20 +6,16 @@ They assume you cloned this repository and this readme is in your current direct
 
 Install node.js and meteorite:
 
-    sudo apt-get install g++ make
-    cd ~
-    git clone git://github.com/ry/node.git
-    cd node
-    ./configure
-    make
-    sudo make install
-    sudo ln -s ~/node/out/Release/node /usr/bin/node 
-    sudo apt-get install npm
+    sudo apt-get install python-software-properties python g++ make
+    sudo add-apt-repository ppa:chris-lea/node.js
+    sudo apt-get update
+    sudo apt-get install nodejs
     curl https://install.meteor.com/ | sh
-    cd ../diagnostic-dashboard
     sudo npm install -g meteorite forever
+    cd ~/diagnostic-dashboard
+
 
 Deploy or redeploy the server:
 
-    chmod 700 deploy.sh           
+    chmod 700 deploy.sh
     ./deploy.sh
