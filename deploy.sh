@@ -4,7 +4,7 @@ mrt bundle bundle.tgz
 tar -zxvf bundle.tgz
 # Reinstall the fibers module (why?)
 cd bundle/programs/server/node_modules
-rm -r fibers
+rm -rf fibers
 npm install fibers
 cd ../../../..
 # Restart the forever server process
