@@ -14,8 +14,12 @@ Install node.js and meteorite:
     sudo npm install -g meteorite forever
     cd ~/diagnostic-dashboard
 
-
 Deploy or redeploy the server:
 
     chmod 700 deploy.sh
     ./deploy.sh
+
+By default meteor will run on port 3001. Run the Apache set-up script to put
+proxy the server on port 80:
+
+    apache_setup.sh
