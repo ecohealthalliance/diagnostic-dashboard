@@ -6,6 +6,8 @@ sudo tee /etc/apache2/conf-available/proxy.conf <<EOF
 <VirtualHost *:80>
   ServerName grits-dev.ecohealth.io
   ProxyPreserveHost On
+  ProxyPass /gritsdb/ http://localhost:9999/
+  ProxyPassReverse /gritsdb/ http://localhost:9999/
   ProxyPass / http://localhost:3001/
   ProxyPassReverse / http://localhost:3001/
 </VirtualHost>
