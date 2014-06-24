@@ -1,4 +1,5 @@
 Results = @grits.Results
+Quarantine = @grits.Quarantine
 
 submit = (content) ->
   resultId = Results.insert
@@ -19,4 +20,12 @@ submit = (content) ->
 Meteor.methods(
   'submit' : (content) ->
     submit(content)
+
+  'submitFromQuarantine' : (submissionId) ->
+    content = Quarantine.findOne(submissionId)?.content
+    result = false
+    if content
+      Quarantine.remove(submissionId)
+      result = submit(content)
+    result
 )

@@ -38,6 +38,24 @@ Router.map () ->
       AccountsEntry.signInRequired(@)
   )
 
+  @route("authenticateSubmission",
+    path: '/authenticateSubmission/:_id'
+    where: 'client'
+    template: 'authenticateSubmission'
+    onBeforeAction: () ->
+      AccountsEntry.signInRequired(@)
+    onAfterAction: () ->
+      submissionId = @params._id
+      Meteor.call('submitFromQuarantine', submissionId, (error, resultId) ->
+        if resultId
+          Router.go 'dash', {_id: resultId}
+        else
+          Router.go 'timeout'
+      )
+  )
+
+  @route("timeout")
+
   @route("home",
     path: "/"
     where: 'client'
