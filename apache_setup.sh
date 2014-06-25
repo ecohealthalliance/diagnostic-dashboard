@@ -1,4 +1,4 @@
-sudo apt-get install apache2
+sudo apt-get install -y apache2
 sudo a2enmod proxy proxy_http
 # Install a config file for proxying the meteor dashboard
 # and girder
