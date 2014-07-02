@@ -12,6 +12,7 @@ submit = (content, userId) ->
       diseases: result.diseases
       features: result.features
       keywords: result.keywords_found
+      diagnoserVersion: result.diagnoserVersion
       ready: true
     })
   )
