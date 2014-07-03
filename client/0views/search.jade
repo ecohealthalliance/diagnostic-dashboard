@@ -1,0 +1,28 @@
+template(name="search")
+  div(style="display:none") #{updatePanes}
+  .dashboard-container
+    .left-panel
+      h4 Diseases
+      each diseasesSelected
+        div(data-name="{{name}}" class="remove-disease")
+           {{name}}
+          i.fa.fa-times-circle(style="color:crimson;")
+      +inputAutocomplete settings=settings id="new-disease" class="input-xlarge"
+      button(id="add-disease") Add
+      h4 Symptoms
+      input
+      h4 Locations
+      input
+    
+    .pane-container
+      .pane
+        +geomapSimple
+      .pane
+        +timelineSimple
+      .pane
+        +dendrogram
+      .pane
+        +text
+
+template(name="searchPill")
+  span(class="label") {{name}}

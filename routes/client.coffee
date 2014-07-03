@@ -21,6 +21,20 @@ Router.map () ->
       Session.set('features', [])
   )
 
+  @route("search",
+    path: '/search'
+    where: 'client'
+    onBeforeAction: () ->
+      AccountsEntry.signInRequired(@)
+    waitOn: () ->
+      Meteor.subscribe('results')
+    data: () ->
+      Results.findOne(@params._id)
+    onStop: () ->
+      Session.set('disease', null)
+      Session.set('features', [])
+  )
+
   @route("symptomTable",
     path: '/symptomTable/:_id'
     where: 'client'
