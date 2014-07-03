@@ -2,11 +2,12 @@ template(name="search")
   div(style="display:none") #{updatePanes}
   .dashboard-container
     .left-panel
+      p Search for reports mentioning...
       h4 Diseases
       each diseasesSelected
-        div(data-name="{{name}}" class="remove-disease")
-           {{name}}
-          i.fa.fa-times-circle(style="color:crimson;")
+        div
+          i.fa.fa-times-circle(data-name="{{name}}" class="remove-disease" style="color:crimson;")
+          span {{name}}
       +inputAutocomplete settings=settings id="new-disease" class="input-xlarge"
       button(id="add-disease") Add
       h4 Symptoms

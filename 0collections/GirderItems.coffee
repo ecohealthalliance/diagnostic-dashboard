@@ -2,7 +2,7 @@
 @grits.GirderItems = GirderItems = new Meteor.Collection('item')
 
 if Meteor.isServer
-  Meteor.publish('item', (disease) ->
+  Meteor.publish('item', (query) ->
     if @userId
-      GirderItems.find({'meta.diagnosis.diseases.name' : disease})
+      GirderItems.find(query, {limit: 50})
   )

@@ -75,9 +75,15 @@ Template.search.updatePanes = () ->
     }
   )
 
-  locationFeatures = _.filter(@features, (feature) ->
-    feature.type is 'cluster'
+  window.grits.GirderItems.find({}).forEach((x)->
+    console.log x.meta.diagnosis
   )
+
+  locationFeatures = _.chain(window.grits.GirderItems.find().fetch())
+    .pluck('meta').pluck('diagnosis').pluck('features')
+    .flatten(true)
+    .where({type : 'cluster'})
+    .value()
 
   _.each(locationFeatures, (cluster) ->
     _.each(cluster.locations, (locationFeature) ->
@@ -116,10 +122,19 @@ Template.search.settings = ()->
      }
    ]
   }
-
-console.log(Diseases)
   
 DiseasesSelected = new Meteor.Collection(null)
+
+Deps.autorun ()->
+  if DiseasesSelected.find().count() > 0
+    Meteor.subscribe('item', {
+      $or : DiseasesSelected.find().map((d)->
+        {'meta.diagnosis.diseases.name' : d.name}
+      )
+    }, {
+      onready : ()->
+        console.log "reports loaded"
+    })
 
 Template.search.diseasesSelected = ()-> DiseasesSelected.find()
 
@@ -133,11 +148,9 @@ Template.search.events
     selectedPane.fadeIn()
 
   "click #add-disease" : (event) ->
-    console.log($("#new-disease").val())
     DiseasesSelected.insert({name : $("#new-disease").val()})
 
   "click .remove-disease" : (event) ->
-    console.log($(event.currentTarget).data('name'))
     DiseasesSelected.remove({name : $(event.currentTarget).data('name')})
 
   "click .reset-panels": (event) ->
