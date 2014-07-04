@@ -49,7 +49,6 @@ setHeights = () ->
 color = (text) =>
   @grits.services.color text
 
-
 Template.dash.rendered = () ->
 
   if !this.initialized
@@ -188,3 +187,6 @@ Template.dash.events
 
   "click .open-feedback": (event) =>
     $('form.feedback').show()
+
+
+Meteor.Spinner.options = { color: '#fff' }

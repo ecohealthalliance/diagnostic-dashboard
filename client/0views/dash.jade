@@ -2,7 +2,8 @@ template(name="dash")
   div(style="display:none") #{updatePanes}
   unless ready
     .loading-message
-      h1 Please wait while GRITS diagnoses...
+      +spinner
+      h1 Please wait...
   .dashboard-container
     .diagnosis
       +reactiveTable collection=diseases settings=tableSettings
