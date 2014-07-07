@@ -115,9 +115,9 @@ Template.dash.hasCategory = (keywordCategories, category) ->
 
 Template.dash.formatLocation = () ->
   location = "#{@name}"
-  admin1Code = @.geoname['admin1 code'] # e.g., state
+  admin1Code = @geoname['admin1 code'] # e.g., state
   location += ", #{admin1Code}" if admin1Code and /^[a-z]+$/i.test(admin1Code)
-  countryCode = @.geoname['country code']
+  countryCode = @geoname['country code']
   location += ", #{countryCode}" if countryCode
   location
 
