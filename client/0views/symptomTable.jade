@@ -47,10 +47,10 @@ template(name="symptomTable")
             each features
               if eq type "deathCount"
                 .label #{text}
-        if showCategory 'cluster'
+        if showCategory 'location'
           .feature-section.locations
             h4 Locations
             each features
-              if eq type "cluster"
+              if eq type "location"
                 each locations
                   .label.location #{formatLocation}
