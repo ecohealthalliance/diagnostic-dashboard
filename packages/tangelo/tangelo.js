@@ -3,7 +3,7 @@ window.tangelo = {};
 (function(tangelo) {
     "use strict";
     tangelo.version = function() {
-        return "0.6.1dev";
+        return "0.7dev";
     };
     tangelo.error = function(code, message, jqxhr) {
         var error = {};
@@ -1906,13 +1906,13 @@ window.tangelo.vtkweb = {};
             heigth: null
         },
         latlng2display: function(pt) {
-            return this._map.gcsToDisplay(pt);
+            return this.svgLayer.renderer().worldToDisplay(pt);
         },
         display2latlng: function(pt) {
-            return this._map.displayToGcs(pt);
+            return this.svgLayer.renderer().displayToWorld(pt);
         },
         svg: function() {
-            return this.svgGroup;
+            return this.svgGroup.node();
         },
         legend: function() {
             throw "Legend layer not yet implemented";
@@ -1920,27 +1920,26 @@ window.tangelo.vtkweb = {};
         map: function() {
             return this._map;
         },
+        scale: function() {
+            return this.svgLayer.renderer().scaleFactor();
+        },
         _create: function() {
             var node = this.element.get(0), opts = {
                 zoom: this.options.zoom,
                 node: node
             }, that = this;
             this._map = geo.map(opts);
-            this._map.addLayer(geo.osmLayer({
-                renderer: "vglRenderer"
-            }).referenceLayer(true));
-            this.svgLayer = geo.featureLayer({
+            this._map.createLayer("osm");
+            this.svgLayer = this._map.createLayer("feature", {
                 renderer: "d3Renderer"
             });
-            this._map.addLayer(this.svgLayer);
-            this.svgContext = this.svgLayer.renderer().canvas();
-            this.svgGroup = this.svgContext.append("g").node();
+            this.svgGroup = this.svgLayer.renderer().canvas();
             this._resize();
             $(window).resize(function() {
                 that._resize();
             });
-            this._map.on([ geo.event.pan, geo.event.zoom ], function() {
-                $(node).trigger("draw");
+            this.svgLayer.on(geo.event.d3Rescale, function(arg) {
+                $(node).trigger("rescale", arg.scale);
             });
         },
         _update: $.noop,
@@ -1950,14 +1949,13 @@ window.tangelo.vtkweb = {};
                 return;
             }
             this._map.resize(0, 0, w, h);
-            this.element.trigger("draw");
+            this._map.draw();
         },
         _setOption: function(key, value) {
             this.options[key] = value;
             if (key === "width" || key === "height") {
                 this._resize();
             }
-            this._update();
         }
     });
 })(window.tangelo, window.geo, window.d3, window.jQuery);
@@ -1987,16 +1985,25 @@ window.tangelo.vtkweb = {};
             var that = this;
             this.colorScale = d3.scale.category10();
             this._super();
-            this.element.on("draw", function() {
-                that._update();
+            this.element.on("rescale", function() {
+                that._rescale();
             });
+        },
+        _rescale: function() {
+            var that = this, scale;
+            if (this.options.data && this.map()) {
+                scale = this.scale();
+                d3.select(this.svg()).selectAll(".point").data(this.options.data).attr("r", function(d) {
+                    return tangelo.accessor(that.options.size)(d) / scale;
+                });
+            }
         },
         _update: function() {
             var svg = this.svg(), that = this, lat = tangelo.accessor(this.options.latitude), lng = tangelo.accessor(this.options.longitude), pt, selection, enter, exit;
             if (this.options.data && this.map()) {
                 this.options.data.forEach(function(d) {
                     pt = geo.latlng(lat(d), lng(d));
-                    d._georef = that.latlng2display(pt)[0];
+                    d._georef = that.latlng2display(pt);
                 });
                 selection = d3.select(svg).selectAll(".point").data(this.options.data);
                 enter = selection.enter();
@@ -2006,10 +2013,11 @@ window.tangelo.vtkweb = {};
                     field: "_georef.x"
                 })).attr("cy", tangelo.accessor({
                     field: "_georef.y"
-                })).attr("r", tangelo.accessor(this.options.size)).style("fill", function(d) {
+                })).style("fill", function(d) {
                     return that.colorScale(tangelo.accessor(that.options.color)(d));
                 });
                 exit.remove();
+                this._rescale();
             }
         }
     });

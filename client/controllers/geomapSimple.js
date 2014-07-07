@@ -12,13 +12,26 @@
         _create: function () {
           var that = this;
           this._super();
-          this.element.on('draw', function () {
-              that._update();
+          this.element.on('rescale', function () {
+              that._rescale();
           });
+        },
+        _rescale: function () {
+            var that = this,
+                scale;
+            if (this.options.data && this.map()) {
+                scale = this.scale();
+                d3.select(this.svg())
+                    .selectAll('.point')
+                    .data(this.options.data)
+                    .attr('r', function (d) {
+                        return tangelo.accessor(that.options.size)(d) / scale;
+                    });
+            }
         },
         _update: function () {
             var that = this,
-                svg = d3.select(this.svgGroup),
+                svg = this.svgGroup,
                 data = [],
                 select,
                 enter,
@@ -31,7 +44,7 @@
             this.options.data.forEach(function (d) {
                 if (Number.isFinite(d.latitude) && Number.isFinite(d.longitude)) {
                     var pt = geo.latlng(d.latitude, d.longitude);
-                    d._georef = that.latlng2display(pt)[0];
+                    d._georef = that.latlng2display(pt);
                     data.push(d);
                 }
             });
@@ -57,7 +70,6 @@
                     $(this).popover('hide');
                 });
             }
-
             select = svg.selectAll('.marker')
                         .data(data);
             enter = select.enter();
