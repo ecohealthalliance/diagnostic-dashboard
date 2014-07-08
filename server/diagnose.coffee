@@ -5,21 +5,7 @@ diagnose = (content) =>
         content: content
       }
     })
-    result = JSON.parse(response.content)
-    result.features.forEach( (f)->
-      if f.type == 'cluster'
-        f.locations.forEach( (l)->
-          if _.isString l.latitude
-            console.log "String latitude found in:"
-            console.log l
-            l.latitude = parseFloat(l.latitude)
-          if _.isString l.longitude
-            console.log "String longitude found in:"
-            console.log l
-            l.longitude = parseFloat(l.longitude)
-        )
-    )
-    result
+    JSON.parse(response.content)
   catch error
     console.log "Error parsing grits API response:"
     console.log response

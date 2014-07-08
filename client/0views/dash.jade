@@ -53,13 +53,12 @@ template(name="dash")
             each features
               if eq type "deathCount"
                 .label #{text}
-        if showCategory 'cluster'
+        if showCategory 'location'
           .feature-section.locations
             h4 Locations
             each features
-              if eq type "cluster"
-                each locations
-                  .label.location #{formatLocation}
+              if eq type "location"
+                .label.location #{formatLocation}
     .pane-container
       .pane
         +geomapSimple

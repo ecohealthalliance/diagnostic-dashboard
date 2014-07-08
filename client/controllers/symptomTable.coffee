@@ -75,18 +75,16 @@ Template.symptomTable.updatePanes = () ->
   )
 
   locationFeatures = _.filter(@features, (feature) ->
-    feature.type is 'cluster'
+    feature.type is 'location'
   )
 
-  _.each(locationFeatures, (cluster) ->
-    _.each(cluster.locations, (locationFeature) ->
-        data.push {
-          date: null
-          latitude: locationFeature.latitude
-          longitude: locationFeature.longitude
-          location: locationFeature.name
-        }
-    )
+  _.each(locationFeatures, (location) ->    
+    data.push {
+      date: null
+      latitude: location.geoname.latitude
+      longitude: location.geoname.longitude
+      location: location.geoname.name
+    }
   )
 
 
@@ -98,7 +96,7 @@ Template.symptomTable.eq = (a, b) ->
   a == b
 
 Template.symptomTable.showCategory = (category) ->
-  if category in ['datetime', 'caseCount', 'deathCount', 'cluster']
+  if category in ['datetime', 'caseCount', 'deathCount', 'location']
     _.any(@features, (feature) ->
       feature.type is category
     )
