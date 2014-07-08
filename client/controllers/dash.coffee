@@ -49,7 +49,6 @@ setHeights = () ->
 color = (text) =>
   @grits.services.color text
 
-
 Template.dash.rendered = () ->
 
   if !this.initialized
@@ -132,9 +131,6 @@ Template.dash.color = () ->
 Template.dash.selected = () ->
   @name == Session.get('disease')
 
-Template.dash.diagnosisId = () ->
-  window.location.pathname.split('/').pop()
-
 Template.dash.tableSettings = () ->
   fields: [
     {
@@ -191,3 +187,6 @@ Template.dash.events
 
   "click .open-feedback": (event) =>
     $('form.feedback').show()
+
+
+Meteor.Spinner.options = { color: '#fff' }
