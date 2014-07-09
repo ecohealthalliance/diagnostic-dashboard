@@ -2067,7 +2067,7 @@ window.tangelo.vtkweb = {};
             return this.svgLayer.renderer().displayToWorld(pt);
         },
         svg: function() {
-            return this.svgGroup[0];
+            return this.svgGroup.node();
         },
         legend: function() {
             throw "Legend layer not yet implemented";
@@ -2088,7 +2088,7 @@ window.tangelo.vtkweb = {};
             this.svgLayer = this._map.createLayer("feature", {
                 renderer: "d3Renderer"
             });
-            this.svgGroup = this.svgLayer.renderer().canvas()[0];
+            this.svgGroup = this.svgLayer.renderer().canvas();
             this._resize();
             $(window).resize(function() {
                 that._resize();
