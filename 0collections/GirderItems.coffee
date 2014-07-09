@@ -4,5 +4,7 @@
 if Meteor.isServer
   Meteor.publish('item', (query) ->
     if @userId
-      GirderItems.find(query, {limit: 50})
+      # The limit can cause seemingly inconsistent results where narrowing down
+      # a queries causes articles to appear.
+      GirderItems.find(query, {limit: 100})
   )

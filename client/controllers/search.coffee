@@ -75,10 +75,6 @@ Template.search.updatePanes = () ->
     }
   )
 
-  window.grits.GirderItems.find({}).forEach((x)->
-    console.log x.meta.diagnosis
-  )
-
   locationFeatures = _.chain(window.grits.GirderItems.find().fetch())
     .pluck('meta').pluck('diagnosis').pluck('features')
     .flatten(true)
@@ -101,14 +97,25 @@ Template.search.updatePanes = () ->
   ''
 
 Diseases = new Meteor.Collection(null)
-
 [
-  "Dengue"
+  "Dengue", "Fever", "Hand Foot and Mouth"
 ].forEach((x)->
   Diseases.insert({name : x})
 )
 
-Template.search.settings = ()->
+Keywords = new Meteor.Collection(null)
+[
+  "bat", "pig", "livestock"
+].forEach((x)->
+  Keywords.insert({name : x, host : true})
+)
+[
+  "cough", "sores", "lethargy"
+].forEach((x)->
+  Keywords.insert({name : x, symptom : true})
+)
+
+Template.search.diseaseCompleteSettings = ()->
   {
    position: "top",
    limit: 5,
@@ -122,21 +129,50 @@ Template.search.settings = ()->
      }
    ]
   }
-  
-DiseasesSelected = new Meteor.Collection(null)
 
+Template.search.keywordCompleteSettings = ()->
+  {
+   position: "top",
+   limit: 5,
+   rules: [
+     {
+       collection: Keywords,
+       field: "name",
+       template: Template.searchPill,
+       #matchAll: true,
+       #filter: { type: "autocomplete" },
+     }
+   ]
+  }
+
+DiseasesSelected = new Meteor.Collection(null)
+KeywordsSelected = new Meteor.Collection(null)
+window.KeywordsSelected = KeywordsSelected
 Deps.autorun ()->
+  conditions = []
   if DiseasesSelected.find().count() > 0
-    Meteor.subscribe('item', {
+    conditions.push({
       $or : DiseasesSelected.find().map((d)->
         {'meta.diagnosis.diseases.name' : d.name}
       )
+    })
+  if KeywordsSelected.find().count() > 0
+    conditions.push({
+      'meta.diagnosis.keywords_found.name' : {
+        $all : KeywordsSelected.find().map((k)-> k.name)
+      }
+    })
+  if conditions.length > 0
+    Meteor.subscribe('item', {
+      $and : conditions
     }, {
       onready : ()->
         console.log "reports loaded"
     })
 
 Template.search.diseasesSelected = ()-> DiseasesSelected.find()
+
+Template.search.keywordsSelected = ()-> KeywordsSelected.find()
 
 Template.search.events
   "click .pane:not(.maximized)": (event) ->
@@ -152,6 +188,12 @@ Template.search.events
 
   "click .remove-disease" : (event) ->
     DiseasesSelected.remove({name : $(event.currentTarget).data('name')})
+
+  "click #add-keyword" : (event) ->
+    KeywordsSelected.insert({name : $("#new-keyword").val()})
+
+  "click .remove-keyword" : (event) ->
+    KeywordsSelected.remove({name : $(event.currentTarget).data('name')})
 
   "click .reset-panels": (event) ->
     setHeights()

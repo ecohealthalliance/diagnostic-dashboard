@@ -2,19 +2,21 @@ template(name="search")
   div(style="display:none") #{updatePanes}
   .dashboard-container
     .left-panel
-      p Search for reports mentioning...
+      h3 Search
       h4 Diseases
       each diseasesSelected
         div
           i.fa.fa-times-circle(data-name="{{name}}" class="remove-disease" style="color:crimson;")
           span {{name}}
-      +inputAutocomplete settings=settings id="new-disease" class="input-xlarge"
+      +inputAutocomplete settings=diseaseCompleteSettings id="new-disease" class="input-xlarge"
       button(id="add-disease") Add
-      h4 Symptoms
-      input
-      h4 Locations
-      input
-    
+      h4 Keywords
+      each keywordsSelected
+        div
+          i.fa.fa-times-circle(data-name="{{name}}" class="remove-keyword" style="color:crimson;")
+          span {{name}}
+      +inputAutocomplete settings=keywordCompleteSettings id="new-keyword" class="input-xlarge"
+      button(id="add-keyword") Add
     .pane-container
       .pane
         +geomapSimple
@@ -26,4 +28,8 @@ template(name="search")
         +text
 
 template(name="searchPill")
+  if symptom
+    span(style="color:blue;") [symptom]
+  if host
+    span(style="color:blue;") [host]
   span(class="label") {{name}}
