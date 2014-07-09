@@ -7,7 +7,9 @@
     var widgetSpec = {
         options: {
             data: [],
-            target: null
+            target: null,
+            pointSize: {'value': 5},
+            lineWidth: {'value': 1}
         },
         _create: function () {
           var that = this;
@@ -18,14 +20,19 @@
         },
         _rescale: function () {
             var that = this,
-                scale;
+                scale,
+                lw = tangelo.accessor(this.options.lineWidth),
+                pt = tangelo.accessor(this.options.pointSize);
             if (this.options.data && this.map()) {
                 scale = this.scale();
                 d3.select(this.svg())
-                    .selectAll('.point')
+                    .selectAll('.marker')
                     .data(this.options.data)
                     .attr('r', function (d) {
-                        return tangelo.accessor(that.options.size)(d) / scale;
+                        return pt(d) / scale;
+                    })
+                    .style('stroke-width', function (d) {
+                        return lw(d) / scale;
                     });
             }
         },
@@ -37,8 +44,7 @@
                 enter,
                 exit,
                 lat = tangelo.accessor({'field': '_georef.y'}),
-                lng = tangelo.accessor({'field': '_georef.x'}),
-                radius;
+                lng = tangelo.accessor({'field': '_georef.x'});
 
             // georeference the data
             this.options.data.forEach(function (d) {
@@ -49,9 +55,6 @@
                 }
             });
             
-            // set the circle size
-            radius = tangelo.accessor({'value': '5pt'});
-
             // function for adding a pop over on mouse over
             function makePopOver(data) {
                 var msg = [];
@@ -83,9 +86,9 @@
             exit.remove();
 
             select
-                .attr('r', radius)
                 .attr('cx', lng)
                 .attr('cy', lat);
+            this._rescale();
         }
     };
 
