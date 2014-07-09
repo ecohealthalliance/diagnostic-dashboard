@@ -88,9 +88,14 @@ Template.dash.updatePanes = () ->
     }
   )
 
-  $('.pane').children().trigger('datachanged', { data: data })
-  ''
+  triggerPanes = () ->
+    panes = $('.pane').children()
+    if !panes.length
+      window.setTimeout(triggerPanes, 100)
+    else
+      $('.pane').children().trigger('datachanged', { data: data })
 
+  triggerPanes()
 
 Template.dash.eq = (a, b) ->
   a == b

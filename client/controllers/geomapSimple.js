@@ -9,7 +9,9 @@
             data: [],
             target: null,
             pointSize: {'value': 5},
-            lineWidth: {'value': 1}
+            lineWidth: {'value': 1},
+            width: null,
+            height: null
         },
         _create: function () {
           var that = this;
@@ -17,17 +19,19 @@
           this.element.on('rescale', function () {
               that._rescale();
           });
+          this._geomapCreated = true;
+          this._data = [];
         },
         _rescale: function () {
             var that = this,
                 scale,
                 lw = tangelo.accessor(this.options.lineWidth),
                 pt = tangelo.accessor(this.options.pointSize);
-            if (this.options.data && this.map()) {
+            if (this.map()) {
                 scale = this.scale();
                 d3.select(this.svg())
                     .selectAll('.marker')
-                    .data(this.options.data)
+                    .data(this._data)
                     .attr('r', function (d) {
                         return pt(d) / scale;
                     })
@@ -36,22 +40,30 @@
                     });
             }
         },
+        resize: function () {
+            this._resize();
+        },
         _update: function () {
             var that = this,
-                svg = this.svgGroup,
-                data = [],
+                svg,
                 select,
                 enter,
                 exit,
                 lat = tangelo.accessor({'field': '_georef.y'}),
                 lng = tangelo.accessor({'field': '_georef.x'});
 
+            if (!this._geomapCreated) {
+                return;
+            }
+
+            this._super();
             // georeference the data
+            this._data = [];
             this.options.data.forEach(function (d) {
                 if (Number.isFinite(d.latitude) && Number.isFinite(d.longitude)) {
                     var pt = geo.latlng(d.latitude, d.longitude);
                     d._georef = that.latlng2display(pt);
-                    data.push(d);
+                    that._data.push(d);
                 }
             });
             
@@ -73,8 +85,10 @@
                     $(this).popover('hide');
                 });
             }
+
+            svg = d3.select(this.svg());
             select = svg.selectAll('.marker')
-                        .data(data);
+                        .data(this._data);
             enter = select.enter();
             exit = select.exit();
 
@@ -98,14 +112,15 @@
 
     Template.geomapSimple.rendered = function () {
         if (!this.initialized) {
-            $(node).healthmapMapSimple()
+            $(node)
                 .on('datachanged', function (evt, data) {
                     $(node).healthmapMapSimple(data);
                 })
                 .on('resizeApp', function (evt, obj) {
                     $(node).healthmapMapSimple({
                         width: obj.width,
-                        height: obj.height
+                        height: obj.height,
+                        zoom: 3
                     });
                 });
             this.initialized = true;

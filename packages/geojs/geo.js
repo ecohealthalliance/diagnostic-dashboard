@@ -22,6 +22,7 @@ ogs.namespace = function(ns_string) {
 };
 
 var geo = ogs.namespace("geo");
+
 window.geo = geo;
 
 geo.renderers = {};
@@ -882,7 +883,7 @@ geo.map = function(arg) {
     arg = arg || {};
     geo.sceneObject.call(this, arg);
     arg.layers = arg.layers === undefined ? [] : arg.layers;
-    var m_this = this, m_x = 0, m_y = 0, m_node = $(arg.node), m_width = m_node.width(), m_height = m_node.height(), m_gcs = arg.gcs === undefined ? "EPSG:4326" : arg.gcs, m_uigcs = arg.uigcs === undefined ? "EPSG:4326" : arg.uigcs, m_center = arg.center === undefined ? [ 0, 0 ] : arg.center, m_zoom = arg.zoom === undefined ? 10 : arg.zoom, m_baseLayer = null, toMillis, calculateGlobalAnimationRange, cloneTimestep, m_animationState = {
+    var m_this = this, m_x = 0, m_y = 0, m_node = $(arg.node), m_width = arg.width || m_node.width(), m_height = arg.height || m_node.height(), m_gcs = arg.gcs === undefined ? "EPSG:4326" : arg.gcs, m_uigcs = arg.uigcs === undefined ? "EPSG:4326" : arg.uigcs, m_center = arg.center === undefined ? [ 0, 0 ] : arg.center, m_zoom = arg.zoom === undefined ? 10 : arg.zoom, m_baseLayer = null, toMillis, calculateGlobalAnimationRange, cloneTimestep, m_animationState = {
         range: null,
         timestep: null,
         layers: null
