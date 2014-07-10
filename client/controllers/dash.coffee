@@ -83,8 +83,8 @@ Template.dash.updatePanes = () ->
   _.each(locationFeatures, (location) ->
       locations.push {
         date: null
-        latitude: location.latitude
-        longitude: location.longitude
+        latitude: location.geoname.latitude
+        longitude: location.geoname.longitude
         location: location.name
       }
     )
