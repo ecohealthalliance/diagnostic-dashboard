@@ -174,7 +174,7 @@ Template.dash.events
 
   "click .diagnosis .reactive-table tbody tr" : (event) ->
     Session.set('disease', @name)
-    Session.set('features', keyword.name for keyword in @keywords)
+    Session.set('features', keyword for keyword in @keywords)
 
   "click .diagnosis .label" : (event) ->
     Session.set('features', [this])
