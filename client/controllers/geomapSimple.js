@@ -10,8 +10,8 @@
             target: null,
             pointSize: {'value': 5},
             lineWidth: {'value': 1},
-            width: null,
-            height: null
+            width: 400,
+            height: 400
         },
         _create: function () {
           var that = this;
@@ -21,6 +21,7 @@
           });
           this._geomapCreated = true;
           this._data = [];
+          this._update();
         },
         _rescale: function () {
             var that = this,
@@ -113,9 +114,6 @@
     Template.geomapSimple.rendered = function () {
         if (!this.initialized) {
             $(node)
-                .on('datachanged', function (evt, data) {
-                    $(node).healthmapMapSimple(data);
-                })
                 .on('resizeApp', function (evt, obj) {
                     $(node).healthmapMapSimple({
                         width: obj.width,
@@ -125,6 +123,15 @@
                 });
             this.initialized = true;
         }
+        $(node).healthmapMapSimple({
+            data: Session.get('locations')
+        });
     };
+
+    Deps.autorun(function () {
+        $(node).healthmapMapSimple({
+            data: Session.get('locations')
+        });
+    });
 
 }(window.tangelo, window.jQuery, window.geo, window.d3));

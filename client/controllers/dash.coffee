@@ -66,7 +66,7 @@ Template.dash.updatePanes = () ->
   dateFeatures = _.filter(@features, (feature) ->
     feature.type is 'datetime'
   )
-  data = _.map(dateFeatures, (feature) ->
+  dates = _.map(dateFeatures, (feature) ->
     {
       date: new Date(feature.value)
       latitude: null
@@ -79,23 +79,20 @@ Template.dash.updatePanes = () ->
     feature.type is 'location'
   )
 
-  _.each(locationFeatures, (location) ->
-    data.push {
-      date: null
-      latitude: location.geoname.latitude
-      longitude: location.geoname.longitude
-      location: location.name
-    }
+  locations = []
+  _.each(locationFeatures, (cluster) ->
+    _.each(cluster.locations, (locationFeature) ->
+        locations.push {
+          date: null
+          latitude: locationFeature.latitude
+          longitude: locationFeature.longitude
+          location: locationFeature.name
+        }
+    )
   )
 
-  triggerPanes = () ->
-    panes = $('.pane').children()
-    if !panes.length
-      window.setTimeout(triggerPanes, 100)
-    else
-      $('.pane').children().trigger('datachanged', { data: data })
-
-  triggerPanes()
+  Session.set('dates', dates)
+  Session.set('locations', locations)
 
 Template.dash.eq = (a, b) ->
   a == b

@@ -24,35 +24,12 @@
     }
     
     Template.timelineSimple.rendered = function () {
-        var data = [];
         if (!this.initialized) {
-            $(node).on('datachanged', function (evt, args) {
-                data = [];
-                if (!args.data.length) {
-                    return;
-                }
-                args.data.forEach(function (d) {
-                    if (!d.date) {
-                        return;
-                    }
-                    d.value = d.date.valueOf();
-                    data.push(d);
-                });
+            $(node).on('resizeApp', function (evt, obj) {
                 $(node).histogram({
-                    data: data,
-                    x: { field: 'value' },
-                    transition: 250,
-                    margin: margin,
-                    xTicks: xTicks,
-                    yTicks: yTicks,
+                    data: Session.get('dates'),
+                    x: function (d) { return d.date.valueOf(); },
                     xScale: d3.time.scale(),
-                    nBins: nBins
-                });
-                applyAxisStyle();
-            }).on('resizeApp', function (evt, obj) {
-                $(node).histogram({
-                    data: data,
-                    x: { field: 'value' },
                     transition: 0,
                     margin: margin,
                     width: obj.width,
@@ -64,4 +41,12 @@
             this.initialized = true;
         }
     };
+
+    Deps.autorun(function () {
+        $(node).histogram({
+            data: Session.get('dates')
+        });
+        applyAxisStyle();
+    });
+
 }(window.$, window.d3));
