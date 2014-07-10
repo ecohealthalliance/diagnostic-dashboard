@@ -80,16 +80,14 @@ Template.dash.updatePanes = () ->
   )
 
   locations = []
-  _.each(locationFeatures, (cluster) ->
-    _.each(cluster.locations, (locationFeature) ->
-        locations.push {
-          date: null
-          latitude: locationFeature.latitude
-          longitude: locationFeature.longitude
-          location: locationFeature.name
-        }
+  _.each(locationFeatures, (location) ->
+      locations.push {
+        date: null
+        latitude: location.latitude
+        longitude: location.longitude
+        location: location.name
+      }
     )
-  )
 
   Session.set('dates', dates)
   Session.set('locations', locations)
