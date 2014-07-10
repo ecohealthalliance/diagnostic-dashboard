@@ -2040,8 +2040,12 @@ window.tangelo.vtkweb = {};
             this.options.data.forEach(function(d) {
                 var val, bin;
                 val = xAcc(d);
-                bin = Math.floor((val - x_ext[0]) / dx);
-                if (bin >= 0 && bin < N) {
+                bin = (val - x_ext[0]) / dx;
+                if (bin >= 0 && bin < N + dx / 1e3) {
+                    if (bin >= N) {
+                        bin = N - 1;
+                    }
+                    bin = Math.floor(bin);
                     that._bins[bin].count += 1;
                 }
             });
@@ -2081,9 +2085,7 @@ window.tangelo.vtkweb = {};
         _create: function() {
             var node = this.element.get(0), opts = {
                 zoom: this.options.zoom,
-                node: node,
-                width: this.options.width,
-                height: this.options.height
+                node: node
             }, that = this;
             this._map = geo.map(opts);
             this._map.createLayer("osm");
