@@ -20,9 +20,10 @@ Template.text.highlight = (content) ->
           closeSpan + highlightedContent.substring(occurrence.end)
       new Spacebars.SafeString(highlightedContent)  
     else if features?.length > 0
-      features = _.sortBy(features, (feature) -> feature.length)
+      features = _.sortBy(features, (feature) -> (feature.name or feature.text).length)
       highlightedContent = content
       for feature in features
+        feature = feature.name or feature.text
         bgColor = color(feature)
         highlightedContent = highlightedContent.replace(new RegExp("\\b#{feature}\\b", 'gi'), "<span class='label' style='background-color:#{bgColor}'>$&</span>")
       new Spacebars.SafeString(highlightedContent)

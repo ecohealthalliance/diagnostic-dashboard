@@ -50,11 +50,22 @@
     });
 
     Deps.autorun(function () {
-        var date = (Session.get('highlightedDate') || 0).valueOf();
+        var features = Session.get('features') || [],
+            dates = [];
+
+        features.forEach(function (feature) {
+            if (feature.type === 'datetime') {
+                dates.push( (new Date(feature.value)).valueOf() );
+            }
+        });
         d3.selectAll('.histogram .boxes').each(function (d) {
+            var selected = false;
+            dates.forEach(function (date) {
+                selected |= d.min <= date && d.max >= date;
+            });
             d3.select(this).classed(
                 'selected',
-                d.min <= date && d.max >= date
+                selected
             );
         });
     });
