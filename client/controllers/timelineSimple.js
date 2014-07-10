@@ -3,7 +3,7 @@
 (function ($, d3) {
     'use strict';
 
-    var nBins = 50,
+    var nBins = 30,
         margin = {
             top: 25,
             left: 30,
@@ -47,6 +47,16 @@
             data: Session.get('dates')
         });
         applyAxisStyle();
+    });
+
+    Deps.autorun(function () {
+        var date = (Session.get('highlightedDate') || 0).valueOf();
+        d3.selectAll('.histogram .boxes').each(function (d) {
+            d3.select(this).classed(
+                'selected',
+                d.min <= date && d.max >= date
+            );
+        });
     });
 
 }(window.$, window.d3));

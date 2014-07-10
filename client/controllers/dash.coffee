@@ -181,6 +181,10 @@ Template.dash.events
       Session.set('features', {name: @name, type: "location", occurrences: @occurrences})
     else
       Session.set('features', [@name or @text])
+    if @dateInformation
+      Session.set('highlightedDate', new Date(this.value))
+    else
+      Session.set('highlightedDate', null)
     
   "click .reset-panels": (event) ->
     setHeights()
