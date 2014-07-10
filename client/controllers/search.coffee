@@ -96,24 +96,10 @@ Template.search.updatePanes = () ->
   $('.pane').children().trigger('datachanged', { data: data })
   ''
 
-Diseases = new Meteor.Collection(null)
-[
-  "Dengue", "Fever", "Hand Foot and Mouth"
-].forEach((x)->
-  Diseases.insert({name : x})
-)
-
-Keywords = new Meteor.Collection(null)
-[
-  "bat", "pig", "livestock"
-].forEach((x)->
-  Keywords.insert({name : x, host : true})
-)
-[
-  "cough", "sores", "lethargy"
-].forEach((x)->
-  Keywords.insert({name : x, symptom : true})
-)
+Meteor.subscribe('keywords')
+Meteor.subscribe('diseaseNames')
+DiseaseNames = new Meteor.Collection('diseaseNames')
+Keywords = new Meteor.Collection('keywords')
 
 Template.search.diseaseCompleteSettings = ()->
   {
@@ -121,11 +107,9 @@ Template.search.diseaseCompleteSettings = ()->
    limit: 5,
    rules: [
      {
-       collection: Diseases,
-       field: "name",
+       collection: DiseaseNames,
+       field: "_id",
        template: Template.searchPill,
-       #matchAll: true,
-       #filter: { type: "autocomplete" },
      }
    ]
   }
@@ -137,10 +121,8 @@ Template.search.keywordCompleteSettings = ()->
    rules: [
      {
        collection: Keywords,
-       field: "name",
+       field: "_id",
        template: Template.searchPill,
-       #matchAll: true,
-       #filter: { type: "autocomplete" },
      }
    ]
   }

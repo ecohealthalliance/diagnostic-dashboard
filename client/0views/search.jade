@@ -28,8 +28,7 @@ template(name="search")
         +text
 
 template(name="searchPill")
-  if symptom
-    span(style="color:blue;") [symptom]
-  if host
-    span(style="color:blue;") [host]
-  span(class="label") {{name}}
+  span(class="sp-label") {{_id}}
+  span(class="sp-categories")
+    each value.categories
+      span(class="sp-category") [{{this}}]
