@@ -134,4 +134,29 @@
         });
     });
 
+    Deps.autorun(function () {
+        var features = Session.get('features') || [],
+            locations = [];
+        features.forEach(function (feature) {
+            if (feature.type === 'location') {
+                locations.push(feature);
+            }
+        });
+        d3.selectAll(node + ' circle').each(function (d) {
+            var selected = false;
+            locations.forEach(function (location) {
+                selected |= Math.abs(d.latitude - location.geoname.latitude) < 10e-6 &&
+                            Math.abs(d.longitude - location.geoname.longitude) < 10e-6;
+            });
+            d3.select(this).classed(
+                'selected',
+                selected
+            );
+            if (selected) {
+                // move the selected circles to the top
+                this.parentNode.appendChild(this);
+            }
+        });
+    });
+
 }(window.tangelo, window.jQuery, window.geo, window.d3));
