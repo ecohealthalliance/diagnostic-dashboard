@@ -128,8 +128,8 @@ Template.search.keywordCompleteSettings = ()->
   }
 
 DiseasesSelected = new Meteor.Collection(null)
-KeywordsSelected = new Meteor.Collection(null)
-window.KeywordsSelected = KeywordsSelected
+AnyKeywordsSelected = new Meteor.Collection(null)
+AllKeywordsSelected = new Meteor.Collection(null)
 Deps.autorun ()->
   conditions = []
   if DiseasesSelected.find().count() > 0
@@ -138,10 +138,16 @@ Deps.autorun ()->
         {'meta.diagnosis.diseases.name' : d.name}
       )
     })
-  if KeywordsSelected.find().count() > 0
+  if AnyKeywordsSelected.find().count() > 0
     conditions.push({
       'meta.diagnosis.keywords_found.name' : {
-        $all : KeywordsSelected.find().map((k)-> k.name)
+        $in : AnyKeywordsSelected.find().map((k)-> k.name)
+      }
+    })
+  if AllKeywordsSelected.find().count() > 0
+    conditions.push({
+      'meta.diagnosis.keywords_found.name' : {
+        $all : AllKeywordsSelected.find().map((k)-> k.name)
       }
     })
   if conditions.length > 0
@@ -153,8 +159,8 @@ Deps.autorun ()->
     })
 
 Template.search.diseasesSelected = ()-> DiseasesSelected.find()
-
-Template.search.keywordsSelected = ()-> KeywordsSelected.find()
+Template.search.anyKeywordsSelected = ()-> AnyKeywordsSelected.find()
+Template.search.allKeywordsSelected = ()-> AllKeywordsSelected.find()
 
 Template.search.events
   "click .pane:not(.maximized)": (event) ->
@@ -171,11 +177,17 @@ Template.search.events
   "click .remove-disease" : (event) ->
     DiseasesSelected.remove({name : $(event.currentTarget).data('name')})
 
-  "click #add-keyword" : (event) ->
-    KeywordsSelected.insert({name : $("#new-keyword").val()})
+  "click #add-any-keyword" : (event) ->
+    AnyKeywordsSelected.insert({name : $("#new-any-keyword").val()})
 
-  "click .remove-keyword" : (event) ->
-    KeywordsSelected.remove({name : $(event.currentTarget).data('name')})
+  "click .remove-any-keyword" : (event) ->
+    AnyKeywordsSelected.remove({name : $(event.currentTarget).data('name')})
+
+  "click #add-all-keyword" : (event) ->
+    AllKeywordsSelected.insert({name : $("#new-all-keyword").val()})
+
+  "click .remove-all-keyword" : (event) ->
+    AllKeywordsSelected.remove({name : $(event.currentTarget).data('name')})
 
   "click .reset-panels": (event) ->
     setHeights()

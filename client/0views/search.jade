@@ -2,21 +2,28 @@ template(name="search")
   div(style="display:none") #{updatePanes}
   .dashboard-container
     .left-panel
-      h3 Search
-      h4 Diseases
+      h3 Find articles with...
+      h4 Any of these diseases:
       each diseasesSelected
         div
           i.fa.fa-times-circle(data-name="{{name}}" class="remove-disease" style="color:crimson;")
           span {{name}}
       +inputAutocomplete settings=diseaseCompleteSettings id="new-disease" class="input-xlarge"
       button(id="add-disease") Add
-      h4 Keywords
-      each keywordsSelected
+      h4 Any of these keywords:
+      each anyKeywordsSelected
         div
-          i.fa.fa-times-circle(data-name="{{name}}" class="remove-keyword" style="color:crimson;")
+          i.fa.fa-times-circle(data-name="{{name}}" class="remove-any-keyword" style="color:crimson;")
           span {{name}}
-      +inputAutocomplete settings=keywordCompleteSettings id="new-keyword" class="input-xlarge"
-      button(id="add-keyword") Add
+      +inputAutocomplete settings=keywordCompleteSettings id="new-any-keyword" class="input-xlarge"
+      button(id="add-any-keyword") Add
+      h4 All of these keywords:
+      each allKeywordsSelected
+        div
+          i.fa.fa-times-circle(data-name="{{name}}" class="remove-all-keyword" style="color:crimson;")
+          span {{name}}
+      +inputAutocomplete settings=keywordCompleteSettings id="new-all-keyword" class="input-xlarge"
+      button(id="add-all-keyword") Add
     .pane-container
       .pane
         +geomapSimple
