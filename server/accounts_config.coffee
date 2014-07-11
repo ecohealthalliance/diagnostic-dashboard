@@ -3,3 +3,6 @@ Meteor.startup ->
 
   AccountsEntry.config
     signupCode: signupCode
+
+  Accounts.emailTemplates.siteName = "GRITS"
+  Accounts.emailTemplates.from = "GRITS <no-reply@grits>"
