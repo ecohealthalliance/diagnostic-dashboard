@@ -53,6 +53,12 @@ template(name="dash")
             each features
               if eq type "deathCount"
                 .label.deathCount #{value}
+        if showCategory 'hospitalizationCount'
+          .feature-section.hospitalization-counts
+            h4 Hospitalization Counts
+            each features
+              if eq type "hospitalizationCount"
+                .label.hospitalizationCount #{value}
         if showCategory 'location'
           .feature-section.locations
             h4 Locations
