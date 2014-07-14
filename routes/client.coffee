@@ -31,6 +31,7 @@ Router.map () ->
       AccountsEntry.signInRequired(@)
     waitOn: () ->
       Meteor.subscribe('results')
+      Meteor.subscribe('girder')
     data: () ->
       Results.findOne(@params._id)
     onStop: () ->
