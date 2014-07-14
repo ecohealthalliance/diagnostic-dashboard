@@ -62,20 +62,9 @@ Template.search.rendered = () ->
 
 
 Template.search.updatePanes = () ->
-  # updating the panes as a side effect of a template call is temporary
-  dateFeatures = _.filter(@features, (feature) ->
-    feature.type is 'datetime'
-  )
-  data = _.map(dateFeatures, (feature) ->
-    {
-      date: new Date(feature.value)
-      latitude: null
-      longitude: null
-      location: null
-    }
-  )
-
-  locationFeatures = _.chain(window.grits.GirderItems.find().fetch())
+  data = []
+  # TODO: Update to use new location format
+  locationFeatures = _.chain(grits.GirderItems.find().fetch())
     .pluck('meta').pluck('diagnosis').pluck('features')
     .flatten(true)
     .where({type : 'cluster'})
