@@ -27,12 +27,18 @@ Router.map () ->
     onBeforeAction: () ->
       AccountsEntry.signInRequired(@)
     waitOn: () ->
+      #TODO Wait on all of these instead of just the last one
+      Meteor.subscribe('diseaseNames')
+      Meteor.subscribe('keywords')
       Meteor.subscribe('results')
-    data: () ->
-      Results.findOne(@params._id)
-    onStop: () ->
-      Session.set('disease', null)
-      Session.set('features', [])
+    onAfterAction: ()->
+      console.log @params.diagnosisId
+      #Session.set("diagnosisId", @request.query.diagnosisId)
+      if @params.diagnosisId
+        diagnosis = Results.findOne(@params.diagnosisId)
+        if diagnosis
+          diagnosis.diseases.forEach (d)->
+            DiseasesSelected.insert(d)
   )
 
   @route("symptomTable",

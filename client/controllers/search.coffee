@@ -85,8 +85,6 @@ Template.search.updatePanes = () ->
   $('.pane').children().trigger('datachanged', { data: data })
   ''
 
-Meteor.subscribe('keywords')
-Meteor.subscribe('diseaseNames')
 DiseaseNames = new Meteor.Collection('diseaseNames')
 Keywords = new Meteor.Collection('keywords')
 
@@ -116,9 +114,10 @@ Template.search.keywordCompleteSettings = ()->
    ]
   }
 
-DiseasesSelected = new Meteor.Collection(null)
-AnyKeywordsSelected = new Meteor.Collection(null)
-AllKeywordsSelected = new Meteor.Collection(null)
+@DiseasesSelected = new Meteor.Collection(null)
+@AnyKeywordsSelected = new Meteor.Collection(null)
+@AllKeywordsSelected = new Meteor.Collection(null)
+
 Deps.autorun ()->
   conditions = []
   if DiseasesSelected.find().count() > 0
