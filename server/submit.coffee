@@ -15,6 +15,7 @@ submit = (content, userId) ->
         keywords: result.keywords_found
         diagnoserVersion: result.diagnoserVersion
         ready: true
+        createDate: new Date()
       })
     )
   Meteor.setTimeout(diagnose, 0)
