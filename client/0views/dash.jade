@@ -6,6 +6,7 @@ template(name="dash")
       h1 Please wait...
   .dashboard-container
     .diagnosis
+      a.btn.btn-default.btn-large(href='/search?diagnosisId=#{diagnosisId}') Find Similar Articles
       +reactiveTable collection=diseases settings=tableSettings
       a.btn.btn-default(href='/symptomTable/#{_id}') Detailed diagnosis
       a.btn.btn-default.open-feedback(style="float:right;") Feedback?
