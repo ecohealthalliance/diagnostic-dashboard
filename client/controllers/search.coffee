@@ -63,27 +63,22 @@ Template.search.rendered = () ->
 
 Template.search.updatePanes = () ->
   data = []
-  # TODO: Update to use new location format
-  locationFeatures = _.chain(grits.GirderItems.find().fetch())
-    .pluck('meta').pluck('diagnosis').pluck('features')
-    .flatten(true)
-    .where({type : 'cluster'})
-    .value()
+  locationFeatures = grits.GirderItems.find().fetch()
 
-  _.each(locationFeatures, (cluster) ->
-    _.each(cluster.locations, (locationFeature) ->
-        data.push {
-          date: null
-          latitude: locationFeature.latitude
-          longitude: locationFeature.longitude
-          location: locationFeature.name
-        }
-    )
-  )
+  # we can probably get a better location name from the diagnosis
 
+  data = locationFeatures.map (d) ->
+    location: d.meta.country
+    summary: d.description
+    date: d.meta.date
+    disease: d.meta.disease
+    link: d.meta.link
+    species: d.meta.species
+    feed: d.meta.feed
+    latitude: d.meta.latitude
+    longitude: d.meta.longitude
 
-  $('.pane').children().trigger('datachanged', { data: data })
-  ''
+  Session.set('locations', data)
 
 DiseaseNames = new Meteor.Collection('diseaseNames')
 Keywords = new Meteor.Collection('keywords')
