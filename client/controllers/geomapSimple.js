@@ -55,6 +55,16 @@
                 })
                 .on('mouseout', function () {
                     $(this).popover('hide');
+                })
+                .on('click', function (d) {
+                    var links = _.chain(grits.GirderItems.find({'meta.country': d.country}).fetch())
+                        .pluck('meta')
+                        .pluck('link')
+                        .value();
+                    $(this).popover({
+                        content: links.map(function (l) { return '<a href="' + l + '">' + l + '</a>'; }).join('\n')
+                    });
+
                 });
             }
 
