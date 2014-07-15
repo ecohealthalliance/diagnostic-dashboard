@@ -5,10 +5,14 @@ template(name="dash")
       +spinner
       h1 Please wait...
   .dashboard-container
-    .diagnosis
+    .left-panel
+      .btn-group.btn-group-justified
+        a.btn.btn-default(href='/search?diagnosisId=#{_id}') Find Similar Articles
+      h4 Diagnosis
+        span.btn-group.btn-group-xs(style="float:right;")
+          a.btn.btn-default(href='/symptomTable/#{_id}') Detailed diagnosis
+          a.btn.btn-default.open-feedback Feedback
       +reactiveTable collection=diseases settings=tableSettings
-      a.btn.btn-default(href='/symptomTable/#{_id}') Detailed diagnosis
-      a.btn.btn-default.open-feedback(style="float:right;") Feedback?
       +feedback
       .features
         if showCategory 'symptom'

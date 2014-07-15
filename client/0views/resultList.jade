@@ -1,0 +1,18 @@
+template(name="resultList")
+  div(class="search-results")
+    h4 Search Results:
+    each results
+      div(class="search-result")
+        a(href="#{meta.link}" target="_blank" class="title-link") #{description}
+        b HealthMap Disease Label: 
+        span #{meta.disease}
+        br
+        b Diseases Diagnosed:
+        span(class="disease-list")
+          each meta.diagnosis.diseases
+            span #{name}
+        br
+        b Case Counts:
+        each meta.diagnosis.features
+          if eq type "caseCount"
+            span #{text}

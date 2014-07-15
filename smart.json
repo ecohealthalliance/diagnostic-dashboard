@@ -13,6 +13,7 @@
     "d3": {},
     "font-awesome": {},
     "accounts-entry": {},
-    "spin": {}
+    "spin": {},
+    "autocomplete": {}
   }
 }
