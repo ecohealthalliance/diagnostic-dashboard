@@ -42,8 +42,8 @@
       },
       "reactive-table": {
         "git": "https://github.com/ecohealthalliance/reactive-table.git",
-        "tag": "v0.3.14",
-        "commit": "f5d7105393d5aa038b3f680e5af1adff2a04d4b0"
+        "tag": "v0.3.15",
+        "commit": "be996c811ef4232818bc51439f7cfc8deac9e012"
       },
       "d3": {
         "git": "https://github.com/sergeyt/meteor-d3.git",
