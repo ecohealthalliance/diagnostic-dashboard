@@ -96,7 +96,7 @@ Template.symptomTable.eq = (a, b) ->
   a == b
 
 Template.symptomTable.showCategory = (category) ->
-  if category in ['datetime', 'caseCount', 'deathCount', 'location']
+  if category in ['datetime', 'caseCount', 'deathCount', 'hospitalizationCount', 'location']
     _.any(@features, (feature) ->
       feature.type is category
     )

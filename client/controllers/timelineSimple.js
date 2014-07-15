@@ -3,8 +3,7 @@
 (function ($, d3) {
     'use strict';
 
-    var nBins = 250,
-        radius = 10/nBins,
+    var nBins = 30,
         margin = {
             top: 25,
             left: 30,
@@ -23,89 +22,52 @@
             .attr('dx', '0.5em')
             .attr('dy', '0.1em');
     }
-
-    function binData(data, start, end) {
-        var bins = [], 
-            s = start.valueOf(),
-            e = end.valueOf(),
-            dt = (e - s)/(nBins - 1),
-            i, j, d;
-        bins.length = 100;
-        for (i = 0; i < nBins; i++) {
-            bins[i] = {
-                time: s + i * dt,
-                value: 0
-            };
-        }
-        for (i = 0; i < data.length; i++) {
-            d = data[i];
-            if (d.date) {
-                j = Math.floor((d.date.valueOf() - s) / dt);
-                if (j >= 0 && j < nBins) {
-                    bins[j].value += 1;
-                }
-            }
-        }
-        tangelo.data.smooth({
-            data: bins,
-            radius: radius,
-            kernel: 'gaussian',
-            absolute: false,
-            set: function (v, d) { d.value = v; },
-            sorted: true,
-            x: { field: 'time' },
-            y: { field: 'value' }
-        });
-        return bins;
-    }
     
     Template.timelineSimple.rendered = function () {
-        var data = [];
         if (!this.initialized) {
-            $(node).on('datachanged', function (evt, args) {
-                if (!args.data.length) {
-                    return;
-                }
-                var start = null, end = null;
-                args.data.forEach(function (d) {
-                    if (!d.date) {
-                        return;
-                    }
-                    if (!start || d.date < start) {
-                        start = d.date;
-                    }
-                    if (!end || d.date > end) {
-                        end = d.date;
-                    }
-                });
-                if (start && end) {
-                    data = binData(args.data, start, end);
-                } else {
-                    data = [];
-                }
-                $(node).timeline({
-                    data: data,
-                    x: { field: 'time' },
-                    y: { field: 'value' },
-                    transition: 250,
-                    margin: margin,
-                    xTicks: xTicks,
-                    yTicks: yTicks
-                });
-                applyAxisStyle();
-            }).on('resizeApp', function (evt, obj) {
-                $(node).timeline({
-                    data: data,
-                    x: { field: 'time' },
-                    y: { field: 'value' },
+            $(node).on('resizeApp', function (evt, obj) {
+                $(node).histogram({
+                    data: Session.get('dates'),
+                    x: function (d) { return d.date.valueOf(); },
+                    xScale: d3.time.scale(),
                     transition: 0,
                     margin: margin,
                     width: obj.width,
-                    height: obj.height
+                    height: obj.height,
+                    nBins: nBins
                 });
                 applyAxisStyle();
             });
             this.initialized = true;
         }
     };
+
+    Deps.autorun(function () {
+        $(node).histogram({
+            data: Session.get('dates')
+        });
+        applyAxisStyle();
+    });
+
+    Deps.autorun(function () {
+        var features = Session.get('features') || [],
+            dates = [];
+
+        features.forEach(function (feature) {
+            if (feature.type === 'datetime') {
+                dates.push( (new Date(feature.value)).valueOf() );
+            }
+        });
+        d3.selectAll('.histogram .boxes').each(function (d) {
+            var selected = false;
+            dates.forEach(function (date) {
+                selected |= d.min <= date && d.max >= date;
+            });
+            d3.select(this).classed(
+                'selected',
+                selected
+            );
+        });
+    });
+
 }(window.$, window.d3));
