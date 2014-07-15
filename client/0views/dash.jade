@@ -5,8 +5,8 @@ template(name="dash")
       +spinner
       h1 Please wait...
   .dashboard-container
-    .left-panel
-      .btn-group.btn-group-justified
+    .left-panel.diagnosis
+      .btn-group.btn-group-justified(style="margin-top:5px;")
         a.btn.btn-default(href='/search?diagnosisId=#{_id}') Find Similar Articles
       h4 Diagnosis
         span.btn-group.btn-group-xs(style="float:right;")
