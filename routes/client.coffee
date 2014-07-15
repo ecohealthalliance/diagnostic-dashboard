@@ -7,14 +7,26 @@ Router.configure
 
 Router.map () ->
 
+  @route("splash",
+    path: '/'
+    where: 'client'
+    layoutTemplate: 'blank'
+    onAfterAction: () ->
+      userId = Meteor.userId()
+      if userId
+        Router.go "profile"
+  )
+
   @route("profile",
     path: '/profile/:_id?'
     where: 'client'
     onBeforeAction: () ->
       AccountsEntry.signInRequired(@)
     waitOn: () ->
-      Meteor.subscribe('users')
-      Meteor.subscribe('results')
+      [
+        Meteor.subscribe('users')
+        Meteor.subscribe('results')
+      ]
     data: () ->
       userId = @params._id or Meteor.userId()
       {
@@ -53,11 +65,4 @@ Router.map () ->
     where: 'client'
     onBeforeAction: () ->
       AccountsEntry.signInRequired(@)
-  )
-
-  @route("home",
-    path: "/"
-    where: 'client'
-    onAfterAction: () ->
-      Router.go "new"
   )
