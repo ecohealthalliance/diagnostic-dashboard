@@ -1,11 +1,14 @@
 template(name="dash")
   div(style="display:none") #{updatePanes}
   .dashboard-container
-    .diagnosis
-      a.btn.btn-default.btn-large(href='/search?diagnosisId=#{diagnosisId}') Find Similar Articles
+    .left-panel
+      .btn-group.btn-group-justified
+        a.btn.btn-default(href='/search?diagnosisId=#{diagnosisId}') Find Similar Articles
+      h4 Diagnosis
+        span.btn-group.btn-group-xs(style="float:right;")
+          a.btn.btn-default(href='/symptomTable/#{diagnosisId}') Detailed diagnosis
+          a.btn.btn-default.open-feedback Feedback
       +reactiveTable collection=diseases settings=tableSettings
-      a.btn.btn-default(href='/symptomTable/#{diagnosisId}') Detailed diagnosis
-      a.btn.btn-default.open-feedback(style="float:right;") Feedback?
       +feedback
       .features
         if showCategory 'symptom'

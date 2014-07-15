@@ -32,13 +32,14 @@ Router.map () ->
       Meteor.subscribe('keywords')
       Meteor.subscribe('results')
     onAfterAction: ()->
-      console.log @params.diagnosisId
       #Session.set("diagnosisId", @request.query.diagnosisId)
       if @params.diagnosisId
         diagnosis = Results.findOne(@params.diagnosisId)
         if diagnosis
           diagnosis.diseases.forEach (d)->
             DiseasesSelected.insert(d)
+          diagnosis.keywords.forEach (k)->
+            AnyKeywordsSelected.insert(k)
   )
 
   @route("symptomTable",
