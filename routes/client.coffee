@@ -49,7 +49,12 @@ Router.map () ->
       Meteor.subscribe('keywords')
       Meteor.subscribe('results')
     onAfterAction: ()->
-      #Session.set("diagnosisId", @request.query.diagnosisId)
+      # Remove any previous selections which could exist
+      # if the user navigates away from the search page and comes back.
+      DiseasesSelected.find({},{reactive:false}).forEach (d)->
+        DiseasesSelected.remove(d._id)
+      AnyKeywordsSelected.find({},{reactive:false}).forEach (k)->
+        AnyKeywordsSelected.remove(k._id)
       if @params.diagnosisId
         diagnosis = Results.findOne(@params.diagnosisId)
         if diagnosis
