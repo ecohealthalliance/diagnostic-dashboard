@@ -7,6 +7,23 @@ Router.configure
 
 Router.map () ->
 
+  @route("profile",
+    path: '/profile/:_id?'
+    where: 'client'
+    onBeforeAction: () ->
+      AccountsEntry.signInRequired(@)
+    waitOn: () ->
+      Meteor.subscribe('users')
+      Meteor.subscribe('results')
+    data: () ->
+      userId = @params._id or Meteor.userId()
+      {
+        user: Meteor.users.findOne(userId)
+        results: Results.find({userId: userId, ready: true})
+      }
+
+  )
+
   @route("dash",
     path: '/dash/:_id'
     where: 'client'
@@ -14,6 +31,7 @@ Router.map () ->
       AccountsEntry.signInRequired(@)
     waitOn: () ->
       Meteor.subscribe('results')
+      Meteor.subscribe('item')
     data: () ->
       Results.findOne(@params._id)
     onStop: () ->

@@ -17,4 +17,6 @@ font-awesome
 accounts-entry
 accounts-password
 iron-router
+spin
+dbproxy
 autocomplete

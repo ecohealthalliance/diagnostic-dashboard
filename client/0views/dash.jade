@@ -1,12 +1,16 @@
 template(name="dash")
   div(style="display:none") #{updatePanes}
+  unless ready
+    .loading-message
+      +spinner
+      h1 Please wait...
   .dashboard-container
     .left-panel
       .btn-group.btn-group-justified
-        a.btn.btn-default(href='/search?diagnosisId=#{diagnosisId}') Find Similar Articles
+        a.btn.btn-default(href='/search?diagnosisId=#{_id}') Find Similar Articles
       h4 Diagnosis
         span.btn-group.btn-group-xs(style="float:right;")
-          a.btn.btn-default(href='/symptomTable/#{diagnosisId}') Detailed diagnosis
+          a.btn.btn-default(href='/symptomTable/#{_id}') Detailed diagnosis
           a.btn.btn-default.open-feedback Feedback
       +reactiveTable collection=diseases settings=tableSettings
       +feedback
@@ -53,19 +57,18 @@ template(name="dash")
             each features
               if eq type "deathCount"
                 .label #{text}
-        if showCategory 'cluster'
+        if showCategory 'location'
           .feature-section.locations
             h4 Locations
             each features
-              if eq type "cluster"
-                each locations
-                  .label.location #{formatLocation}
+              if eq type "location"
+                .label.location #{formatLocation}
     .pane-container
-      .pane
+      .pane.minimized
         +geomapSimple
-      .pane
+      .pane.minimized
         +timelineSimple
-      .pane
-        +dendrogram
-      .pane
+      //-.pane
+      //-  +dendrogram
+      .pane.maximized
         +text

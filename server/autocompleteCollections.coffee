@@ -4,8 +4,12 @@ Meteor.startup ->
   # and their categories.
   # The method for accessing mongo is based on the answer here:
   # http://stackoverflow.com/questions/14901761/mongodb-distinct-implementation-in-meteor-on-the-server/14935991#comment38245027_14935991
-  grits.GirderItems.find()._mongo.db.createCollection(grits.GirderItems._name, (err, collection)=>
-    if err then throw err
+  mongodb = MongoInternals.NpmModule
+  mongoClient = new mongodb.MongoClient(new mongodb.Server('localhost', 27017));
+  mongoClient.open((err, mongoClient) ->
+    db = mongoClient.db("girder");
+
+    collection = db.collection('item')
     collection.mapReduce(
       """
       function(){
@@ -31,18 +35,15 @@ Meteor.startup ->
       (err,result)=>
         if err then throw err
         console.log "keyword collection created"
-        Keywords = new Meteor.Collection('keywords')
+        Keywords = grits.Girder.Keywords
         Meteor.publish('keywords', (query) ->
           if @userId
             Keywords.find({})
         )
     )
-  )
-  
-  # This code is similar to the code above, but it creates a collection of
-  # distinct diseases we've diagnosed.
-  grits.GirderItems.find()._mongo.db.createCollection(grits.GirderItems._name, (err, collection)=>
-    if err then throw err
+
+    # This code is similar to the code above, but it creates a collection of
+    # distinct diseases we've diagnosed.
     collection.mapReduce(
       """
       function(){
@@ -61,14 +62,11 @@ Meteor.startup ->
       (err,result)=>
         if err then throw err
         console.log "diseaseNames collection created"
-        DiseaseNames = new Meteor.Collection('diseaseNames')
+        DiseaseNames = grits.Girder.DiseaseNames
         Meteor.publish('diseaseNames', (query) ->
           if @userId
             DiseaseNames.find({})
         )
     )
+
   )
-
-
-
-
