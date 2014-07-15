@@ -77,6 +77,7 @@ Template.search.updatePanes = () ->
     feed: d.meta.feed
     latitude: d.meta.latitude
     longitude: d.meta.longitude
+    name: d.name
 
   Session.set('locations', data)
 
