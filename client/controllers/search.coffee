@@ -64,7 +64,7 @@ Template.search.rendered = () ->
 Template.search.updatePanes = () ->
   data = []
   # TODO: Update to use new location format
-  locationFeatures = _.chain(grits.GirderItems.find().fetch())
+  locationFeatures = _.chain(grits.Girder.Items.find().fetch())
     .pluck('meta').pluck('diagnosis').pluck('features')
     .flatten(true)
     .where({type : 'cluster'})
@@ -85,8 +85,11 @@ Template.search.updatePanes = () ->
   $('.pane').children().trigger('datachanged', { data: data })
   ''
 
-DiseaseNames = new Meteor.Collection('diseaseNames')
-Keywords = new Meteor.Collection('keywords')
+DiseaseNames = () =>
+  @grits.Girder.DiseaseNames
+
+Keywords = () =>
+  @grits.Girder.Keywords
 
 Template.search.diseaseCompleteSettings = ()->
   {
@@ -94,7 +97,7 @@ Template.search.diseaseCompleteSettings = ()->
    limit: 5,
    rules: [
      {
-       collection: DiseaseNames,
+       collection: DiseaseNames(),
        field: "_id",
        template: Template.searchPill,
      }
@@ -107,7 +110,7 @@ Template.search.keywordCompleteSettings = ()->
    limit: 5,
    rules: [
      {
-       collection: Keywords,
+       collection: Keywords(),
        field: "_id",
        template: Template.searchPill,
      }

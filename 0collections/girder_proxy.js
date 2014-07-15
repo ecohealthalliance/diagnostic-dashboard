@@ -4,7 +4,9 @@ Meteor.startup(function() {
 
     var _opts = {
         collections: [
-            { db: "item", name: "Items" }
+            { db: "item", name: "Items" },
+            { db: "keywords", name: "Keywords" },
+            { db: "diseaseNames", name: "DiseaseNames"}
         ]
         , bindables: ["find", "findOne"] //specify all the operators you want to bind
     };
