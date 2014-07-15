@@ -66,7 +66,7 @@ Template.dash.updatePanes = () ->
   dateFeatures = _.filter(@features, (feature) ->
     feature.type is 'datetime'
   )
-  data = _.map(dateFeatures, (feature) ->
+  dates = _.map(dateFeatures, (feature) ->
     {
       date: new Date(feature.value)
       latitude: null
@@ -79,18 +79,18 @@ Template.dash.updatePanes = () ->
     feature.type is 'location'
   )
 
+  locations = []
   _.each(locationFeatures, (location) ->
-    data.push {
-      date: null
-      latitude: location.geoname.latitude
-      longitude: location.geoname.longitude
-      location: location.name
-    }
-  )
+      locations.push {
+        date: null
+        latitude: location.geoname.latitude
+        longitude: location.geoname.longitude
+        location: location.name
+      }
+    )
 
-  $('.pane').children().trigger('datachanged', { data: data })
-  ''
-
+  Session.set('dates', dates)
+  Session.set('locations', locations)
 
 Template.dash.eq = (a, b) ->
   a == b
@@ -174,13 +174,10 @@ Template.dash.events
 
   "click .diagnosis .reactive-table tbody tr" : (event) ->
     Session.set('disease', @name)
-    Session.set('features', keyword.name for keyword in @keywords)
+    Session.set('features', keyword for keyword in @keywords)
 
   "click .diagnosis .label" : (event) ->
-    if @type is 'location'
-      Session.set('features', {name: @name, type: "location", occurrences: @occurrences})
-    else
-      Session.set('features', [@name or @text])
+    Session.set('features', [this])
     
   "click .reset-panels": (event) ->
     setHeights()

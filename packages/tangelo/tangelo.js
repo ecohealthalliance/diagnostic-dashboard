@@ -3,7 +3,7 @@ window.tangelo = {};
 (function(tangelo) {
     "use strict";
     tangelo.version = function() {
-        return "0.6.1dev";
+        return "0.7dev";
     };
     tangelo.error = function(code, message, jqxhr) {
         var error = {};
@@ -1829,21 +1829,17 @@ window.tangelo.vtkweb = {};
     if (!($ && $.widget && d3)) {
         return;
     }
-    function applyTransition(s, t) {
-        if (t) {
-            s = s.transition(t);
-        }
-        return s;
-    }
-    tangelo.widget("tangelo.timeline", {
+    tangelo.widget("tangelo.plotbase", {
         options: {
             data: [],
             x: tangelo.accessor({
-                field: "time"
+                field: "x"
             }),
             y: tangelo.accessor({
-                field: "value"
+                field: "y"
             }),
+            xScale: null,
+            yScale: null,
             margin: {
                 top: 10,
                 bottom: 30,
@@ -1857,39 +1853,202 @@ window.tangelo.vtkweb = {};
             yTicks: 10
         },
         _create: function() {
-            this.svg = d3.select(this.element.get(0)).append("svg").attr("class", "timeline");
+            this.svg = d3.select(this.element.get(0)).append("svg").attr("class", this._plotClass());
             this.main = this.svg.append("g");
             this.plot = this.main.append("g").attr("class", "plot");
             this.xaxis = this.main.append("g").attr("class", "x-axis axis");
             this.yaxis = this.main.append("g").attr("class", "y-axis axis");
-            this.path = this.plot.append("path").attr("class", "path");
             this._x = null;
             this._y = null;
         },
         _update: function() {
-            var that = this, axisPadding = 15, margin = this.options.margin, xAcc = tangelo.accessor(this.options.x), yAcc = tangelo.accessor(this.options.y), width = (this.options.width || this.element.width()) - margin.left - margin.right - axisPadding, height = (this.options.height || this.element.height()) - margin.top - margin.bottom - axisPadding, data = this.options.data, xaxis, yaxis, line;
-            this._x = d3.time.scale().domain(d3.extent(data, xAcc)).range([ 0, width ]).nice();
-            this._y = d3.scale.linear().domain(d3.extent(data, yAcc)).range([ height, 0 ]).nice();
+            var axisPadding = 15, margin = this.options.margin, xAcc = tangelo.accessor(this.options.x), yAcc = tangelo.accessor(this.options.y), width = (this.options.width || this.element.width()) - margin.left - margin.right - axisPadding, height = (this.options.height || this.element.height()) - margin.top - margin.bottom - axisPadding, data = this.options.data, xaxis, yaxis;
+            this._x = (this.options.xScale || d3.scale.linear()).domain(d3.extent(data, xAcc)).range([ 0, width ]).nice();
+            this._y = (this.options.yScale || d3.scale.linear()).domain(d3.extent(data, yAcc)).range([ height, 0 ]).nice();
             xaxis = d3.svg.axis().scale(this._x).orient("bottom");
             xaxis.ticks(this.options.xTicks);
             yaxis = d3.svg.axis().scale(this._y).orient("left");
             yaxis.ticks(this.options.yTicks);
-            line = d3.svg.line().x(function(d) {
-                return that._x(xAcc(d));
-            }).y(function(d) {
-                return that._y(yAcc(d));
-            });
             this.svg.attr("width", width + margin.left + margin.right + axisPadding).attr("height", height + margin.top + margin.bottom + axisPadding);
             this.main.attr("transform", "translate(" + (margin.left + axisPadding) + "," + margin.top + ")");
-            applyTransition(this.xaxis, this.options.transition).attr("transform", "translate(0," + height + ")").call(xaxis);
-            applyTransition(this.yaxis, this.options.transition).call(yaxis);
-            applyTransition(this.path, this.options.transition).attr("d", line(this.options.data));
+            this.xaxis.attr("transform", "translate(0," + height + ")").call(xaxis);
+            this.yaxis.call(yaxis);
         },
         xScale: function() {
             return this._x;
         },
         yScale: function() {
             return this._y;
+        },
+        _applyTransition: function(s, t) {
+            if (t) {
+                s = s.transition(t);
+            }
+            return s;
+        },
+        _plotClass: function() {
+            return "plotbase";
+        }
+    });
+})(window.tangelo, window.jQuery, window.d3);
+
+(function(tangelo, $, d3) {
+    "use strict";
+    if (!($ && $.widget && d3)) {
+        return;
+    }
+    tangelo.widget("tangelo.timeline", $.tangelo.plotbase, {
+        options: {
+            x: tangelo.accessor({
+                field: "time"
+            }),
+            y: tangelo.accessor({
+                field: "value"
+            }),
+            xScale: d3.time.scale()
+        },
+        _create: function() {
+            this._super();
+            this.path = this.plot.append("path").attr("class", "path");
+        },
+        _update: function() {
+            var line, that, xAcc, yAcc;
+            if (this.path) {
+                this._super();
+                that = this;
+                xAcc = tangelo.accessor(this.options.x);
+                yAcc = tangelo.accessor(this.options.y);
+                line = d3.svg.line().x(function(d) {
+                    return that._x(xAcc(d));
+                }).y(function(d) {
+                    return that._y(yAcc(d));
+                });
+                this._applyTransition(this.path, this.options.transition).attr("d", line(this.options.data));
+            }
+        },
+        _plotClass: function() {
+            return "timeline";
+        }
+    });
+})(window.tangelo, window.jQuery, window.d3);
+
+(function(tangelo, $, d3) {
+    "use strict";
+    if (!($ && $.widget && d3)) {
+        return;
+    }
+    tangelo.widget("tangelo.histogram", $.tangelo.plotbase, {
+        options: {
+            x: tangelo.accessor({
+                field: "value"
+            }),
+            nBins: 10
+        },
+        _pushOptions: function() {
+            this._saved = {
+                data: this.options.data,
+                x: this.options.x,
+                y: this.options.y
+            };
+            this.options.x = {
+                field: "value"
+            };
+            this.options.y = {
+                field: "count"
+            };
+            this.options.data = this._bins;
+        },
+        _popOptions: function() {
+            this.options.data = this._saved.data;
+            this.options.x = this._saved.x;
+            this.options.y = this._saved.y;
+        },
+        _create: function() {
+            this._bins = [];
+            this._created = false;
+            this._pushOptions();
+            this._super();
+            this._popOptions();
+            this._created = true;
+            this._update();
+        },
+        _update: function() {
+            var selection, enter, exit, x, y;
+            if (!this._created) {
+                return;
+            }
+            this._binData();
+            this._pushOptions();
+            this._super();
+            this._popOptions();
+            x = this.xScale();
+            y = this.yScale();
+            selection = this.plot.selectAll(".boxes").data(this._bins.slice(0, this._bins.length - 2));
+            enter = selection.enter();
+            exit = selection.exit();
+            enter.append("rect").attr("class", "boxes").attr("x", function(d) {
+                return x(d.min);
+            }).attr("y", y(0)).attr("width", function(d) {
+                return x(d.max) - x(d.min);
+            }).attr("height", 0);
+            selection.attr("x", function(d) {
+                return x(d.min);
+            }).attr("width", function(d) {
+                return x(d.max) - x(d.min);
+            });
+            this._applyTransition(selection, this.options.transition).attr("y", function(d) {
+                return y(d.count);
+            }).attr("height", function(d) {
+                return y(0) - y(d.count);
+            });
+            exit.remove();
+        },
+        _plotClass: function() {
+            return "histogram";
+        },
+        _binData: function() {
+            var x_ext, dx, N, i, xAcc, that = this;
+            while (this._bins.length > 0) {
+                this._bins.pop();
+            }
+            if (!this.options.data.length) {
+                return;
+            }
+            xAcc = tangelo.accessor(this.options.x);
+            x_ext = d3.extent(this.options.data, xAcc);
+            N = this.options.nBins;
+            dx = (x_ext[1] - x_ext[0]) / N;
+            if (dx <= 0) {
+                dx = 1;
+            }
+            for (i = 0; i < N; i += 1) {
+                this._bins.push({
+                    min: i * dx + x_ext[0],
+                    max: (i + 1) * dx + x_ext[0],
+                    value: i * dx / 2 + x_ext[0],
+                    count: 0
+                });
+            }
+            this._bins.push({
+                value: x_ext[0],
+                count: 0
+            });
+            this._bins.push({
+                value: x_ext[1],
+                count: 0
+            });
+            this.options.data.forEach(function(d) {
+                var val, bin;
+                val = xAcc(d);
+                bin = (val - x_ext[0]) / dx;
+                if (bin >= 0 && bin < N + dx / 1e3) {
+                    if (bin >= N) {
+                        bin = N - 1;
+                    }
+                    bin = Math.floor(bin);
+                    that._bins[bin].count += 1;
+                }
+            });
         }
     });
 })(window.tangelo, window.jQuery, window.d3);
@@ -1903,16 +2062,16 @@ window.tangelo.vtkweb = {};
         options: {
             zoom: 3,
             width: null,
-            heigth: null
+            height: null
         },
         latlng2display: function(pt) {
-            return this._map.gcsToDisplay(pt);
+            return this.svgLayer.renderer().worldToDisplay(pt);
         },
         display2latlng: function(pt) {
-            return this._map.displayToGcs(pt);
+            return this.svgLayer.renderer().displayToWorld(pt);
         },
         svg: function() {
-            return this.svgGroup;
+            return this.svgGroup.node();
         },
         legend: function() {
             throw "Legend layer not yet implemented";
@@ -1920,27 +2079,28 @@ window.tangelo.vtkweb = {};
         map: function() {
             return this._map;
         },
+        scale: function() {
+            return this.svgLayer.renderer().scaleFactor();
+        },
         _create: function() {
             var node = this.element.get(0), opts = {
                 zoom: this.options.zoom,
-                node: node
+                node: node,
+                width: this.options.width,
+                height: this.options.height
             }, that = this;
             this._map = geo.map(opts);
-            this._map.addLayer(geo.osmLayer({
-                renderer: "vglRenderer"
-            }).referenceLayer(true));
-            this.svgLayer = geo.featureLayer({
+            this._map.createLayer("osm");
+            this.svgLayer = this._map.createLayer("feature", {
                 renderer: "d3Renderer"
             });
-            this._map.addLayer(this.svgLayer);
-            this.svgContext = this.svgLayer.renderer().canvas();
-            this.svgGroup = this.svgContext.append("g").node();
+            this.svgGroup = this.svgLayer.renderer().canvas();
             this._resize();
             $(window).resize(function() {
                 that._resize();
             });
-            this._map.on([ geo.event.pan, geo.event.zoom ], function() {
-                $(node).trigger("draw");
+            this.svgLayer.on(geo.event.d3Rescale, function(arg) {
+                $(node).trigger("rescale", arg.scale);
             });
         },
         _update: $.noop,
@@ -1950,7 +2110,6 @@ window.tangelo.vtkweb = {};
                 return;
             }
             this._map.resize(0, 0, w, h);
-            this.element.trigger("draw");
         },
         _setOption: function(key, value) {
             this.options[key] = value;
@@ -1987,16 +2146,25 @@ window.tangelo.vtkweb = {};
             var that = this;
             this.colorScale = d3.scale.category10();
             this._super();
-            this.element.on("draw", function() {
-                that._update();
+            this.element.on("rescale", function() {
+                that._rescale();
             });
+        },
+        _rescale: function() {
+            var that = this, scale;
+            if (this.options.data && this.map()) {
+                scale = this.scale();
+                d3.select(this.svg()).selectAll(".point").data(this.options.data).attr("r", function(d) {
+                    return tangelo.accessor(that.options.size)(d) / scale;
+                });
+            }
         },
         _update: function() {
             var svg = this.svg(), that = this, lat = tangelo.accessor(this.options.latitude), lng = tangelo.accessor(this.options.longitude), pt, selection, enter, exit;
             if (this.options.data && this.map()) {
                 this.options.data.forEach(function(d) {
                     pt = geo.latlng(lat(d), lng(d));
-                    d._georef = that.latlng2display(pt)[0];
+                    d._georef = that.latlng2display(pt);
                 });
                 selection = d3.select(svg).selectAll(".point").data(this.options.data);
                 enter = selection.enter();
@@ -2006,10 +2174,11 @@ window.tangelo.vtkweb = {};
                     field: "_georef.x"
                 })).attr("cy", tangelo.accessor({
                     field: "_georef.y"
-                })).attr("r", tangelo.accessor(this.options.size)).style("fill", function(d) {
+                })).style("fill", function(d) {
                     return that.colorScale(tangelo.accessor(that.options.color)(d));
                 });
                 exit.remove();
+                this._rescale();
             }
         }
     });
