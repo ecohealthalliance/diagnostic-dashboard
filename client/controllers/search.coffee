@@ -180,6 +180,3 @@ Template.search.events
 
   "click .reset-panels": (event) ->
     setHeights()
-
-  "click .open-feedback": (event) =>
-    $('form.feedback').show()
