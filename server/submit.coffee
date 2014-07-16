@@ -7,16 +7,24 @@ submit = (content, userId) ->
     ready: false
   diagnose = () ->
     Meteor.call('diagnose', content, (error, result) ->
-      Results.update(resultId, {
-        content: content
-        userId: userId
-        diseases: result.diseases
-        features: result.features
-        keywords: result.keywords_found
-        diagnoserVersion: result.diagnoserVersion
-        ready: true
-        createDate: new Date()
-      })
+      if error
+        Results.update(resultId, {
+          content: content
+          userId: userId
+          ready: true
+          error: true
+        })
+      else
+        Results.update(resultId, {
+          content: content
+          userId: userId
+          diseases: result.diseases
+          features: result.features
+          keywords: result.keywords_found
+          diagnoserVersion: result.diagnoserVersion
+          ready: true
+          createDate: new Date()
+        })
     )
   Meteor.setTimeout(diagnose, 0)
   resultId
