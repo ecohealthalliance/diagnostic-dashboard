@@ -161,6 +161,7 @@ Template.dash.tableSettings = () ->
   ]
   showNavigation: 'never'
   showFilter: false
+  group: 'diagnosis'
 
 
 Template.dash.events
