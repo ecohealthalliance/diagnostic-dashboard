@@ -14,15 +14,23 @@ The dashboard relies on a Python backend whose code is available in the [grits-a
 
 You may elect to install all GRITS components at once by following the instructions in the [grits-deploy-scripts](https://github.com/ecohealthalliance/grits-deploy-scripts) project.
 
+## Config for quick deploy and quick install
+
+Create a new `config` file that sets the variables from [config.sample](config.sample):
+
+    $ cp config.sample config
+
+and edit the values to suit your environment.
+
 ## Quick deploy
 
-If you've done this before and have a server instance ready to go with `diagnostic-dashboard` in your home, use the shorthand method:
+If you've done this before and have a server instance ready to go with `diagnostic-dashboard` in your home, and you have your `config` file set up, use the shorthand method:
 
       $ ssh -i key.pem ubuntu@instance GIT_USER=user GIT_PASSWORD=password 'bash -s' < install.sh
 
 ## Quick install
 
-If you already have the codebase and are ready to go, simply run [install.sh](install.sh) from the project directory:
+If you already have the codebase and have set up your `config` file, simply run [install.sh](install.sh) from the project directory:
 
       $ sh install.sh
 
