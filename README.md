@@ -4,7 +4,7 @@ The diagnostic dashboard provides the web-based user interface for the GRITS sys
 
 # Dependencies
 
-The diagnostic dashboard is a [Meteor](https://www.meteor.com/ "Meteor") application. It uses several meteor plugins which may be installed using the instructions and scripts detailed below.
+The diagnostic dashboard is a [meteor](https://www.meteor.com/ "meteor") application. It uses several meteor plugins which may be installed using the instructions and scripts detailed below.
 
 The dashboard relies on a Python backend whose code is available in the [grits-api](https://github.com/ecohealthalliance/grits-api) project.
 
@@ -42,7 +42,7 @@ or
 
       $ export APACHE_URL=http://my-server.com
 
-This will install Meteor, [Mteorite](https://github.com/oortcloud/meteorite/) and [Forever])(https://github.com/nodejitsu/forever). It then will run [deploy.sh](deploy.sh) which will update the Meteor package dependencies, create a bundle of the app, and begin running the server.
+This will install meteor, [meteorite](https://github.com/oortcloud/meteorite/) and [forever])(https://github.com/nodejitsu/forever). It then will run [deploy.sh](deploy.sh) which will update the Meteor package dependencies, create a bundle of the app, and begin running the server.
 
 The service will start on port 3001: [http://localhost:3000/profile](http://localhost:3001/)
 
