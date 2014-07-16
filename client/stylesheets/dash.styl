@@ -23,7 +23,7 @@
     width 50px
     height 100px
 
-.diagnosis
+.left-panel, .diagnosis
   margin-left 10px
   flex 0 0 340px
   background-color gainsboro
@@ -32,16 +32,21 @@
   border-bottom 2px solid gainsboro
   border-right 2px solid black
   overflow auto
+  // Vertical padding will break the code that positions the panes
+  padding 0 5px
 
   .reactive-table tr
     cursor pointer
 
-.feature-section
-  padding-bottom 40px
-
   h4
     padding 10px 3px
     clear both
+    background-color #eee
+    margin-left -5px
+    margin-right -5px
+
+.feature-section
+  padding-bottom 40px
 
   .label
     background-color #444

@@ -1,0 +1,37 @@
+template(name="search")
+  div(style="display:none") #{updatePanes}
+  .dashboard-container
+    .left-panel.diagnosis
+      h3 Find articles with...
+      h4 Any of these diseases:
+      each diseasesSelected
+        div
+          i.fa.fa-times-circle(data-name="{{name}}" class="remove-disease" style="color:crimson;")
+          span {{name}}
+      +inputAutocomplete settings=diseaseCompleteSettings id="new-disease" class="input-xlarge"
+      button(id="add-disease") Add
+      h4 Any of these keywords:
+      each anyKeywordsSelected
+        div
+          i.fa.fa-times-circle(data-name="{{name}}" class="remove-any-keyword" style="color:crimson;")
+          span {{name}}
+      +inputAutocomplete settings=keywordCompleteSettings id="new-any-keyword" class="input-xlarge"
+      button(id="add-any-keyword") Add
+      h4 All of these keywords:
+      each allKeywordsSelected
+        div
+          i.fa.fa-times-circle(data-name="{{name}}" class="remove-all-keyword" style="color:crimson;")
+          span {{name}}
+      +inputAutocomplete settings=keywordCompleteSettings id="new-all-keyword" class="input-xlarge"
+      button(id="add-all-keyword") Add
+    .pane-container
+      .pane
+        +geomapSimple
+      .pane
+        +resultList
+
+template(name="searchPill")
+  span(class="sp-label") {{_id}}
+  span(class="sp-categories")
+    each value.categories
+      span(class="sp-category") [{{this}}]

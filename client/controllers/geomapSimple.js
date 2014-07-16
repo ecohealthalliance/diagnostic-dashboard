@@ -19,6 +19,9 @@
           this.element.on('rescale', function () {
               that._rescale();
           });
+          this.map().on([geo.event.pan, geo.event.zoom, geo.event.resize], function () {
+              $('body div.popover').popover('hide');
+          });
           this._geomapCreated = true;
           this._data = [];
           this._update();
@@ -71,7 +74,27 @@
             // function for adding a pop over on mouse over
             function makePopOver(data) {
                 var msg = [];
-                msg.push('<b>Location: </b>' + data.location);
+
+                msg.push('<b>Location:</b> ' + (data.location || data.country));
+                if (data.summary) {
+                    msg.push('<b>Summary:</b> ' + data.summary);
+                }
+                if (data.date) {
+                    msg.push('<b>Date:</b> ' + data.date.toLocaleString());
+                }
+                if (data.disease) {
+                    msg.push('<b>Disease:</b> ' + data.disease);
+                }
+                if (data.symptoms) {
+                    msg.push('<b>Symptoms:</b> ' + data.symptoms.join(', '));
+                }
+                if (data.species) {
+                    msg.push('<b>Species:</b> ' + data.species);
+                }
+                if (data.link) {
+                    msg.push('<a target="MarkerArticle" href="' + data.link + '">link</a>');
+                }
+
                 $(this).popover({
                     html: true,
                     container: 'body',
@@ -79,17 +102,19 @@
                     trigger: 'manual',
                     content: msg.join('<br>\n')
                 })
-                .on('mouseover', function () {
-                    $(this).popover('show');
-                })
-                .on('mouseout', function () {
-                    $(this).popover('hide');
+                .on('mousedown', function (evt) {
+                    $(this).popover('toggle');
+                    evt.stopPropagation();
                 });
+            }
+
+            function indexFunc(d, i) {
+                return d.name || i;
             }
 
             svg = d3.select(this.svg());
             select = svg.selectAll('.marker')
-                        .data(this._data);
+                        .data(this._data, indexFunc);
             enter = select.enter();
             exit = select.exit();
 

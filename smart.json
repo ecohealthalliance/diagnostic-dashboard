@@ -13,6 +13,8 @@
     "d3": {},
     "font-awesome": {},
     "accounts-entry": {},
-    "spin": {}
+    "spin": {},
+    "dbproxy": {},
+    "autocomplete": {}
   }
 }
