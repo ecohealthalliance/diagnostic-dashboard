@@ -108,9 +108,13 @@
                 });
             }
 
+            function indexFunc(d, i) {
+                return d.name || i;
+            }
+
             svg = d3.select(this.svg());
             select = svg.selectAll('.marker')
-                        .data(this._data);
+                        .data(this._data, indexFunc);
             enter = select.enter();
             exit = select.exit();
 
