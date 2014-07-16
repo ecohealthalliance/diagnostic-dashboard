@@ -44,7 +44,7 @@ or
 
 This will install meteor, [meteorite](https://github.com/oortcloud/meteorite/) and [forever])(https://github.com/nodejitsu/forever). It then will run [deploy.sh](deploy.sh) which will update the Meteor package dependencies, create a bundle of the app, and begin running the server.
 
-The service will start on port 3001: [http://localhost:3000/profile](http://localhost:3001/)
+The service will start on port 3001: [http://localhost:3001/profile](http://localhost:3001/)
 
 Functionality will be very limited without a correpondsing [grits-api](https://github.com/ecohealthalliance/grits-api) backend, so make sure to install that project as well.
 
