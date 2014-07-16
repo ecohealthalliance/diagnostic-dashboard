@@ -4,7 +4,7 @@ template(name="symptomTable")
     .diagnosis(style="flex: 0 0 100%;")
       h4 Detailed Diagnosis
         span.btn-group.btn-group-xs(style="float:right;")
-          a.btn.btn-default(href='/dash/#{diagnosisId}') Less detailed diagnosis
+          a.btn.btn-default(href='/dash/#{_id}') Less detailed diagnosis
       +reactiveTable collection=symptomTableCollection settings=tableSettings
       .features
         if showCategory 'symptom'
