@@ -1,5 +1,5 @@
 Template.resultList.results = () ->
   grits.Girder.Items.find()
 
-Template.dash.eq = (a, b) ->
+Template.resultList.eq = (a, b) ->
   a == b
