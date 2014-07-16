@@ -14,8 +14,9 @@ Template.profile.tableSettings = () ->
       key: 'diseases'
       label: 'Diagnosis'
       fn: (diseases) ->
-        diseaseNames = (disease.name for disease in diseases)
-        diseaseNames.join(", ")
+        if diseases
+          diseaseNames = (disease.name for disease in diseases)
+          diseaseNames.join(", ")
     },
     {
       key: 'content'

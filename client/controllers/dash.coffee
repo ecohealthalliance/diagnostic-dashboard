@@ -179,12 +179,15 @@ Template.dash.events
 
   "click .diagnosis .label" : (event) ->
     Session.set('features', [this])
-    
+
   "click .reset-panels": (event) ->
     setHeights()
 
   "click .open-feedback": (event) =>
     $('form.feedback').show()
+
+  "click .retry-button": (event) ->
+    Meteor.call('retry', @_id)
 
 
 Meteor.Spinner.options = { color: '#fff' }
