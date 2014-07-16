@@ -43,6 +43,7 @@ Router.map () ->
       AccountsEntry.signInRequired(@)
     waitOn: () ->
       Meteor.subscribe('results')
+      Meteor.subscribe('item')
     data: () ->
       Results.findOne(@params._id)
     onStop: () ->
@@ -72,8 +73,9 @@ Router.map () ->
         if diagnosis
           diagnosis.diseases.forEach (d)->
             DiseasesSelected.insert(d)
-          diagnosis.keywords.forEach (k)->
-            AnyKeywordsSelected.insert(k)
+          if diagnosis.keywords
+            diagnosis.keywords.forEach (k)->
+              AnyKeywordsSelected.insert(k)
   )
 
   @route("symptomTable",

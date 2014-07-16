@@ -63,7 +63,8 @@ Template.search.rendered = () ->
 
 Template.search.updatePanes = () ->
   data = []
-  locationFeatures = grits.GirderItems.find().fetch()
+  
+  locationFeatures = grits.Girder.Items.find().fetch()
 
   # we can probably get a better location name from the diagnosis
 
@@ -80,9 +81,13 @@ Template.search.updatePanes = () ->
     name: d.name
 
   Session.set('locations', data)
+  ''
 
-DiseaseNames = new Meteor.Collection('diseaseNames')
-Keywords = new Meteor.Collection('keywords')
+DiseaseNames = () =>
+  @grits.Girder.DiseaseNames
+
+Keywords = () =>
+  @grits.Girder.Keywords
 
 Template.search.diseaseCompleteSettings = ()->
   {
@@ -90,7 +95,7 @@ Template.search.diseaseCompleteSettings = ()->
    limit: 5,
    rules: [
      {
-       collection: DiseaseNames,
+       collection: DiseaseNames(),
        field: "_id",
        template: Template.searchPill,
      }
@@ -103,7 +108,7 @@ Template.search.keywordCompleteSettings = ()->
    limit: 5,
    rules: [
      {
-       collection: Keywords,
+       collection: Keywords(),
        field: "_id",
        template: Template.searchPill,
      }

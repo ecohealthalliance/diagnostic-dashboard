@@ -16,6 +16,7 @@
       "font-awesome": {},
       "accounts-entry": {},
       "spin": {},
+      "dbproxy": {},
       "autocomplete": {}
     },
     "packages": {
@@ -59,6 +60,11 @@
         "git": "https://github.com/SachaG/meteor-spin.git",
         "tag": "v0.2.2",
         "commit": "3f655f0016228e4195acc784c45d3e3a247dc39f"
+      },
+      "dbproxy": {
+        "git": "https://github.com/TimHeckel/meteor-dbproxy.git",
+        "tag": "v0.0.4",
+        "commit": "629c11b5405da2e3798f29790462d35031a1bc6f"
       },
       "autocomplete": {
         "git": "https://github.com/mizzao/meteor-autocomplete.git",

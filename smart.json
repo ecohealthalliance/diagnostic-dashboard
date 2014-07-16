@@ -14,6 +14,7 @@
     "font-awesome": {},
     "accounts-entry": {},
     "spin": {},
+    "dbproxy": {},
     "autocomplete": {}
   }
 }
