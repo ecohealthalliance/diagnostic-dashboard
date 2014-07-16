@@ -57,10 +57,11 @@ Router.map () ->
     onBeforeAction: () ->
       AccountsEntry.signInRequired(@)
     waitOn: () ->
-      #TODO Wait on all of these instead of just the last one
-      Meteor.subscribe('diseaseNames')
-      Meteor.subscribe('keywords')
-      Meteor.subscribe('results')
+      [
+        Meteor.subscribe('diseaseNames')
+        Meteor.subscribe('keywords')
+        Meteor.subscribe('results')
+      ]
     onAfterAction: ()->
       # Remove any previous selections which could exist
       # if the user navigates away from the search page and comes back.
