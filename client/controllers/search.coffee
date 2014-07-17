@@ -72,7 +72,6 @@ Template.search.updatePanes = () ->
   data = _.chain(locationFeatures.map (d) ->
     if d.meta.diagnosis?.features
       d.meta.diagnosis.features.map (f)->
-        console.log f
         if f.type == "location"
           location: f.geoname.name
           summary: d.description
