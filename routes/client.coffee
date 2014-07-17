@@ -98,3 +98,7 @@ Router.map () ->
     onBeforeAction: () ->
       AccountsEntry.signInRequired(@)
   )
+  
+  @route("help",
+    where: 'client'
+  )
