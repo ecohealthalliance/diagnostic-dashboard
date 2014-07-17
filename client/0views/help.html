@@ -1,9 +1,67 @@
 <template name="help">
   <div class="doc-container">
 {{#markdown}}
-### Hi Nico
+# GRITS Project Overview
 
-You can write markdown *here*.
+## Goals
+The goal of the GRITS Project is to deliver ranked differential diagnoses to rapidly pinpoint and identify disease threats. The GRITS web platform provides decision support tools that enable analysts to rapidly diagnose articles.
+
+## Funding
+GRITS has been funded by the Defense Threat Reduction Agency (DTRA) since January 2013.
+
+## Partners
+GRITS was developed by EcoHealth Alliance, Kitware Inc., Epidemico, and the International Society for Infectious Diseases. The current diagnostic capabilities build upon the data and editor expertise from HealthMap and ProMED-mail.
+
+# GRITS web application (GRITS.app)
+
+## Getting Started
+1. [Sign in](sign-in) or [create an account](sign-up)
+1. Enter email address, password, and signup code (If you would like a signup code please email admin@ecohealth.io with your name and affiliation)
+1. You will be redirected to your profile page
+1. Click on [New Diagnosis](/submit/)
+1. Paste text to diagnose into the box (e.g. copy and paste a news article)
+1. Click Diagnose
+1. The Diagnostic Dashboard will open (this could take some time)
+
+## Profile page
+GRITS.app will open on the profile page. If you have already submitted articles to diagnose they will be listed here. Click on an article to return to that diagnosis or select **New Diagnosis** to add an article to the list. Type a word in the filter box to show articles with that word. You can return to the profile page at any time by clicking **GRITS** at the top of the page.
+
+## Diagnostic Dashboard
+The Diagnostic Dashboard displays the results of the GRITS diagnosis of your article. The left sidebar displays the diagnostic results, the keywords that were extracted, and features extracted from the article such as case counts.  The panes on the right display a variety of visualizations. Click on the words in the sidebar to highlight them in the visualizations on the right. Click a visualization pane to enlarge it and minimize the other visualizations.
+
+### Diagnosis
+This is a ranked list of possible diagnoses for your article. Click on a disease to highlight the keywords that were used in the visualizations. Select **Detailed Diagnosis** to see how the keywords are weighted in the diagnosis.
+
+GRITS Media Diagnostic (GRITS.md) currently uses MaxEnt classifiers for the diagnostic engine to predict disease labels based on keywords in digital media. The classifier returns a ranked differential diagnosis to the analyst, where the relative probabilities are calculated from keyword scores.
+
+### Feature categories
+Features are extracted through a combination of approaches including rule-based extraction and natural language processing. They are listed in the sidebar according to the following categories:
+
+* Symptoms
+* Hosts
+* Pathogens
+* Mode of Transmission
+* Dates
+* Counts: Case/Death/Hospitalization
+* Locations
+
+## Visualizations
+### Document (text)
+The content of the article submitted is displayed in the text pane. The highlighting is controlled in the sidebar. 
+* See all the keywords in a disease diagnosis by selecting a disease
+* Highlight keywords by clicking on them in the sidebar
+
+### Map (space)
+The map displays the locations mentioned in the article. Click on a location feature to highlight its geopoint on the map. Click on geopoints to see their labels. You can zoom with mouse gestures and scroll by clicking and dragging.
+
+### Barplot (time)
+The barplot displays the times mentioned in the article. Clicking date features in the sidebar will highlight the corresponding dates.
+
+## Search
+Click on **Find Similar Articles** to search and filter articles recommended based on the diseases identified and the keywords extracted from the article. The articles listed and displayed on the map are those that match the keywords specified on the left. Click on the red ‘x’ beside a keyword to remove that article from the search. The **Any of these diseases and keywords** searches for articles using a logical OR. Enter keywords in the **All of these keywords** box to force a logical AND. If the keyword is available for search, it will be available as an auto-complete option.
+
+# Database (GRITS.db)
+The [database](gritsdb) can be accessed by clicking on the database icon. This will launch a user interface to the GRITS **Girder** database. You will need to sign in or create an account to continue. This will need to be approved by a GIRDER administrator. To see the articles hosted by GRITS click on collections, select healthmap, all Alerts. You can use Quick Search to find articles.
 {{/markdown}}
   </div>
 </template>
