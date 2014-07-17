@@ -24,6 +24,7 @@ Template.profile.tableSettings = () ->
         if content.length > 100 then content.slice(0, 100) + '...' else content
     }
   ]
+  group: 'profile'
 
 Template.profile.events
   "click .dashboard-list .reactive-table tbody tr" : (event) ->
