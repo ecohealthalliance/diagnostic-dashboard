@@ -17,7 +17,8 @@
       "accounts-entry": {},
       "spin": {},
       "dbproxy": {},
-      "autocomplete": {}
+      "autocomplete": {},
+      "marked": {}
     },
     "packages": {
       "iron-router": {
@@ -70,6 +71,11 @@
         "git": "https://github.com/mizzao/meteor-autocomplete.git",
         "tag": "v0.4.5",
         "commit": "48a706f0055939ac9e05dd619ad6d4df3dcc237d"
+      },
+      "marked": {
+        "git": "https://github.com/chuangbo/meteor-marked.git",
+        "tag": "v0.3.2",
+        "commit": "850f63135cdeb05344c420bd586fd8af9cab75df"
       },
       "blaze-layout": {
         "git": "https://github.com/EventedMind/blaze-layout.git",
