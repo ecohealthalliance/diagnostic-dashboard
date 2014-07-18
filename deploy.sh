@@ -13,5 +13,5 @@ npm install fibers
 cd ../../../..
 # Restart the forever server process
 forever stop bundle/main.js || echo "no forever running"
-# Using port 3001 because port 80 only works if running as root
-PORT=3001 MONGO_URL=mongodb://localhost:27017/diagnosis ROOT_URL=http://grits-dev.ecohealth.io forever -a -o output.log -e error.log start bundle/main.js
+source config
+forever -a -o output.log -e error.log start bundle/main.js

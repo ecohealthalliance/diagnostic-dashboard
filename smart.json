@@ -13,6 +13,10 @@
     "d3": {},
     "font-awesome": {},
     "accounts-entry": {},
-    "rickshaw": {}
+    "rickshaw": {},
+    "spin": {},
+    "dbproxy": {},
+    "autocomplete": {},
+    "marked": {}
   }
 }

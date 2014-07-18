@@ -18,3 +18,7 @@ accounts-entry
 accounts-password
 iron-router
 rickshaw
+spin
+dbproxy
+autocomplete
+marked
