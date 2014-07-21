@@ -49,7 +49,6 @@ setHeights = () ->
 color = (text) =>
   @grits.services.color text
 
-
 Template.dash.rendered = () ->
 
   if !this.initialized
@@ -67,7 +66,7 @@ Template.dash.updatePanes = () ->
   dateFeatures = _.filter(@features, (feature) ->
     feature.type is 'datetime'
   )
-  data = _.map(dateFeatures, (feature) ->
+  dates = _.map(dateFeatures, (feature) ->
     {
       date: new Date(feature.value)
       latitude: null
@@ -77,30 +76,27 @@ Template.dash.updatePanes = () ->
   )
 
   locationFeatures = _.filter(@features, (feature) ->
-    feature.type is 'cluster'
+    feature.type is 'location'
   )
 
-  _.each(locationFeatures, (cluster) ->
-    _.each(cluster.locations, (locationFeature) ->
-        data.push {
-          date: null
-          latitude: locationFeature.latitude
-          longitude: locationFeature.longitude
-          location: locationFeature.name
-        }
+  locations = []
+  _.each(locationFeatures, (location) ->
+      locations.push {
+        date: null
+        latitude: location.geoname.latitude
+        longitude: location.geoname.longitude
+        location: location.name
+      }
     )
-  )
 
-
-  $('.pane').children().trigger('datachanged', { data: data })
-  ''
-
+  Session.set('dates', dates)
+  Session.set('locations', locations)
 
 Template.dash.eq = (a, b) ->
   a == b
 
 Template.dash.showCategory = (category) ->
-  if category in ['datetime', 'caseCount', 'deathCount', 'cluster']
+  if category in ['datetime', 'caseCount', 'deathCount', 'hospitalizationCount', 'location']
     _.any(@features, (feature) ->
       feature.type is category
     )
@@ -118,9 +114,9 @@ Template.dash.hasCategory = (keywordCategories, category) ->
 
 Template.dash.formatLocation = () ->
   location = "#{@name}"
-  admin1Code = @['admin1 code'] # e.g., state
+  admin1Code = @geoname['admin1 code'] # e.g., state
   location += ", #{admin1Code}" if admin1Code and /^[a-z]+$/i.test(admin1Code)
-  countryCode = @['country code']
+  countryCode = @geoname['country code']
   location += ", #{countryCode}" if countryCode
   location
 
@@ -134,9 +130,6 @@ Template.dash.color = () ->
 
 Template.dash.selected = () ->
   @name == Session.get('disease')
-
-Template.dash.diagnosisId = () ->
-  window.location.pathname.split('/').pop()
 
 Template.dash.tableSettings = () ->
   fields: [
@@ -168,6 +161,7 @@ Template.dash.tableSettings = () ->
   ]
   showNavigation: 'never'
   showFilter: false
+  group: 'diagnosis'
 
 
 Template.dash.events
@@ -181,13 +175,16 @@ Template.dash.events
 
   "click .diagnosis .reactive-table tbody tr" : (event) ->
     Session.set('disease', @name)
-    Session.set('features', keyword.name for keyword in @keywords)
+    Session.set('features', keyword for keyword in @keywords)
 
   "click .diagnosis .label" : (event) ->
-    Session.set('features', [@name or @text])
-
+    Session.set('features', [this])
+    
   "click .reset-panels": (event) ->
     setHeights()
 
   "click .open-feedback": (event) =>
     $('form.feedback').show()
+
+
+Meteor.Spinner.options = { color: '#fff' }

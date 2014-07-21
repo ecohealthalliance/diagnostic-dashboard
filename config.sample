@@ -1,0 +1,6 @@
+#!/bin/bash
+# Using port 3001 because port 80 only works if running as root
+export PORT=3001
+export MONGO_URL=mongodb://localhost:27017/diagnosis
+export ROOT_URL=$APACHE_URL
+export MAIL_URL=smtp://localhost

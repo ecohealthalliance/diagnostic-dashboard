@@ -12,6 +12,10 @@
     "reactive-table": {},
     "d3": {},
     "font-awesome": {},
-    "accounts-entry": {}
+    "accounts-entry": {},
+    "spin": {},
+    "dbproxy": {},
+    "autocomplete": {},
+    "marked": {}
   }
 }

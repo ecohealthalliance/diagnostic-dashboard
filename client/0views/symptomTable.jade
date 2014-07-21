@@ -2,8 +2,10 @@ template(name="symptomTable")
   div(style="display:none") #{updatePanes}
   .dashboard-container
     .diagnosis(style="flex: 0 0 100%;")
+      h4 Detailed Diagnosis
+        span.btn-group.btn-group-xs(style="float:right;")
+          a.btn.btn-default(href='/dash/#{_id}') Less detailed diagnosis
       +reactiveTable collection=symptomTableCollection settings=tableSettings
-      a.btn.btn-default(href='/dash/#{diagnosisId}') Less detailed diagnosis
       .features
         if showCategory 'symptom'
           .feature-section.symptoms
@@ -47,10 +49,10 @@ template(name="symptomTable")
             each features
               if eq type "deathCount"
                 .label #{text}
-        if showCategory 'cluster'
+        if showCategory 'location'
           .feature-section.locations
             h4 Locations
             each features
-              if eq type "cluster"
+              if eq type "location"
                 each locations
                   .label.location #{formatLocation}

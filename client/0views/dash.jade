@@ -1,10 +1,18 @@
 template(name="dash")
   div(style="display:none") #{updatePanes}
+  unless ready
+    .loading-message
+      +spinner
+      h1 Please wait...
   .dashboard-container
-    .diagnosis
+    .left-panel.diagnosis
+      .btn-group.btn-group-justified(style="margin-top:5px;")
+        a.btn.btn-default(href='/search?diagnosisId=#{_id}') Find Similar Articles
+      h4 Diagnosis
+        span.btn-group.btn-group-xs(style="float:right;")
+          a.btn.btn-default(href='/symptomTable/#{_id}') Detailed diagnosis
+          a.btn.btn-default.open-feedback Feedback
       +reactiveTable collection=diseases settings=tableSettings
-      a.btn.btn-default(href='/symptomTable/#{diagnosisId}') Detailed diagnosis
-      a.btn.btn-default.open-feedback(style="float:right;") Feedback?
       +feedback
       .features
         if showCategory 'symptom'
@@ -42,26 +50,31 @@ template(name="dash")
             h4 Case Counts
             each features
               if eq type "caseCount"
-                .label #{text}
+                .label.caseCount #{value}
         if showCategory 'deathCount'
           .feature-section.death-counts
             h4 Death Counts
             each features
               if eq type "deathCount"
-                .label #{text}
-        if showCategory 'cluster'
+                .label.deathCount #{value}
+        if showCategory 'hospitalizationCount'
+          .feature-section.hospitalization-counts
+            h4 Hospitalization Counts
+            each features
+              if eq type "hospitalizationCount"
+                .label.hospitalizationCount #{value}
+        if showCategory 'location'
           .feature-section.locations
             h4 Locations
             each features
-              if eq type "cluster"
-                each locations
-                  .label.location #{formatLocation}
+              if eq type "location"
+                .label.location #{formatLocation}
     .pane-container
-      .pane
+      .pane.minimized
         +geomapSimple
-      .pane
+      .pane.minimized
         +timelineSimple
-      .pane
-        +dendrogram
-      .pane
+      //-.pane
+      //-  +dendrogram
+      .pane.maximized
         +text

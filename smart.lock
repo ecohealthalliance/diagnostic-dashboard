@@ -14,18 +14,17 @@
       "reactive-table": {},
       "d3": {},
       "font-awesome": {},
-      "accounts-entry": {}
+      "accounts-entry": {},
+      "spin": {},
+      "dbproxy": {},
+      "autocomplete": {},
+      "marked": {}
     },
     "packages": {
       "iron-router": {
         "git": "https://github.com/EventedMind/iron-router.git",
         "tag": "v0.7.1",
         "commit": "d1ffb3f06ea4c112132b030f2eb1a70b81675ecb"
-      },
-      "jade": {
-        "git": "https://github.com/mquandalle/meteor-jade.git",
-        "tag": "v0.2.4",
-        "commit": "a47a4c59daaa57e7fe5f1544d4ea76d95a5c9abf"
       },
       "geojs": {
         "path": "packages/geojs"
@@ -35,13 +34,13 @@
       },
       "bootstrap-3": {
         "git": "https://github.com/mangasocial/meteor-bootstrap-3.git",
-        "tag": "v3.1.1-1",
-        "commit": "63dd38968828bb8963636df93e9a1c45e2dfe67e"
+        "tag": "v3.2.0-1",
+        "commit": "17a63902fc6cf1096c5289d963c66cf28b474727"
       },
       "reactive-table": {
         "git": "https://github.com/ecohealthalliance/reactive-table.git",
-        "tag": "v0.3.13",
-        "commit": "4ac599148eddfe05aa7732d64a2d7b6fb1b601dd"
+        "tag": "v0.3.15",
+        "commit": "be996c811ef4232818bc51439f7cfc8deac9e012"
       },
       "d3": {
         "git": "https://github.com/sergeyt/meteor-d3.git",
@@ -58,6 +57,26 @@
         "tag": "v0.7.3",
         "commit": "7facaa045d3720eeeba3420c28e48d5709188fe3"
       },
+      "spin": {
+        "git": "https://github.com/SachaG/meteor-spin.git",
+        "tag": "v0.2.2",
+        "commit": "3f655f0016228e4195acc784c45d3e3a247dc39f"
+      },
+      "dbproxy": {
+        "git": "https://github.com/TimHeckel/meteor-dbproxy.git",
+        "tag": "v0.0.4",
+        "commit": "629c11b5405da2e3798f29790462d35031a1bc6f"
+      },
+      "autocomplete": {
+        "git": "https://github.com/mizzao/meteor-autocomplete.git",
+        "tag": "v0.4.5",
+        "commit": "48a706f0055939ac9e05dd619ad6d4df3dcc237d"
+      },
+      "marked": {
+        "git": "https://github.com/chuangbo/meteor-marked.git",
+        "tag": "v0.3.2",
+        "commit": "850f63135cdeb05344c420bd586fd8af9cab75df"
+      },
       "blaze-layout": {
         "git": "https://github.com/EventedMind/blaze-layout.git",
         "tag": "v0.2.4",
@@ -65,13 +84,18 @@
       },
       "just-i18n": {
         "git": "https://github.com/subhog/meteor-just-i18n.git",
-        "tag": "v0.2.4",
-        "commit": "91decfcf5b3b5e67f202a67658350b862330bf3d"
+        "tag": "v0.3.0",
+        "commit": "a60e7f4350fb9648d6f6b4a01acbbc114c4f4343"
       },
       "accounts-t9n": {
         "git": "https://github.com/softwarerero/meteor-accounts-t9n.git",
         "tag": "v0.0.5",
         "commit": "ad9539a8818049d5d9fa050d8b2a1f62706483b1"
+      },
+      "caret-position": {
+        "git": "https://github.com/StockBase/meteor-caret-position.git",
+        "tag": "v2.1.0-3",
+        "commit": "6028cf980f62cbf72cb2ea527091a3a31f87b8a7"
       }
     }
   }
