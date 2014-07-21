@@ -8,7 +8,10 @@ Template.profile.tableSettings = () ->
       label: 'Date'
       sort: -1
       fn: (date) ->
-        new Date(date).toDateString()
+        date = if date then new Date(date) else new Date(0)
+        dateString = date.toDateString()
+        isoString = date.toISOString()
+        new Spacebars.SafeString("<span value=#{isoString}>#{dateString}</span>")
     },
     {
       key: 'diseases'
