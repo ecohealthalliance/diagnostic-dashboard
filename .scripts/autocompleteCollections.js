@@ -1,8 +1,7 @@
-// This code accesses the underlying node.js mongo lib to do a map-reduce query
-// that creates a collection with the distinct keywords used in the diagnoses
-// and their categories.
-// The method for accessing mongo is based on the answer here:
-// http://stackoverflow.com/questions/14901761/mongodb-distinct-implementation-in-meteor-on-the-server/14935991#comment38245027_14935991
+// This code accesses mongo to do a map-reduce query
+// that creates a collection with the distinct keywords
+// used in the diagnoses and their categories.
+// Run it with the mongo command.
 var mongodb = new Mongo('localhost:27017');
 var db = mongodb.getDB('girder');
 var collection = db.item;
