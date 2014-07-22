@@ -10,8 +10,9 @@ Template.profile.tableSettings = () ->
       fn: (date) ->
         date = if date then new Date(date) else new Date(0)
         dateString = date.toDateString()
-        isoString = date.toISOString()
-        new Spacebars.SafeString("<span value=#{isoString}>#{dateString}</span>")
+        sortString = date.toISOString()
+        # The column is sorted by this string, so the sort string comes first
+        new Spacebars.SafeString("<span value=#{sortString}>#{dateString}</span>")
     },
     {
       key: 'diseases'
