@@ -179,12 +179,12 @@ Template.dash.events
 
   "click .diagnosis .label" : (event) ->
 
-    if this.textOffsets
+    if @textOffsets
 
       # We need to filter out any non-offset-based features. We can't handle
       # highlighting both kinds at the same time.
 
-      currentFeatures = _.filter Session.get('features') or [], (feature) -> 
+      currentFeatures = _.filter Session.get('features') or [], (feature) ->
         feature.textOffsets
 
       found = false
