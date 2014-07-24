@@ -187,7 +187,10 @@ Template.dash.events
     $('form.feedback').show()
 
   "click .retry-button": (event) ->
-    Meteor.call('retry', @_id)
+    Meteor.call('retry', @_id, (error, resultId) ->
+      unless error
+        Router.go "dash", {_id: resultId}
+    )
 
 
 Meteor.Spinner.options = { color: '#fff' }

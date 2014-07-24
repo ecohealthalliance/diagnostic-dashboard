@@ -31,7 +31,7 @@ Router.map () ->
       userId = @params._id or Meteor.userId()
       {
         user: Meteor.users.findOne(userId)
-        results: Results.find({userId: userId, ready: true})
+        results: Results.find({userId: userId, ready: true, replacedBy: {'$exists': false}})
       }
 
   )

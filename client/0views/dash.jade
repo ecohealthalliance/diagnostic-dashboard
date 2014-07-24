@@ -4,6 +4,13 @@ template(name="dash")
     .loading-message
       +spinner
       h1 Please wait...
+  if replacedBy
+    .loading-message
+      h2
+        span There is
+        span
+          a(href='/dash/#{replacedBy}') a new version
+        span of this dashboard
   if error
     .loading-message
       h2 There was an error processing this diagnosis.

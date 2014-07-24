@@ -1,17 +1,10 @@
 Results = @grits.Results
 
-submit = (content, userId, resultId) ->
-  if resultId
-    Results.update(resultId, {
-      content: content
-      userId: userId
-      ready: false
-    })
-  else
-    resultId = Results.insert
-      content: content
-      userId: userId
-      ready: false
+submit = (content, userId, oldResultId) ->
+  resultId = Results.insert
+    content: content
+    userId: userId
+    ready: false
   diagnose = () ->
     Meteor.call('diagnose', content, (error, result) ->
       if error
@@ -31,6 +24,13 @@ submit = (content, userId, resultId) ->
           diagnoserVersion: result.diagnoserVersion
           ready: true
           createDate: new Date()
+        })
+        if oldResultId
+          Results.update(oldResultId, {
+            content: content
+            userId: userId
+            ready: true
+            replacedBy: resultId
         })
     )
   Meteor.setTimeout(diagnose, 0)
