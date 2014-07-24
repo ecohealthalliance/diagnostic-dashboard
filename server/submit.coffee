@@ -8,12 +8,11 @@ submit = (content, userId, oldResultId) ->
   diagnose = () ->
     Meteor.call('diagnose', content, (error, result) ->
       if error
-        Results.update(resultId, {
-          content: content
-          userId: userId
+        message = error?.stack?.split('\n')?[0]
+        Results.update(resultId, { '$set': {
           ready: true
-          error: true
-        })
+          error: message
+        }})
       else
         Results.update(resultId, {
           content: content
@@ -26,12 +25,10 @@ submit = (content, userId, oldResultId) ->
           createDate: new Date()
         })
         if oldResultId
-          Results.update(oldResultId, {
-            content: content
-            userId: userId
+          Results.update(oldResultId, { '$set': {
             ready: true
             replacedBy: resultId
-        })
+          }})
     )
   Meteor.setTimeout(diagnose, 0)
   resultId

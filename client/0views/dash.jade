@@ -11,7 +11,7 @@ template(name="dash")
         span
           a(href='/dash/#{replacedBy}') a new version
         span of this dashboard
-  if error
+  else if error
     .loading-message
       h2 There was an error processing this diagnosis.
       a.btn.btn-default.retry-button Retry
