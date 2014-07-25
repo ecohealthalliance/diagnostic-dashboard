@@ -15,7 +15,7 @@ renderEpiCurve = (reports)->
   reports.forEach (report)->
     counts = []
     datetimes = []
-    report.meta.diagnosis?.features.forEach (f)->
+    report.meta.diagnosis?.features?.forEach (f)->
       if f.type == 'datetime'
         datetimes.push(f)
       if _.contains(countTypes, f.type)
@@ -24,10 +24,13 @@ renderEpiCurve = (reports)->
     # Annotate counts with datetimes based on proximity
     for count in counts
       for dt in datetimes
+        curOffsetDiff = offsetDifference(count, dt)
         if 'datetime' in count
-          if offsetDifference(count, dt) >= offsetDifference(count['datetime'], dt)
+          if curOffsetDiff >= offsetDifference(count['datetime'], dt)
             continue
-        if offsetDifference(count, dt) < 300
+        # Assume the count does not overlap the datetime to avoid
+        # mistakes like using the year as a count.
+        if curOffsetDiff < 300 and curOffsetDiff >= 0
             count['datetime'] = dt
             
     for count in counts

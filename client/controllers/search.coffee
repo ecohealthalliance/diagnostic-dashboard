@@ -143,6 +143,8 @@ Deps.autorun ()->
     Meteor.subscribe('item', {
       $and : conditions
     }, {
+      skip : Session.get('skip') or 0
+    }, {
       onready : ()->
         console.log "reports loaded"
     })
@@ -159,6 +161,9 @@ Template.search.events
     selectedPane.removeClass('minimized').addClass('maximized')
     setHeights()
     selectedPane.fadeIn()
+
+  "click #load-more-results" : (event) ->
+    Session.set('skip', Session.get('skip') + 1)
 
   "click #add-disease" : (event) ->
     DiseasesSelected.insert({name : $("#new-disease").val()})
