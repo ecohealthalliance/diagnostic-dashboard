@@ -15,6 +15,7 @@
     "accounts-entry": {},
     "spin": {},
     "dbproxy": {},
-    "autocomplete": {}
+    "autocomplete": {},
+    "marked": {}
   }
 }

@@ -8,11 +8,17 @@ template(name="resultList")
         span #{meta.disease}
         br
         b Diseases Diagnosed:
-        span(class="disease-list")
+        span.inline-list
           each meta.diagnosis.diseases
             span #{name}
         br
-        b Case Counts:
-        each meta.diagnosis.features
-          if eq type "caseCount"
-            span #{text}
+        b Counts:
+        span.inline-list
+          each meta.diagnosis.features
+            if eq type "caseCount"
+              span #{value} cases
+            if eq type "deathsCount"
+              span #{value} deaths
+            if eq type "hospitalizationCount"
+              span #{value} hospitalizations
+              

@@ -45,10 +45,20 @@ Router.map () ->
       Meteor.subscribe('results')
       Meteor.subscribe('item')
     data: () ->
-      Results.findOne(@params._id)
+      data = Results.findOne(@params._id)
+      if data?.prevDiagnosisId
+        prevDiagnosis = Results.findOne(data.prevDiagnosisId)
+        if prevDiagnosis?.error
+          data.prevDiagnosisError = true
+      data
+    onAfterAction: () ->
+      result = @data()
+      if result?.error and result?.updatedDiagnosisId
+        Router.go "dash", {_id: result.updatedDiagnosisId}
     onStop: () ->
       Session.set('disease', null)
       Session.set('features', [])
+      $('.popover').remove()
   )
 
   @route("search",
@@ -77,6 +87,8 @@ Router.map () ->
           if diagnosis.keywords
             diagnosis.keywords.forEach (k)->
               AnyKeywordsSelected.insert(k)
+    onStop: () ->
+      $('.popover').remove()
   )
 
   @route("symptomTable",
@@ -94,4 +106,8 @@ Router.map () ->
     where: 'client'
     onBeforeAction: () ->
       AccountsEntry.signInRequired(@)
+  )
+
+  @route("help",
+    where: 'client'
   )

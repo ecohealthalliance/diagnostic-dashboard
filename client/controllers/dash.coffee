@@ -183,14 +183,15 @@ Template.dash.events
   "click .reset-panels": (event) ->
     setHeights()
 
-  "click .open-feedback": (event) =>
+  "click .open-feedback": (event) ->
     $('form.feedback').show()
 
-  "click .retry-button": (event) ->
-    Meteor.call('retry', @_id, (error, resultId) ->
-      unless error
-        Router.go "dash", {_id: resultId}
+  "click .rediagnose": (event) ->
+    Meteor.call('rediagnose', @, (error, resultId) ->
+      if error
+        alert "Could not rediagnose: " + error.message
+      else
+        Router.go 'dash', {_id: resultId}
     )
-
 
 Meteor.Spinner.options = { color: '#fff' }
