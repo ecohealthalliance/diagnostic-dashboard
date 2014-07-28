@@ -102,6 +102,9 @@ Template.search.diseaseCompleteSettings = ()->
    ]
   }
 
+Template.search.additionalResults = ()->
+  Session.get("additionalResults", true) or false
+
 Template.search.keywordCompleteSettings = ()->
   {
    position: "top",
@@ -139,11 +142,18 @@ Deps.autorun ()->
         $all : AllKeywordsSelected.find().map((k)-> k.name)
       }
     })
+  
   if conditions.length > 0
+    limit = Session.get('skip') + grits.searchLimit
+    Session.set("additionalResults", false)
     Meteor.subscribe('item', {
       $and : conditions
     }, {
-      onready : ()->
+      limit : limit
+    }, {
+      onReady : (x,y)->
+        if grits.Girder.Items.find().count() >= limit
+          Session.set("additionalResults", true)
         console.log "reports loaded"
     })
 
@@ -162,21 +172,32 @@ Template.search.events
 
   "click #add-disease" : (event) ->
     DiseasesSelected.insert({name : $("#new-disease").val()})
+    Session.get('skip', 0)
 
   "click .remove-disease" : (event) ->
     DiseasesSelected.remove({name : $(event.currentTarget).data('name')})
+    Session.get('skip', 0)
 
   "click #add-any-keyword" : (event) ->
     AnyKeywordsSelected.insert({name : $("#new-any-keyword").val()})
+    Session.set('skip', 0)
 
   "click .remove-any-keyword" : (event) ->
     AnyKeywordsSelected.remove({name : $(event.currentTarget).data('name')})
+    Session.set('skip', 0)
 
   "click #add-all-keyword" : (event) ->
     AllKeywordsSelected.insert({name : $("#new-all-keyword").val()})
+    Session.set('skip', 0)
 
   "click .remove-all-keyword" : (event) ->
     AllKeywordsSelected.remove({name : $(event.currentTarget).data('name')})
+    Session.set('skip', 0)
 
   "click .reset-panels": (event) ->
     setHeights()
+
+  "click #load-more-results" : (event) ->
+    console.log("x")
+    console.log grits.searchLimit
+    Session.set('skip', Session.get('skip') + grits.searchLimit)

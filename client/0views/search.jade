@@ -25,6 +25,10 @@ template(name="search")
       +inputAutocomplete settings=keywordCompleteSettings id="new-all-keyword" class="input-xlarge"
       button(id="add-all-keyword") Add
     .pane-container
+      if additionalResults
+        .more-results-bar
+          | There were too many search results to load them all at once
+          a#load-more-results.btn.btn-warning.btn-sm Load additional results
       .pane
         +geomapSimple
       .pane
