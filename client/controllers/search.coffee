@@ -66,20 +66,25 @@ Template.search.updatePanes = () ->
   
   locationFeatures = grits.Girder.Items.find().fetch()
 
-  # we can probably get a better location name from the diagnosis
+  # It would be cool if we could highligh all the points for a given article 
+  # when someone clicks one.
 
-  data = locationFeatures.map (d) ->
-    location: d.meta.country
-    summary: d.description
-    date: d.meta.date
-    disease: d.meta.disease
-    link: d.meta.link
-    species: d.meta.species
-    feed: d.meta.feed
-    latitude: d.meta.latitude
-    longitude: d.meta.longitude
-    name: d.name
-
+  data = _.chain(locationFeatures.map (d) ->
+    if d.meta.diagnosis?.features
+      d.meta.diagnosis.features.map (f)->
+        if f.type == "location"
+          location: f.geoname.name
+          summary: d.description
+          date: d.meta.date
+          disease: d.meta.disease
+          link: d.meta.link
+          species: d.meta.species
+          feed: d.meta.feed
+          latitude: f.geoname.latitude
+          longitude: f.geoname.longitude
+          name: d.name
+    ).flatten(true).filter((x)->x).value()
+    
   Session.set('locations', data)
   ''
 
