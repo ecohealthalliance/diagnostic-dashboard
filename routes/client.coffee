@@ -49,6 +49,7 @@ Router.map () ->
     onStop: () ->
       Session.set('disease', null)
       Session.set('features', [])
+      $('.popover').remove()
   )
 
   @route("search",
@@ -77,6 +78,8 @@ Router.map () ->
           if diagnosis.keywords
             diagnosis.keywords.forEach (k)->
               AnyKeywordsSelected.insert(k)
+    onStop: () ->
+      $('.popover').remove()
   )
 
   @route("symptomTable",
@@ -94,4 +97,8 @@ Router.map () ->
     where: 'client'
     onBeforeAction: () ->
       AccountsEntry.signInRequired(@)
+  )
+  
+  @route("help",
+    where: 'client'
   )
