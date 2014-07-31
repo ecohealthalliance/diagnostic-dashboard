@@ -1,4 +1,5 @@
 Results = @grits.Results
+Quarantine = @grits.Quarantine
 
 submit = (content, userId, prevDiagnosis) ->
   if prevDiagnosis
@@ -46,4 +47,12 @@ Meteor.methods(
 
   'rediagnose' : (prevDiagnosis) ->
     submit(prevDiagnosis.content, @userId, prevDiagnosis)
+
+  'submitFromQuarantine' : (submissionId) ->
+    content = Quarantine.findOne(submissionId)?.content
+    result = false
+    if content
+      Quarantine.remove(submissionId)
+      result = submit(content, @userId)
+    result
 )
