@@ -179,12 +179,19 @@ Template.dash.events
 
   "click .diagnosis .label" : (event) ->
     Session.set('features', [this])
-    
+
   "click .reset-panels": (event) ->
     setHeights()
 
-  "click .open-feedback": (event) =>
+  "click .open-feedback": (event) ->
     $('form.feedback').show()
 
+  "click .rediagnose": (event) ->
+    Meteor.call('rediagnose', @, (error, resultId) ->
+      if error
+        alert "Could not rediagnose: " + error.message
+      else
+        Router.go 'dash', {_id: resultId}
+    )
 
 Meteor.Spinner.options = { color: '#fff' }
