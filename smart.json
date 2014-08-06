@@ -16,6 +16,7 @@
     "spin": {},
     "dbproxy": {},
     "autocomplete": {},
-    "marked": {}
+    "marked": {},
+    "selenium-nightwatch": {}
   }
 }
