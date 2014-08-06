@@ -179,7 +179,7 @@ Template.dash.events
 
   "click .diagnosis .label" : (event) ->
     Session.set('features', [this])
-    
+
   "click .reset-panels": (event) ->
     setHeights()
 

@@ -19,16 +19,22 @@ submit = (content, userId, prevDiagnosis) ->
       ready: false
   diagnose = () ->
     Meteor.call('diagnose', content, (error, result) ->
-      Results.update resultId, {
-        $set : {
-          diseases: result.diseases
-          features: result.features
-          keywords: result.keywords_found
-          diagnoserVersion: result.diagnoserVersion
+      if error
+        message = error?.stack?.split('\n')?[0]
+        Results.update resultId, { '$set': {
           ready: true
-          createDate: new Date()
-        }
-      }
+          error: message
+        }}
+      else
+        Results.update resultId, {
+          $set : {
+            diseases: result.diseases
+            features: result.features
+            keywords: result.keywords_found
+            diagnoserVersion: result.diagnoserVersion
+            ready: true
+            createDate: new Date()
+          }}
     )
   Meteor.setTimeout(diagnose, 0)
   resultId
@@ -37,6 +43,7 @@ submit = (content, userId, prevDiagnosis) ->
 Meteor.methods(
   'submit' : (content) ->
     submit(content, @userId)
+
   'rediagnose' : (prevDiagnosis) ->
     submit(prevDiagnosis.content, @userId, prevDiagnosis)
 )

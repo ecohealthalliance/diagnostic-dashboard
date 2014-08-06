@@ -4,6 +4,11 @@ template(name="dash")
     .loading-message
       +spinner
       h1 Please wait...
+  else
+    if error
+      .loading-message
+        h2 There was an error processing this diagnosis.
+        a.btn.btn-default.rediagnose Retry
   .dashboard-container
     .left-panel.diagnosis
       .btn-group.btn-group-justified(style="margin-top:5px;")
@@ -15,7 +20,8 @@ template(name="dash")
       +reactiveTable collection=diseases settings=tableSettings
       .btn-group.btn-group-justified.btn-group-sm
         if prevDiagnosisId
-          a.btn.btn-default.prev-diagnosis(href='/dash/#{prevDiagnosisId}') Previous Diagnosis
+          unless prevDiagnosisError
+            a.btn.btn-default.prev-diagnosis(href='/dash/#{prevDiagnosisId}') Previous Diagnosis
         if updatedDiagnosisId
           a.btn.btn-default.prev-diagnosis(href='/dash/#{updatedDiagnosisId}') Updated Diagnosis
         else

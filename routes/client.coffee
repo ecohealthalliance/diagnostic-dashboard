@@ -31,7 +31,7 @@ Router.map () ->
       userId = @params._id or Meteor.userId()
       {
         user: Meteor.users.findOne(userId)
-        results: Results.find({userId: userId, ready: true})
+        results: Results.find({userId: userId, ready: true, replacedBy: {'$exists': false}})
       }
 
   )
@@ -45,7 +45,16 @@ Router.map () ->
       Meteor.subscribe('results')
       Meteor.subscribe('item')
     data: () ->
-      Results.findOne(@params._id)
+      data = Results.findOne(@params._id)
+      if data?.prevDiagnosisId
+        prevDiagnosis = Results.findOne(data.prevDiagnosisId)
+        if prevDiagnosis?.error
+          data.prevDiagnosisError = true
+      data
+    onAfterAction: () ->
+      result = @data()
+      if result?.error and result?.updatedDiagnosisId
+        Router.go "dash", {_id: result.updatedDiagnosisId}
     onStop: () ->
       Session.set('disease', null)
       Session.set('features', [])
@@ -98,7 +107,7 @@ Router.map () ->
     onBeforeAction: () ->
       AccountsEntry.signInRequired(@)
   )
-  
+
   @route("help",
     where: 'client'
   )
