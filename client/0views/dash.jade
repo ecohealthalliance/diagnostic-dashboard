@@ -52,30 +52,53 @@ template(name="dash")
             each keywords
               if hasCategory categories 'transmi'
                 .label(style="background-color:{{color}}") #{name}
+        if showCategory 'patientInfo'
+          .feature-section.hospitalization-counts
+            h4 Patient Information
+            each features
+              if eq type "patientInfo"
+                .patient-description
+                  if count
+                    b Cases: 
+                    if count.approximate
+                      | ~
+                    if count.number
+                      | #{count.number}
+                    if count.range_start
+                      | #{count.range_start} - #{count.range_end}
+                    if count.death
+                      | deaths
+                    if count.hospitalization
+                      | hospitalizations
+                    br
+                  if age
+                    b Age:
+                    if age.child
+                      | Child
+                    if age.approximate
+                      | ~
+                    if age.number
+                      | #{age.number}
+                    if age.range_start
+                      | #{age.range_start} - #{age.range_end}
+                    if age.month_units
+                      | months old
+                    else
+                      if age.year_units
+                        | years old
+                    br
+                  if male
+                    b Sex:
+                    | male
+                  if female
+                    b Sex:
+                    | female
         if showCategory 'datetime'
           .feature-section.dates
             h4 Dates
             each features
               if eq type "datetime"
                 .label #{formatDate}
-        if showCategory 'caseCount'
-          .feature-section.case-counts
-            h4 Case Counts
-            each features
-              if eq type "caseCount"
-                .label.caseCount #{value}
-        if showCategory 'deathCount'
-          .feature-section.death-counts
-            h4 Death Counts
-            each features
-              if eq type "deathCount"
-                .label.deathCount #{value}
-        if showCategory 'hospitalizationCount'
-          .feature-section.hospitalization-counts
-            h4 Hospitalization Counts
-            each features
-              if eq type "hospitalizationCount"
-                .label.hospitalizationCount #{value}
         if showCategory 'location'
           .feature-section.locations
             h4 Locations
