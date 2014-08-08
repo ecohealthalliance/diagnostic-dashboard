@@ -181,6 +181,8 @@ Template.dash.events
     Session.set('features', [this])
 
   "click .diagnosis .patient-description" : (event) ->
+    $('.patient-description.selected').removeClass('selected')
+    $(event.currentTarget).addClass('selected')
     this.color = 'goldenrod'
     Session.set('features', [this])
 
