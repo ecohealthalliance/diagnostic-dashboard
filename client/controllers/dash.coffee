@@ -163,7 +163,6 @@ Template.dash.tableSettings = () ->
   showFilter: false
   group: 'diagnosis'
 
-
 Template.dash.events
   "click .pane:not(.maximized)": (event) ->
     selectedPane = $(event.currentTarget)
@@ -184,6 +183,9 @@ Template.dash.events
     setHeights()
 
   "click .open-feedback": (event) ->
+    # Dynamically load disease names for the autocomplete
+    Meteor.subscribe('diseaseNames')
+    Session.set('feedbackId', grits.feedback.insert(userId: Meteor.userId()))
     $('form.feedback').show()
 
   "click .rediagnose": (event) ->
