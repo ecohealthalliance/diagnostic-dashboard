@@ -53,8 +53,8 @@ template(name="dash")
               if hasCategory categories 'transmi'
                 .label(style="background-color:{{color}}") #{name}
         if showCategory 'patientInfo'
-          .feature-section.hospitalization-counts
-            h4 Patient Information
+          .feature-section
+            h4 Key Points
             each features
               if eq type "patientInfo"
                 .patient-description

@@ -14,12 +14,14 @@ Template.text.highlight = (content) ->
         for occurrence in feature.textOffsets
           featuresByOccurrence.push
             name: feature.name
+            feature: feature
             occurrence: occurrence
       featuresByOccurrence = _.sortBy(featuresByOccurrence, (feature) -> - feature.occurrence[0])
       highlightedContent = content
       for feature in featuresByOccurrence
         occurrence = feature.occurrence
-        bgColor = color(feature.name)
+        bgColor = if feature.feature.color then feature.feature.color else color(feature.name)
+        console.log feature
         openSpan = "<span class='label' style='background-color:#{bgColor}'>"
         closeSpan = "</span>"
         highlightedContent = highlightedContent.substring(0, occurrence[0]) +

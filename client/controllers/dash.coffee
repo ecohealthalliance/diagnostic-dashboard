@@ -96,7 +96,7 @@ Template.dash.eq = (a, b) ->
   a == b
 
 Template.dash.showCategory = (category) ->
-  if category in ['datetime', 'caseCount', 'deathCount', 'hospitalizationCount', 'location', 'patientInfo']
+  if category in ['datetime', 'location', 'patientInfo']
     _.any(@features, (feature) ->
       feature.type is category
     )
@@ -178,6 +178,10 @@ Template.dash.events
     Session.set('features', keyword for keyword in @keywords)
 
   "click .diagnosis .label" : (event) ->
+    Session.set('features', [this])
+
+  "click .diagnosis .patient-description" : (event) ->
+    this.color = 'goldenrod'
     Session.set('features', [this])
 
   "click .reset-panels": (event) ->
