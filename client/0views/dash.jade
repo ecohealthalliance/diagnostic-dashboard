@@ -20,55 +20,55 @@ template(name="dash")
             h4 Symptoms
             each keywords
               if hasCategory categories 'symptom'
-                .label(style="background-color:{{color}}") #{name}
+                .label(style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}") #{name}
         if showCategory 'host'
           .feature-section.hosts
             h4 Hosts
             each keywords
               if hasCategory categories 'host'
-                .label(style="background-color:{{color}}") #{name}
+                .label(style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}") #{name}
         if showCategory 'pathogen'
           .feature-section.pathogens
             h4 Pathogens
             each keywords
               if hasCategory categories 'pathogen'
-                .label(style="background-color:{{color}}") #{name}
+                .label(style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}") #{name}
         if showCategory 'transmi'
           .feature-section.transmission
             h4 Modes of Transmission
             each keywords
               if hasCategory categories 'transmi'
-                .label(style="background-color:{{color}}") #{name}
+                .label(style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}") #{name}
         if showCategory 'datetime'
           .feature-section.dates
             h4 Dates
             each features
               if eq type "datetime"
-                .label #{formatDate}
+                .label(style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}") #{formatDate}
         if showCategory 'caseCount'
           .feature-section.case-counts
             h4 Case Counts
             each features
               if eq type "caseCount"
-                .label.caseCount #{value}
+                .label.caseCount(style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}") #{value}
         if showCategory 'deathCount'
           .feature-section.death-counts
             h4 Death Counts
             each features
               if eq type "deathCount"
-                .label.deathCount #{value}
+                .label.deathCount(style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}") #{value}
         if showCategory 'hospitalizationCount'
           .feature-section.hospitalization-counts
             h4 Hospitalization Counts
             each features
               if eq type "hospitalizationCount"
-                .label.hospitalizationCount #{value}
+                .label.hospitalizationCount(style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}") #{value}
         if showCategory 'location'
           .feature-section.locations
             h4 Locations
             each features
               if eq type "location"
-                .label.location #{formatLocation}
+                .label(style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}") #{formatLocation}
     .pane-container
       .pane.minimized
         +geomapSimple

@@ -20,7 +20,7 @@ Template.text.highlight = (content) ->
       for feature in featuresByOccurrence
         occurrence = feature.occurrence
         bgColor = color(feature.name)
-        openSpan = "<span class='label' style='background-color:#{bgColor}'>"
+        openSpan = "<span class='label' style='background-color:#{bgColor}; box-shadow: 0px 0px 0px 2px #{bgColor}'>"
         closeSpan = "</span>"
         highlightedContent = highlightedContent.substring(0, occurrence[0]) +
           openSpan + highlightedContent.substring(occurrence[0], occurrence[1]) +
@@ -32,7 +32,7 @@ Template.text.highlight = (content) ->
       for feature in features
         feature = feature.name or feature.text
         bgColor = color(feature)
-        highlightedContent = highlightedContent.replace(new RegExp("\\b#{feature}\\b", 'gi'), "<span class='label' style='background-color:#{bgColor}'>$&</span>")
+        highlightedContent = highlightedContent.replace(new RegExp("\\b#{feature}\\b", 'gi'), "<span class='label' style='background-color:#{bgColor}; box-shadow: 0px 0px 0px 2px #{bgColor}'>$&</span>")
       new Spacebars.SafeString(highlightedContent)
     else
       content
