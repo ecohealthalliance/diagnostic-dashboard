@@ -183,9 +183,12 @@ Template.dash.events
     setHeights()
 
   "click .open-feedback": (event) ->
-    # Dynamically load disease names for the autocomplete
-    Meteor.subscribe('diseaseNames')
-    Session.set('feedbackId', grits.feedback.insert(userId: Meteor.userId()))
+    currentDiagnosisId = window.location.pathname.split('/').pop()
+    if Session.get('feedbackDiagnosisId') != currentDiagnosisId
+      Session.set('feedbackDiagnosisId', currentDiagnosisId)
+      # Dynamically load disease names for the autocomplete
+      Meteor.subscribe('diseaseNames')
+      Session.set('feedbackId', grits.feedback.insert(userId: Meteor.userId()))
     $('form.feedback').show()
 
   "click .rediagnose": (event) ->
