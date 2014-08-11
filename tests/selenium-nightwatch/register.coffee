@@ -1,10 +1,23 @@
-# generate a random username - test may fail if the username
-# is already registered. we should write a setup method to
-# delete a user that we can re-register.
-username = "testuser#{Math.floor(Math.random()*100)}@test.com"
+mongo = require '../../.test_utils/built/mongo'
+
+username = "testuser@test.com"
 password = "abcd1234"
 
 module.exports =
+
+  "Setup": (browser) ->
+    # This isn't nightwatch's setUp, which runs before every test.
+    # It's just another test which runs once and makes no assertions.
+    try
+      mongo "users", "remove", {"emails.0.address": username}, (err) ->
+        if err
+          console.log err
+        else
+          console.log "removed test user"
+        browser.end()
+    catch err
+      console.log err
+      browser.end()
 
   "Register" : (browser) ->
     # test registering a new user
