@@ -60,37 +60,28 @@ Template.dash.rendered = () ->
     )
     this.initialized = true
 
-
-Template.dash.updatePanes = () ->
-  # updating the panes as a side effect of a template call is temporary
+Template.dash.dates = () ->
   dateFeatures = _.filter(@features, (feature) ->
     feature.type is 'datetime'
   )
-  dates = _.map(dateFeatures, (feature) ->
+  _.map(dateFeatures, (feature) ->
     {
       date: new Date(feature.value)
-      latitude: null
-      longitude: null
-      location: null
     }
   )
 
+Template.dash.locations = () ->
   locationFeatures = _.filter(@features, (feature) ->
     feature.type is 'location'
   )
 
-  locations = []
-  _.each(locationFeatures, (location) ->
-      locations.push {
-        date: null
-        latitude: location.geoname.latitude
-        longitude: location.geoname.longitude
-        location: location.name
-      }
-    )
-
-  Session.set('dates', dates)
-  Session.set('locations', locations)
+  _.map(locationFeatures, (location) ->
+    {
+      latitude: location.geoname.latitude
+      longitude: location.geoname.longitude
+      location: location.name
+    }
+  )
 
 Template.dash.eq = (a, b) ->
   a == b

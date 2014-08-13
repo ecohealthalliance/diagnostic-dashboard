@@ -22,12 +22,13 @@
             .attr('dx', '0.5em')
             .attr('dy', '0.1em');
     }
-    
-    Template.timelineSimple.rendered = function () {
+
+    Template.timelineSimple.createTimeline = function () {
+        var template = this;
         if (!this.initialized) {
             $(node).on('resizeApp', function (evt, obj) {
                 $(node).histogram({
-                    data: Session.get('dates'),
+                    data: template.dates,
                     x: function (d) { return d.date.valueOf(); },
                     xScale: d3.time.scale(),
                     transition: 0,
@@ -40,24 +41,23 @@
             });
             this.initialized = true;
         }
-    };
 
-    Deps.autorun(function () {
-        $(node).histogram({
-            data: Session.get('dates')
+        $(node).trigger('resizeApp', {
+            width: $(node).width(),
+            height: $(node).height()
         });
-        applyAxisStyle();
-    });
+        return template;
+    };
 
     Deps.autorun(function () {
         var features = Session.get('features') || [],
             dates = [];
-
         features.forEach(function (feature) {
             if (feature.type === 'datetime') {
                 dates.push( (new Date(feature.value)).valueOf() );
             }
         });
+        
         d3.selectAll('.histogram .boxes').each(function (d) {
             var selected = false;
             dates.forEach(function (date) {

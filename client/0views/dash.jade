@@ -1,5 +1,4 @@
 template(name="dash")
-  div(style="display:none") #{updatePanes}
   unless ready
     .loading-message
       +spinner
@@ -84,9 +83,9 @@ template(name="dash")
                 .label.location #{formatLocation}
     .pane-container
       .pane.minimized
-        +geomapSimple
+        +geomapSimple locations=locations
       .pane.minimized
-        +timelineSimple
+        +timelineSimple dates=dates
       //-.pane
       //-  +dendrogram
       .pane.maximized

@@ -70,7 +70,7 @@
                     that._data.push(d);
                 }
             });
-            
+
             // function for adding a pop over on mouse over
             function makePopOver(data) {
                 var msg = [];
@@ -136,7 +136,8 @@
 
     var node = '#geomap';
 
-    Template.geomapSimple.rendered = function () {
+    Template.geomapSimple.createGeomap = function () {
+        var template = this;
         if (!this.initialized) {
             $(node)
                 .on('resizeApp', function (evt, obj) {
@@ -149,15 +150,14 @@
             this.initialized = true;
         }
         $(node).healthmapMapSimple({
-            data: Session.get('locations')
+            data: template.locations
         });
+        $(node).trigger('resizeApp', {
+            width: $(node).width(),
+            height: $(node).height()
+        });
+        return template;
     };
-
-    Deps.autorun(function () {
-        $(node).healthmapMapSimple({
-            data: Session.get('locations')
-        });
-    });
 
     Deps.autorun(function () {
         var features = Session.get('features') || [],
