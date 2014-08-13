@@ -8,9 +8,10 @@ template(name="layout")
     a.nav-btn(href="/gritsdb")
       i.fa.fa-database
       p Database
-    a.nav-btn(href="/new")
-      i.fa.fa-file-text-o.fa-file-text-o-large
-      p New Diagnosis
+    if signedIn
+      a.nav-btn(href="/new")
+        i.fa.fa-file-text-o.fa-file-text-o-large
+        p New Diagnosis
     if isDashboard
       a.nav-btn.reset-panels(href="#")
         i.fa.fa-th-large.fa-th-large
@@ -22,4 +23,8 @@ template(name="layout")
       a.nav-btn.sign-out(href="/sign-out")
         i.fa.fa-sign-out.sign-out
         p Sign Out
+    else
+      a.nav-btn(href="/sign-in")
+        i.fa.fa-sign-in.sign-in
+        p Sign In / Register
   +yield
