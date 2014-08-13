@@ -4,10 +4,12 @@ Router.map () ->
     where: 'server'
     action: () ->
       # Temporarily disabled until we decide how to authenticate
-      return @response.writeHead(400)
+      @response.writeHead(400)
+      return @response.end()
       text = @request.body.content
       if not text
         @response.writeHead(400)
+        @response.end()
       else
         @response.setHeader('Content-Type', 'application/json')
         sendProcessing = () =>
@@ -15,6 +17,7 @@ Router.map () ->
         setInterval(sendProcessing, 1000)
         diagnosis = Meteor.call('diagnose', text)
         @response.write(JSON.stringify(diagnosis))
+        @response.end()
   })
 
 Router.map () ->
@@ -27,10 +30,12 @@ Router.map () ->
       method = if @request.connection.encrypted then 'https' else 'http'
       if not text
         @response.writeHead(400)
+        @response.end()
       else
         submissionId = Meteor.call('quarantine', text)
         path = Router.routes['authenticateSubmission'].path {_id: submissionId}
         authenticateUrl = "#{method}://#{host}#{path}"
         @response.setHeader('Location', authenticateUrl)
         @response.writeHead(303)
+        @response.end()
   })
