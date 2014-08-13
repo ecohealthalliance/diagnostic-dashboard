@@ -34,7 +34,8 @@
         "browserName" : "chrome",
         "javascriptEnabled" : true,
         "acceptSslCerts" : true
-      }
+      },
+      "exclude": ["./built/support.js"]
     }
   }
 }
