@@ -1,0 +1,6 @@
+template(name="paneContainer")
+  .pane-container
+    each panes
+      .pane(style="height:{{height ..}}px; width:{{width ..}}px;")
+        with paneContext ..
+          +..

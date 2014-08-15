@@ -136,27 +136,22 @@
 
     var node = '#geomap';
 
-    Template.geomapSimple.createGeomap = function () {
-        var template = this;
-        if (!this.initialized) {
-            $(node)
-                .on('resizeApp', function (evt, obj) {
-                    $(node).healthmapMapSimple({
-                        width: obj.width,
-                        height: obj.height,
-                        zoom: 3
-                    });
-                });
-            this.initialized = true;
-        }
+    var createGeomap = function (data) {
         $(node).healthmapMapSimple({
-            data: template.locations
+            width: data.width,
+            height: data.height,
+            zoom: 3,
+            data: data.locations
         });
-        $(node).trigger('resizeApp', {
-            width: $(node).width(),
-            height: $(node).height()
-        });
-        return template;
+    };
+
+    Template.geomapSimple.rendered = function () {
+        createGeomap(this.data);
+    };
+
+    Template.geomapSimple.createGeomap = function () {
+        createGeomap(this);
+        return {};
     };
 
     Deps.autorun(function () {

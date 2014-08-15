@@ -42,8 +42,10 @@ Router.map () ->
     onBeforeAction: () ->
       AccountsEntry.signInRequired(@)
     waitOn: () ->
-      Meteor.subscribe('results')
-      Meteor.subscribe('item')
+      [
+        Meteor.subscribe('results')
+        Meteor.subscribe('item')
+      ]
     data: () ->
       data = Results.findOne(@params._id)
       if data?.prevDiagnosisId
@@ -58,6 +60,7 @@ Router.map () ->
     onStop: () ->
       Session.set('disease', null)
       Session.set('features', [])
+      Session.set('maximizedPane', null)
       $('.popover').remove()
   )
 
