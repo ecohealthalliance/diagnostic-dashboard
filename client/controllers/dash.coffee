@@ -96,7 +96,7 @@ Template.dash.eq = (a, b) ->
   a == b
 
 Template.dash.showCategory = (category) ->
-  if category in ['datetime', 'caseCount', 'deathCount', 'hospitalizationCount', 'location']
+  if category in ['datetime', 'location', 'patientInfo']
     _.any(@features, (feature) ->
       feature.type is category
     )
@@ -233,6 +233,12 @@ Template.dash.events
 
     else
       Session.set('features', [this])
+
+  "click .diagnosis .patient-description" : (event) ->
+    $('.patient-description.selected').removeClass('selected')
+    $(event.currentTarget).addClass('selected')
+    this.color = 'goldenrod'
+    Session.set('features', [this])
 
   "click .reset-panels": (event) ->
     setHeights()

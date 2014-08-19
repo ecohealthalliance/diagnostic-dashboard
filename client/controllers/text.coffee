@@ -22,14 +22,15 @@ Template.text.highlight = (content) ->
       featuresByOccurrence = []
       for feature in features
         for occurrence in feature.textOffsets
-          newFeature = _.clone feature
-          newFeature.occurrence = occurrence
-          featuresByOccurrence.push newFeature
+          featuresByOccurrence.push
+            name: feature.name
+            feature: feature
+            occurrence: occurrence
       featuresByOccurrence = _.sortBy(featuresByOccurrence, (feature) -> - feature.occurrence[0])
       highlightedContent = content
       for feature in featuresByOccurrence
         occurrence = feature.occurrence
-        bgColor = color(feature)
+        bgColor = if feature.feature.color then feature.feature.color else color(feature.name)
         openSpan = "<span class='label' style='background-color:#{bgColor}; box-shadow: 0px 0px 0px 2px #{bgColor}'>"
         closeSpan = "</span>"
         highlightedContent = highlightedContent.substring(0, occurrence[0]) +
