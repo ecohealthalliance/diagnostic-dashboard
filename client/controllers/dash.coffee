@@ -96,7 +96,7 @@ Template.dash.eq = (a, b) ->
   a == b
 
 Template.dash.showCategory = (category) ->
-  if category in ['datetime', 'location', 'patientInfo']
+  if category in ['datetime', 'location', 'patientInfo', 'keypoints']
     _.any(@features, (feature) ->
       feature.type is category
     )
@@ -139,16 +139,7 @@ Template.dash.getIdKey = () ->
   Template.dash.getIdKeyFromFeature @
 
 Template.dash.getIdKeyFromFeature = (feature) ->
-  if feature.categories
-    idKey = feature.categories[0] + '_' + feature.name
-  else if feature.type in ['caseCount', 'hospitalizationCount', 'deathCount', 'datetime']
-    idKey = feature.type + '_' + feature.value
-  else if feature.type in ['location']
-    idKey = feature.type + '_' + feature.name
-  else if feature.text in ['datetime']
-    idKey = feature.type + '_' + feature.text
-
-  idKey.replace(/[^A-Za-z0-9]/g, '_')
+  return '_' + _.indexOf(Session.get('features'), feature)
 
 Template.dash.setActiveFeatureStyle = () ->
 

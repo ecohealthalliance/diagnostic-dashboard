@@ -27,16 +27,22 @@ Template.text.highlight = (content) ->
             feature: feature
             occurrence: occurrence
       featuresByOccurrence = _.sortBy(featuresByOccurrence, (feature) -> - feature.occurrence[0])
-      highlightedContent = content
+      highlightedContent = ''
+      last_idx = 0
       for feature in featuresByOccurrence
         occurrence = feature.occurrence
+        highlightedContent += content.substring(last_idx, occurrence[0])
         bgColor = if feature.feature.color then feature.feature.color else color(feature.name)
-        openSpan = "<span class='label' style='background-color:#{bgColor}; box-shadow: 0px 0px 0px 2px #{bgColor}'>"
-        closeSpan = "</span>"
-        highlightedContent = highlightedContent.substring(0, occurrence[0]) +
-          openSpan + highlightedContent.substring(occurrence[0], occurrence[1]) +
-          closeSpan + highlightedContent.substring(occurrence[1])
-      new Spacebars.SafeString(highlightedContent)
+        highlightTest = content.substring(occurrence[0], occurrence[1])
+        highlightedContent += """<span
+          class='label'
+          style='
+            background-color:#{bgColor};
+            box-shadow: 0px 0px 0px 2px #{bgColor};
+          '>#{highlightTest}</span>"""
+        last_idx = occurrence[1]
+      highlightedContent += content.substring(last_idx, content.length)
+      return new Spacebars.SafeString(highlightedContent)
     else if features?.length > 0
       features = _.sortBy(features, (feature) -> (feature.name or feature.text).length)
       highlightedContent = content
