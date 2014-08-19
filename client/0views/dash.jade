@@ -30,58 +30,58 @@ template(name="dash")
       .features
         if showCategory 'symptom'
           .feature-section.symptoms
-            h4 Symptoms
+            h4.symptom Symptoms
             each keywords
               if hasCategory categories 'symptom'
-                .label(style="background-color:{{color}}") #{name}
+                .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color) #{name}
         if showCategory 'host'
           .feature-section.hosts
-            h4 Hosts
+            h4.host Hosts
             each keywords
               if hasCategory categories 'host'
-                .label(style="background-color:{{color}}") #{name}
+                .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color) #{name}
         if showCategory 'pathogen'
           .feature-section.pathogens
-            h4 Pathogens
+            h4.pathogen Pathogens
             each keywords
               if hasCategory categories 'pathogen'
-                .label(style="background-color:{{color}}") #{name}
+                .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color) #{name}
         if showCategory 'transmi'
           .feature-section.transmission
-            h4 Modes of Transmission
+            h4.transmi Modes of Transmission
             each keywords
               if hasCategory categories 'transmi'
-                .label(style="background-color:{{color}}") #{name}
+                .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color) #{name}
         if showCategory 'datetime'
           .feature-section.dates
-            h4 Dates
+            h4.datetime Dates
             each features
               if eq type "datetime"
-                .label #{formatDate}
+                .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color) #{formatDate}
         if showCategory 'caseCount'
           .feature-section.case-counts
-            h4 Case Counts
+            h4.caseCount Case Counts
             each features
               if eq type "caseCount"
-                .label.caseCount #{value}
+                .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color) #{value}
         if showCategory 'deathCount'
           .feature-section.death-counts
-            h4 Death Counts
+            h4.deathCount Death Counts
             each features
               if eq type "deathCount"
-                .label.deathCount #{value}
+                .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color) #{value}
         if showCategory 'hospitalizationCount'
           .feature-section.hospitalization-counts
-            h4 Hospitalization Counts
+            h4.hospitalizationCount Hospitalization Counts
             each features
               if eq type "hospitalizationCount"
-                .label.hospitalizationCount #{value}
+                .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color) #{value}
         if showCategory 'location'
           .feature-section.locations
-            h4 Locations
+            h4.location Locations
             each features
               if eq type "location"
-                .label.location #{formatLocation}
+                .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color, value=name) #{formatLocation}
     .pane-container
       .pane.minimized
         +geomapSimple

@@ -126,7 +126,42 @@ Template.dash.formatDate = () ->
   date.toLocaleDateString()
 
 Template.dash.color = () ->
-  color @name
+  if @categories
+    color @categories[0] + @name
+  else if @type in ['caseCount', 'hospitalizationCount', 'deathCount', 'datetime']
+    color @type + @value
+  else if @type in ['location']
+    color @type + @name
+  else if @text
+    color @text
+
+Template.dash.getIdKey = () ->
+  Template.dash.getIdKeyFromFeature @
+
+Template.dash.getIdKeyFromFeature = (feature) ->
+  if feature.categories
+    idKey = feature.categories[0] + '_' + feature.name
+  else if feature.type in ['caseCount', 'hospitalizationCount', 'deathCount', 'datetime']
+    idKey = feature.type + '_' + feature.value
+  else if feature.type in ['location']
+    idKey = feature.type + '_' + feature.name
+  else if feature.text in ['datetime']
+    idKey = feature.type + '_' + feature.text
+
+  idKey.replace(/[^A-Za-z0-9]/g, '_')
+
+Template.dash.setActiveFeatureStyle = () ->
+
+  # Reset all box shadows to original colors
+
+  $(".features .label").each () ->
+    $(this).css "box-shadow", "0px 0px 0px 2px " + $(this).attr "pillColor"
+
+  activeFeatures = Session.get('features')
+  for feature in activeFeatures
+    idKey = Template.dash.getIdKeyFromFeature feature
+
+    $("#" + idKey).css "box-shadow", "0px 0px 0px 2px #555"
 
 Template.dash.selected = () ->
   @name == Session.get('disease')
@@ -241,5 +276,44 @@ Template.dash.events
       else
         Router.go 'dash', {_id: resultId}
     )
+  "click .features h4": (event, template) =>
+    category = $(event.target).attr('class')
+    if category in ['symptom', 'host', 'pathogen', 'transmi']
+      source = template.data.keywords
+      nameKey = 'name'
+      # These are not offset-based at the moment, so punt
+      return false
+    else if category in ['caseCount', 'hospitalizationCount', 'deathCount', 'datetime']
+      source = template.data.features
+      nameKey = 'value'
+    else if category is 'location'
+      source = template.data.features
+      nameKey = 'name'
+
+   # Clicking a header can do one of two things:
+    # - if any of the features for that category are currently not highlighted,
+    # turn highlighting on for all features in that category
+    # - if all features for the category are highlighted, turn them all off.
+    # We assume that each name is unique per category
+
+    categoryFeatures = _.filter source, (feature) -> feature.type is category
+
+    categoryFeaturesActive = _.filter Session.get('features') or [], (feature) ->
+      feature.type is category
+
+    if categoryFeatures.length is categoryFeaturesActive.length
+      featuresWithoutCategory = _.filter Session.get('features') or [], (feature) ->
+        feature.type isnt category
+      Session.set('features', featuresWithoutCategory)
+    else
+      currentFeatures = _.filter Session.get('features') or [], (feature) ->
+        feature.textOffsets
+
+      for feature in categoryFeatures
+        alreadyActive = _.any Session.get('features') or [], (activeFeature) ->
+          (feature['type'] == activeFeature['type']) and (feature[nameKey] == activeFeature[nameKey])
+        if not alreadyActive
+          currentFeatures.push(feature)
+      Session.set('features', currentFeatures)
 
 Meteor.Spinner.options = { color: '#fff' }
