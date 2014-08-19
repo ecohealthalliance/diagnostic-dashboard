@@ -10,6 +10,7 @@ Template.feedback.events
     feedbackItem = {
       diagnosisId : window.location.pathname.split('/').pop()
       version: "0.0.1"
+      lastModified: new Date()
       comments : _.findWhere(form, name : 'comments').value
       generalComments : _.findWhere(form, name : 'general_comments').value
       correctDiseases : _.chain(form)

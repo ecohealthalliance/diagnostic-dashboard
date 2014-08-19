@@ -190,6 +190,10 @@ Template.dash.events
     storedFeedback = grits.feedback.findOne(feedbackBaseData)
     # Dynamically load disease names for the autocomplete
     Meteor.subscribe('diseaseNames')
+    # Clear the missing diseases collection
+    missingDiseases.find().fetch().forEach((d)->
+      missingDiseases.remove(d._id)
+    )
     if storedFeedback
       Session.set('feedbackId', storedFeedback._id)
       # Repopulate feedback form so users can edit it later
@@ -201,15 +205,13 @@ Template.dash.events
       storedFeedback.incorrectDiseases?.forEach((d)->
         $('[name="' + d + '-correct"][value=false]').prop('checked', true)
       )
-      # Clear the missing diseases collection then repopulate it.
-      missingDiseases.find().fetch().forEach((d)->
-        missingDiseases.remove(d._id)
-      )
       storedFeedback.missingDiseases?.forEach((d)->
         missingDiseases.insert(name : d)
       )
     else
-      Session.set('feedbackId', grits.feedback.insert(feedbackBaseData))
+      Session.set('feedbackId', grits.feedback.insert(
+        _.extend({created: new Date()}, feedbackBaseData))
+      )
     $('form.feedback').show()
 
   "click .rediagnose": (event) ->
