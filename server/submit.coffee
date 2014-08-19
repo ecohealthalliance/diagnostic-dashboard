@@ -45,9 +45,6 @@ Meteor.methods(
   'submit' : (content) ->
     submit(content, @userId)
 
-  'rediagnose' : (prevDiagnosis) ->
-    submit(prevDiagnosis.content, @userId, prevDiagnosis)
-
   'submitFromQuarantine' : (submissionId) ->
     content = Quarantine.findOne(submissionId)?.content
     result = false
@@ -55,4 +52,8 @@ Meteor.methods(
       Quarantine.remove(submissionId)
       result = submit(content, @userId)
     result
+
+  'rediagnose' : (prevDiagnosis) ->
+    submit(prevDiagnosis.content, @userId, prevDiagnosis)
+
 )
