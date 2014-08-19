@@ -64,15 +64,15 @@ Router.map () ->
   @route("search",
     path: '/search'
     where: 'client'
-    onBeforeAction: () ->
-      AccountsEntry.signInRequired(@)
     waitOn: () ->
       [
         Meteor.subscribe('diseaseNames')
         Meteor.subscribe('keywords')
         Meteor.subscribe('results')
       ]
-    onAfterAction: ()->
+    onBeforeAction: ()->
+      AccountsEntry.signInRequired(@)
+      Session.setDefault('skip', 0)
       # Remove any previous selections which could exist
       # if the user navigates away from the search page and comes back.
       DiseasesSelected.find({},{reactive:false}).forEach (d)->
@@ -89,6 +89,7 @@ Router.map () ->
               AnyKeywordsSelected.insert(k)
     onStop: () ->
       $('.popover').remove()
+      Session.set('skip', 0)
   )
 
   @route("symptomTable",
