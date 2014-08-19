@@ -86,3 +86,19 @@ Start the service:
 The service will start on port 3000: [http://localhost:3000/profile](http://localhost:3000/)
 
 Before you can use the most interesting parts of the GRITS application, you'll need to make sure your diagnostic-dashboard server has access to its corresponding backend API server, so consult the documentation in the [grits-api](https://github.com/ecohealthalliance/grits-api) project and install that as well.
+
+## Full local setup
+
+The following are all the commands needed for a local setup.
+
+    git clone git@github.com:ecohealthalliance/diagnostic-dashboard.git
+    cd diagnostic-dashboard
+    cp config.sample config
+    export APACHE_URL=http://localhost
+    curl https://install.meteor.com/ | sh
+    curl http://npmjs.org/install.sh | sh
+    sudo rm -rf ~/tmp
+    sudo rm -rf ~/.npm
+    sudo npm install -g meteorite forever
+    mrt update
+    meteor
