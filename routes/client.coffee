@@ -42,8 +42,11 @@ Router.map () ->
     onBeforeAction: () ->
       AccountsEntry.signInRequired(@)
     waitOn: () ->
-      Meteor.subscribe('results')
-      Meteor.subscribe('item')
+      [
+        Meteor.subscribe('results')
+        Meteor.subscribe('item')
+        Meteor.subscribe('feedback')
+      ]
     data: () ->
       data = Results.findOne(@params._id)
       if data?.prevDiagnosisId
