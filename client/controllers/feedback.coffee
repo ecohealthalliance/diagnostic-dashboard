@@ -1,4 +1,4 @@
-missingDiseases = new Meteor.Collection(null)
+@missingDiseases = new Meteor.Collection(null)
 Template.feedback.missingDiseases = ()-> missingDiseases.find()
 
 Template.feedback.events
@@ -8,7 +8,6 @@ Template.feedback.events
         diseaseMatch = f.name.match(/(.*)-correct/)
         if diseaseMatch then diseaseMatch[1] else false
     feedbackItem = {
-      _id : Session.get('feedbackId')
       diagnosisId : window.location.pathname.split('/').pop()
       version: "0.0.1"
       comments : _.findWhere(form, name : 'comments').value
