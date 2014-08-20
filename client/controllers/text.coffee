@@ -45,7 +45,6 @@ Template.text.highlight = (content) ->
           '>#{highlightTest}</span>"""
         last_idx = occurrence[1]
       highlightedContent += content.substring(last_idx, content.length)
-      console.log featuresByOccurrence
       return new Spacebars.SafeString(highlightedContent)
     else if features?.length > 0
       features = _.sortBy(features, (feature) -> (feature.name or feature.text).length)

@@ -1,0 +1,5 @@
+template(name="autocompletePill")
+  span(class="sp-label") {{_id}}
+  span(class="sp-categories")
+    each value.categories
+      span(class="sp-category") [{{this}}]
