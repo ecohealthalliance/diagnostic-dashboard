@@ -96,7 +96,14 @@ Template.dash.eq = (a, b) ->
   a == b
 
 Template.dash.showCategory = (category) ->
-  if category in ['datetime', 'location', 'patientInfo', 'keypoints']
+  visibleCats = [
+    'datetime'
+    'location'
+    'caseCount'
+    'deathCount'
+    'hospitalizationCount'
+  ]
+  if category in visibleCats
     _.any(@features, (feature) ->
       feature.type is category
     )
