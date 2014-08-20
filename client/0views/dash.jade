@@ -1,5 +1,4 @@
 template(name="dash")
-  div(style="display:none") #{updatePanes}
   unless ready
     .loading-message
       +spinner
@@ -10,7 +9,7 @@ template(name="dash")
         h2 There was an error processing this diagnosis.
         a.btn.btn-default.rediagnose Retry
   .dashboard-container
-    .left-panel.diagnosis
+    .left-panel.diagnosis(style="height:{{diagnosisHeight}}px;")
       .btn-group.btn-group-justified(style="margin-top:5px;")
         a.btn.btn-default(href='/search?diagnosisId=#{_id}') Find Similar Articles
       h4 Diagnosis
@@ -82,12 +81,4 @@ template(name="dash")
             each features
               if eq type "location"
                 .label.location #{formatLocation}
-    .pane-container
-      .pane.minimized
-        +geomapSimple
-      .pane.minimized
-        +timelineSimple
-      //-.pane
-      //-  +dendrogram
-      .pane.maximized
-        +text
+    +paneContainer panes=panes data=paneData
