@@ -32,7 +32,10 @@ Template.text.highlight = (content) ->
       for feature in featuresByOccurrence
         occurrence = feature.occurrence
         highlightedContent += content.substring(last_idx, occurrence[0])
-        bgColor = if feature.feature.color then feature.feature.color else color(feature.name)
+        if feature.feature.color
+            bgColor = feature.feature.color
+        else
+          bgColor = color(feature.feature)
         highlightTest = content.substring(occurrence[0], occurrence[1])
         highlightedContent += """<span
           class='label'
@@ -42,6 +45,7 @@ Template.text.highlight = (content) ->
           '>#{highlightTest}</span>"""
         last_idx = occurrence[1]
       highlightedContent += content.substring(last_idx, content.length)
+      console.log featuresByOccurrence
       return new Spacebars.SafeString(highlightedContent)
     else if features?.length > 0
       features = _.sortBy(features, (feature) -> (feature.name or feature.text).length)
@@ -49,7 +53,11 @@ Template.text.highlight = (content) ->
       for feature in features
         featureDisplay = feature.name or feature.text
         bgColor = color(feature)
-        highlightedContent = highlightedContent.replace(new RegExp("\\b#{featureDisplay}\\b", 'gi'), "<span class='label' style='background-color:#{bgColor}; box-shadow: 0px 0px 0px 2px #{bgColor}'>$&</span>")
+        highlightedContent = highlightedContent.replace(
+          new RegExp("\\b#{featureDisplay}\\b", 'gi'),
+          "<span class='label' style='background-color:#{bgColor};" +
+          "box-shadow: 0px 0px 0px 2px #{bgColor};'>$&</span>"
+        )
       new Spacebars.SafeString(highlightedContent)
     else
       content
