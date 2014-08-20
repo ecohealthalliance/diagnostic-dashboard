@@ -2,14 +2,14 @@
 Template.feedback.missingDiseases = ()-> missingDiseases.find()
 
 Template.feedback.events
-  "click .submit-feedback": (event) =>
+  "click .submit-feedback": (event) ->
     form = $('form.feedback').serializeArray()
     parseDisease = (f)->
         diseaseMatch = f.name.match(/(.*)-correct/)
         if diseaseMatch then diseaseMatch[1] else false
     feedbackItem = {
-      diagnosisId : window.location.pathname.split('/').pop()
-      version: "0.0.1"
+      diagnosisId : @._id
+      version: "0.1.1"
       lastModified: new Date()
       comments : _.findWhere(form, name : 'comments').value
       generalComments : _.findWhere(form, name : 'general_comments').value
@@ -25,7 +25,7 @@ Template.feedback.events
         .value()
       missingDiseases : missingDiseases.find().map((x)->x.name)
     }
-    @grits.feedback.update(Session.get('feedbackId'), $set : feedbackItem)
+    grits.feedback.update(Session.get('feedbackId'), $set : feedbackItem)
     $('form.feedback').hide()
 
   "click .close-feedback": (event) =>

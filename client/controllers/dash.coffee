@@ -244,7 +244,7 @@ Template.dash.events
   "click .open-feedback": (event) ->
     feedbackBaseData = {
       userId: Meteor.userId()
-      diagnosisId: window.location.pathname.split('/').pop()
+      diagnosisId: @._id
     }
     storedFeedback = grits.feedback.findOne(feedbackBaseData)
     # Dynamically load disease names for the autocomplete
