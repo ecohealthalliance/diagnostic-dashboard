@@ -1,3 +1,4 @@
+DISABLE_MULTI_HIGHLIGHT = true
 setHeights = () ->
 
   # width of the diagnostic side panal
@@ -210,7 +211,7 @@ Template.dash.events
     Session.set('features', keyword for keyword in @keywords)
 
   "click .diagnosis .label" : (event) ->
-    if @textOffsets
+    if not DISABLE_MULTI_HIGHLIGHT and @textOffsets
 
       # We need to filter out any non-offset-based features. We can't handle
       # highlighting both kinds at the same time.
@@ -281,6 +282,7 @@ Template.dash.events
         Router.go 'dash', {_id: resultId}
     )
   "click .features h4": (event, template) =>
+    if DISABLE_MULTI_HIGHLIGHT then return false
     category = $(event.target).attr('class')
     if category in ['symptom', 'host', 'pathogen', 'transmi']
       source = template.data.keywords

@@ -26,6 +26,11 @@ submit = (content, userId, prevDiagnosis) ->
           ready: true
           error: message
         }}
+      else if result.error
+        Results.update resultId, { '$set': {
+          ready: true
+          error: result.error
+        }}
       else
         Results.update resultId, {
           $set : {
