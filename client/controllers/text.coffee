@@ -26,23 +26,23 @@ Template.text.highlight = (content) ->
             name: feature.name
             feature: feature
             occurrence: occurrence
-      featuresByOccurrence = _.sortBy(featuresByOccurrence, (feature) -> - feature.occurrence[0])
+      featuresByOccurrence = _.sortBy(featuresByOccurrence, (feature) -> feature.occurrence[0])
       highlightedContent = ''
       last_idx = 0
       for feature in featuresByOccurrence
         occurrence = feature.occurrence
         highlightedContent += content.substring(last_idx, occurrence[0])
         if feature.feature.color
-            bgColor = feature.feature.color
+          bgColor = feature.feature.color
         else
           bgColor = color(feature.feature)
-        highlightTest = content.substring(occurrence[0], occurrence[1])
+        highlightText = content.substring(occurrence[0], occurrence[1])
         highlightedContent += """<span
           class='label'
           style='
             background-color:#{bgColor};
             box-shadow: 0px 0px 0px 2px #{bgColor};
-          '>#{highlightTest}</span>"""
+          '>#{highlightText}</span>"""
         last_idx = occurrence[1]
       highlightedContent += content.substring(last_idx, content.length)
       return new Spacebars.SafeString(highlightedContent)
