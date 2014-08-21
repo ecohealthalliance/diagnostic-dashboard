@@ -55,6 +55,10 @@ Router.map () ->
           data.prevDiagnosisError = true
       data
     onAfterAction: () ->
+      try
+        Session.set('showKeypoints', JSON.parse(@params.showKeypoints))
+      catch
+        alert('Invalid value for showKeypoints')
       result = @data()
       if result?.error and result?.updatedDiagnosisId
         Router.go "dash", {_id: result.updatedDiagnosisId}

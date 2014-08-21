@@ -115,6 +115,9 @@ Template.dash.showCategory = (category) ->
       )
     )
 
+Template.dash.showKeypoints = ()->
+  Session.get('showKeypoints')
+
 Template.dash.hasCategory = (keywordCategories, category) ->
   _.any(keywordCategories, (keywordCategory) ->
     keywordCategory.indexOf(category) >= 0
@@ -233,8 +236,8 @@ Template.dash.events
     else
       Session.set('features', [this])
 
-  "click .diagnosis .patient-description" : (event) ->
-    $('.patient-description.selected').removeClass('selected')
+  "click .diagnosis .keypoint" : (event) ->
+    $('.keypoint.selected').removeClass('selected')
     $(event.currentTarget).addClass('selected')
     this.color = 'goldenrod'
     Session.set('features', [this])

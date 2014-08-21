@@ -27,6 +27,46 @@ template(name="dash")
         else
           a.btn.btn-default.rediagnose Rediagnose
       +feedback
+      if showKeypoints
+        .keypoints
+          h4 Key Points
+          each keypoints
+            .keypoint
+              if count
+                b Cases: 
+                if count.approximate
+                  | ~
+                if count.number
+                  | #{count.number}
+                if count.range_start
+                  | #{count.range_start} - #{count.range_end}
+                if count.death
+                  | deaths
+                if count.hospitalization
+                  | hospitalizations
+                br
+              if age
+                b Age:
+                if age.child
+                  | Child
+                if age.approximate
+                  | ~
+                if age.number
+                  | #{age.number}
+                if age.range_start
+                  | #{age.range_start} - #{age.range_end}
+                if age.month_units
+                  | months old
+                else
+                  if age.year_units
+                    | years old
+                br
+              if male
+                b Sex:
+                | male
+              if female
+                b Sex:
+                | female
       .features
         if showCategory 'symptom'
           .feature-section.symptoms
@@ -52,47 +92,6 @@ template(name="dash")
             each keywords
               if hasCategory categories 'transmi'
                 .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color) #{name}
-        if showCategory 'patientInfo'
-          .feature-section
-            h4 Key Points
-            each features
-              if eq type "patientInfo"
-                .patient-description
-                  if count
-                    b Cases: 
-                    if count.approximate
-                      | ~
-                    if count.number
-                      | #{count.number}
-                    if count.range_start
-                      | #{count.range_start} - #{count.range_end}
-                    if count.death
-                      | deaths
-                    if count.hospitalization
-                      | hospitalizations
-                    br
-                  if age
-                    b Age:
-                    if age.child
-                      | Child
-                    if age.approximate
-                      | ~
-                    if age.number
-                      | #{age.number}
-                    if age.range_start
-                      | #{age.range_start} - #{age.range_end}
-                    if age.month_units
-                      | months old
-                    else
-                      if age.year_units
-                        | years old
-                    br
-                  if male
-                    b Sex:
-                    | male
-                  if female
-                    b Sex:
-                    | female
         if showCategory 'datetime'
           .feature-section.dates
             h4.datetime Dates

@@ -37,6 +37,7 @@ submit = (content, userId, prevDiagnosis) ->
             diseases: result.diseases
             features: result.features
             keywords: result.keywords_found
+            keypoints: result.keypoints
             diagnoserVersion: result.diagnoserVersion
             ready: true
             createDate: new Date()
