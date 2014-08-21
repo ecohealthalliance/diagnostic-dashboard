@@ -60,7 +60,6 @@ Template.dash.rendered = () ->
     )
     this.initialized = true
 
-
 Template.dash.updatePanes = () ->
   # updating the panes as a side effect of a template call is temporary
   dateFeatures = _.filter(@features, (feature) ->
@@ -141,7 +140,7 @@ Template.dash.getIdKey = () ->
 Template.dash.getIdKeyFromFeature = (feature) ->
   if feature.categories
     idKey = feature.categories[0] + '_' + feature.name
-  else if feature.type in ['caseCount', 'hospitalizationCount', 'deathCount', 'datetime']
+  else if feature.type in ['caseCount', 'hospitalizationCount', 'deathCount', 'datetime', 'adding']
     idKey = feature.type + '_' + feature.value
   else if feature.type in ['location']
     idKey = feature.type + '_' + feature.name
@@ -236,6 +235,9 @@ Template.dash.events
     else
       Session.set('features', [this])
 
+  "select #text" : (event) ->
+
+    console.log "selected!"
 
   "click .reset-panels": (event) ->
     setHeights()
@@ -243,7 +245,8 @@ Template.dash.events
   "click .open-feedback": (event) =>
     $('form.feedback').show()
 
-  "click .features h4": (event, template) =>
+  "click .features h4": (event, template) ->
+    console.log @
     category = $(event.target).attr('class')
     if category in ['symptom', 'host', 'pathogen', 'transmi']
       source = template.data.keywords

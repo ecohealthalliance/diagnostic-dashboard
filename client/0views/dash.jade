@@ -17,10 +17,11 @@ template(name="dash")
       .features
         if showCategory 'symptom'
           .feature-section.symptoms
-            h4.symptom Symptoms
+            with keywords
+              h4.symptom Symptoms
             each keywords
               if hasCategory categories 'symptom'
-                .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color) #{name}
+                .label(id="{{getIdKey this }}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color) #{name}
         if showCategory 'host'
           .feature-section.hosts
             h4.host Hosts
