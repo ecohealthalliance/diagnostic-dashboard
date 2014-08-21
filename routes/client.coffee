@@ -56,7 +56,8 @@ Router.map () ->
       data
     onAfterAction: () ->
       try
-        Session.set('showKeypoints', JSON.parse(@params.showKeypoints))
+        if typeof(@params.showKeypoints) != 'undefined'
+          Session.set('showKeypoints', JSON.parse(@params.showKeypoints))
       catch
         alert('Invalid value for showKeypoints')
       result = @data()
