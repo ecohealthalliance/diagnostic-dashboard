@@ -132,9 +132,14 @@ Template.dash.formatLocation = () ->
   location
 
 Template.dash.formatDate = () ->
-  date = new Date(@value)
-  date.setDate(date.getDate() + 1)
-  date.toLocaleDateString()
+  if @value == "PAST_REF"
+    return "Past reference"
+  else if @value == "PRESENT_REF"
+    return "Present reference"
+  else
+    date = new Date(@value)
+    date.setDate(date.getDate() + 1)
+    return date.toLocaleDateString()
 
 Template.dash.color = () ->
   if @categories

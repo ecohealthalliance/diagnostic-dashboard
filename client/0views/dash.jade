@@ -40,6 +40,10 @@ template(name="dash")
                   | #{count.number}
                 if count.range_start
                   | #{count.range_start} - #{count.range_end}
+                if count.max
+                  | ≤ #{count.max}
+                if count.min
+                  | ≥ #{count.min}
                 if count.death
                   | deaths
                 if count.hospitalization
@@ -55,6 +59,10 @@ template(name="dash")
                   | #{age.number}
                 if age.range_start
                   | #{age.range_start} - #{age.range_end}
+                if age.max
+                  | ≤ #{age.max}
+                if age.min
+                  | ≥ #{age.min}
                 if age.month_units
                   | months old
                 else
