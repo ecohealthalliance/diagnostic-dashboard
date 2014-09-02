@@ -36,6 +36,7 @@ submit = (content, userId, prevDiagnosis) ->
           $set : {
             diseases: result.diseases
             features: result.features
+            geonames: result.geonames
             keywords: result.keywords_found
             keypoints: result.keypoints
             diagnoserVersion: result.diagnoserVersion
