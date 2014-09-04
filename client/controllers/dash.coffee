@@ -118,9 +118,10 @@ Template.dash.showCategory = (category, keywords) ->
 Template.dash.showKeypoints = ()->
   Session.get('showKeypoints')
 
-Template.dash.hasCategory = (keywordCategories, category) ->
+Template.dash.hasCategory = (keywordCategories, categoryPattern) ->
+  categoryRegex = new RegExp(categoryPattern)
   _.any(keywordCategories, (keywordCategory) ->
-    keywordCategory.indexOf(category) >= 0
+    keywordCategory.match(categoryRegex)
   )
 
 Template.dash.formatLocation = () ->
