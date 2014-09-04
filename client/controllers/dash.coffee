@@ -96,7 +96,7 @@ Template.dash.updatePanes = () ->
 Template.dash.eq = (a, b) ->
   a == b
 
-Template.dash.showCategory = (category) ->
+Template.dash.showCategory = (category, keywords) ->
   visibleCats = [
     'datetime'
     'location'
@@ -109,7 +109,7 @@ Template.dash.showCategory = (category) ->
       feature.type is category
     )
   else
-    _.any(@keywords, (keyword) ->
+    _.any(@keywords or keywords, (keyword) ->
       _.any(keyword.categories, (keywordCategory) ->
         keywordCategory.indexOf(category) >= 0
       )
@@ -204,6 +204,9 @@ Template.dash.tableSettings = () ->
   showNavigation: 'never'
   showFilter: false
   group: 'diagnosis'
+
+Template.dash.keywordCategories = () =>
+  @grits.KEYWORD_CATEGORIES
 
 Template.dash.events
   "click .pane:not(.maximized)": (event) ->
