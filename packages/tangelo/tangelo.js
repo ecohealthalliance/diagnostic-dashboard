@@ -1829,22 +1829,26 @@ window.tangelo.vtkweb = {};
     if (!($ && $.widget && d3)) {
         return;
     }
-    tangelo.widget("tangelo.plotbase", {
+    function applyTransition(s, t) {
+        if (t) {
+            s = s.transition(t);
+        }
+        return s;
+    }
+    tangelo.widget("tangelo.timeline", {
         options: {
             data: [],
             x: tangelo.accessor({
-                field: "x"
+                field: "time"
             }),
             y: tangelo.accessor({
-                field: "y"
+                field: "value"
             }),
-            xScale: null,
-            yScale: null,
             margin: {
                 top: 10,
                 bottom: 30,
                 left: 30,
-                right: 10
+                right: 30
             },
             transition: 0,
             width: null,
@@ -1853,202 +1857,58 @@ window.tangelo.vtkweb = {};
             yTicks: 10
         },
         _create: function() {
-            this.svg = d3.select(this.element.get(0)).append("svg").attr("class", this._plotClass());
+            this.svg = d3.select(this.element.get(0)).append("svg").attr("class", "timeline");
             this.main = this.svg.append("g");
             this.plot = this.main.append("g").attr("class", "plot");
-            this.xaxis = this.main.append("g").attr("class", "x-axis axis");
-            this.yaxis = this.main.append("g").attr("class", "y-axis axis");
+            this.xaxis = this.main.append("g").style("font-family", "sans-serif").style("font-size", "11px");
+            this.yaxis = this.main.append("g").style("font-family", "sans-serif").style("font-size", "11px");
+            this.path = this.plot.append("path").style("fill", "none").style("stroke", "steelblue").style("stroke-width", "1.5px");
             this._x = null;
             this._y = null;
+            $(window).resize(this._update.bind(this));
         },
         _update: function() {
-            var axisPadding = 15, margin = this.options.margin, xAcc = tangelo.accessor(this.options.x), yAcc = tangelo.accessor(this.options.y), width = (this.options.width || this.element.width()) - margin.left - margin.right - axisPadding, height = (this.options.height || this.element.height()) - margin.top - margin.bottom - axisPadding, data = this.options.data, xaxis, yaxis;
-            this._x = (this.options.xScale || d3.scale.linear()).domain(d3.extent(data, xAcc)).range([ 0, width ]).nice();
-            this._y = (this.options.yScale || d3.scale.linear()).domain(d3.extent(data, yAcc)).range([ height, 0 ]).nice();
+            var that = this, axisPadding = 15, margin = this.options.margin, xAcc = tangelo.accessor(this.options.x), yAcc = tangelo.accessor(this.options.y), width = (this.options.width || this.element.width()) - margin.left - margin.right - axisPadding, height = (this.options.height || this.element.height()) - margin.top - margin.bottom - axisPadding, data = this.options.data, xaxis, yaxis, line;
+            this._x = d3.time.scale().domain(d3.extent(data, function(d) {
+                return new Date(xAcc(d));
+            })).range([ 0, width ]).nice();
+            this._y = d3.scale.linear().domain(d3.extent(data, function(d) {
+                var val = yAcc(d);
+                if (tangelo.isNumber(val) && !isNaN(val)) {
+                    return val;
+                }
+                return undefined;
+            })).range([ height, 0 ]).nice();
             xaxis = d3.svg.axis().scale(this._x).orient("bottom");
             xaxis.ticks(this.options.xTicks);
             yaxis = d3.svg.axis().scale(this._y).orient("left");
             yaxis.ticks(this.options.yTicks);
+            line = d3.svg.line().x(function(d) {
+                return that._x(new Date(xAcc(d)));
+            }).y(function(d) {
+                return that._y(yAcc(d));
+            }).defined(function(d) {
+                var val = that._y(yAcc(d));
+                return tangelo.isNumber(val) && !isNaN(val);
+            });
             this.svg.attr("width", width + margin.left + margin.right + axisPadding).attr("height", height + margin.top + margin.bottom + axisPadding);
             this.main.attr("transform", "translate(" + (margin.left + axisPadding) + "," + margin.top + ")");
-            this.xaxis.attr("transform", "translate(0," + height + ")").call(xaxis);
-            this.yaxis.call(yaxis);
+            applyTransition(this.xaxis, this.options.transition).attr("transform", "translate(0," + height + ")").call(xaxis);
+            applyTransition(this.yaxis, this.options.transition).call(yaxis);
+            function styleLine(selection) {
+                selection.style("fill", "none").style("stroke", "black").style("stroke-width", "1px").style("shape-rendering", "crispEdges");
+            }
+            this.xaxis.selectAll("path").call(styleLine);
+            this.xaxis.selectAll("line").call(styleLine);
+            this.yaxis.selectAll("path").call(styleLine);
+            this.yaxis.selectAll("line").call(styleLine);
+            applyTransition(this.path, this.options.transition).attr("d", line(this.options.data));
         },
         xScale: function() {
             return this._x;
         },
         yScale: function() {
             return this._y;
-        },
-        _applyTransition: function(s, t) {
-            if (t) {
-                s = s.transition(t);
-            }
-            return s;
-        },
-        _plotClass: function() {
-            return "plotbase";
-        }
-    });
-})(window.tangelo, window.jQuery, window.d3);
-
-(function(tangelo, $, d3) {
-    "use strict";
-    if (!($ && $.widget && d3)) {
-        return;
-    }
-    tangelo.widget("tangelo.timeline", $.tangelo.plotbase, {
-        options: {
-            x: tangelo.accessor({
-                field: "time"
-            }),
-            y: tangelo.accessor({
-                field: "value"
-            }),
-            xScale: d3.time.scale()
-        },
-        _create: function() {
-            this._super();
-            this.path = this.plot.append("path").attr("class", "path");
-        },
-        _update: function() {
-            var line, that, xAcc, yAcc;
-            if (this.path) {
-                this._super();
-                that = this;
-                xAcc = tangelo.accessor(this.options.x);
-                yAcc = tangelo.accessor(this.options.y);
-                line = d3.svg.line().x(function(d) {
-                    return that._x(xAcc(d));
-                }).y(function(d) {
-                    return that._y(yAcc(d));
-                });
-                this._applyTransition(this.path, this.options.transition).attr("d", line(this.options.data));
-            }
-        },
-        _plotClass: function() {
-            return "timeline";
-        }
-    });
-})(window.tangelo, window.jQuery, window.d3);
-
-(function(tangelo, $, d3) {
-    "use strict";
-    if (!($ && $.widget && d3)) {
-        return;
-    }
-    tangelo.widget("tangelo.histogram", $.tangelo.plotbase, {
-        options: {
-            x: tangelo.accessor({
-                field: "value"
-            }),
-            nBins: 10
-        },
-        _pushOptions: function() {
-            this._saved = {
-                data: this.options.data,
-                x: this.options.x,
-                y: this.options.y
-            };
-            this.options.x = {
-                field: "value"
-            };
-            this.options.y = {
-                field: "count"
-            };
-            this.options.data = this._bins;
-        },
-        _popOptions: function() {
-            this.options.data = this._saved.data;
-            this.options.x = this._saved.x;
-            this.options.y = this._saved.y;
-        },
-        _create: function() {
-            this._bins = [];
-            this._created = false;
-            this._pushOptions();
-            this._super();
-            this._popOptions();
-            this._created = true;
-            this._update();
-        },
-        _update: function() {
-            var selection, enter, exit, x, y;
-            if (!this._created) {
-                return;
-            }
-            this._binData();
-            this._pushOptions();
-            this._super();
-            this._popOptions();
-            x = this.xScale();
-            y = this.yScale();
-            selection = this.plot.selectAll(".boxes").data(this._bins.slice(0, this._bins.length - 2));
-            enter = selection.enter();
-            exit = selection.exit();
-            enter.append("rect").attr("class", "boxes").attr("x", function(d) {
-                return x(d.min);
-            }).attr("y", y(0)).attr("width", function(d) {
-                return x(d.max) - x(d.min);
-            }).attr("height", 0);
-            selection.attr("x", function(d) {
-                return x(d.min);
-            }).attr("width", function(d) {
-                return x(d.max) - x(d.min);
-            });
-            this._applyTransition(selection, this.options.transition).attr("y", function(d) {
-                return y(d.count);
-            }).attr("height", function(d) {
-                return y(0) - y(d.count);
-            });
-            exit.remove();
-        },
-        _plotClass: function() {
-            return "histogram";
-        },
-        _binData: function() {
-            var x_ext, dx, N, i, xAcc, that = this;
-            while (this._bins.length > 0) {
-                this._bins.pop();
-            }
-            if (!this.options.data.length) {
-                return;
-            }
-            xAcc = tangelo.accessor(this.options.x);
-            x_ext = d3.extent(this.options.data, xAcc);
-            N = this.options.nBins;
-            dx = (x_ext[1] - x_ext[0]) / N;
-            if (dx <= 0) {
-                dx = 1;
-            }
-            for (i = 0; i < N; i += 1) {
-                this._bins.push({
-                    min: i * dx + x_ext[0],
-                    max: (i + 1) * dx + x_ext[0],
-                    value: i * dx / 2 + x_ext[0],
-                    count: 0
-                });
-            }
-            this._bins.push({
-                value: x_ext[0],
-                count: 0
-            });
-            this._bins.push({
-                value: x_ext[1],
-                count: 0
-            });
-            this.options.data.forEach(function(d) {
-                var val, bin;
-                val = xAcc(d);
-                bin = (val - x_ext[0]) / dx;
-                if (bin >= 0 && bin < N + dx / 1e3) {
-                    if (bin >= N) {
-                        bin = N - 1;
-                    }
-                    bin = Math.floor(bin);
-                    that._bins[bin].count += 1;
-                }
-            });
         }
     });
 })(window.tangelo, window.jQuery, window.d3);
@@ -2062,7 +1922,8 @@ window.tangelo.vtkweb = {};
         options: {
             zoom: 3,
             width: null,
-            height: null
+            height: null,
+            tileURL: undefined
         },
         latlng2display: function(pt) {
             return this.svgLayer.renderer().worldToDisplay(pt);
@@ -2090,7 +1951,9 @@ window.tangelo.vtkweb = {};
                 height: this.options.height
             }, that = this;
             this._map = geo.map(opts);
-            this._map.createLayer("osm");
+            this._map.createLayer("osm", {
+                baseUrl: this.options.tileURL
+            });
             this.svgLayer = this._map.createLayer("feature", {
                 renderer: "d3Renderer"
             });
@@ -2112,6 +1975,9 @@ window.tangelo.vtkweb = {};
             this._map.resize(0, 0, w, h);
         },
         _setOption: function(key, value) {
+            if (key === "tileURL" && this._map) {
+                throw "Cannot set tileURL after map creation.";
+            }
             this.options[key] = value;
             if (key === "width" || key === "height") {
                 this._resize();
@@ -2480,5 +2346,79 @@ window.tangelo.data = {};
             }
         }
         return values;
+    };
+})(window.tangelo);
+
+(function(tangelo) {
+    "use strict";
+    function makeBins(data, value, min, max, nBins) {
+        var _min = Number.POSITIVE_INFINITY, _max = Number.NEGATIVE_INFINITY, bins = [], dx, i;
+        min = Number(min);
+        max = Number(max);
+        if (!isFinite(min) || !isFinite(max)) {
+            data.forEach(function(d) {
+                var v = Number(value(d));
+                if (!isFinite(v)) {
+                    tangelo.error("Invalid numeric value in data array: " + v.toString());
+                } else {
+                    if (v < _min) {
+                        _min = v;
+                    }
+                    if (v > _max) {
+                        _max = v;
+                    }
+                }
+            });
+            if (!isFinite(min)) {
+                min = _min;
+            }
+            if (!isFinite(max)) {
+                max = _max;
+            }
+        }
+        if (max === min) {
+            min = min - .5;
+            max = max + .5;
+        }
+        dx = (max - min) / nBins;
+        for (i = 0; i < nBins; i += 1) {
+            bins.push({
+                min: min + i * dx,
+                max: min + (i + 1) * dx,
+                count: 0
+            });
+        }
+        return bins;
+    }
+    tangelo.data.bin = function(spec) {
+        var maxBinValue;
+        spec = spec || {};
+        spec.data = spec.data || [];
+        spec.nBins = spec.nBins || 25;
+        spec.value = tangelo.accessor(spec.value || {
+            field: "value"
+        });
+        if (!spec.data.length) {
+            return [];
+        }
+        if (!spec.bins) {
+            spec.bins = makeBins(spec.data, spec.value, spec.min, spec.max, spec.nBins);
+        }
+        maxBinValue = Number.NEGATIVE_INFINITY;
+        spec.bins.forEach(function(b) {
+            maxBinValue = Math.max(maxBinValue, b.max);
+        });
+        spec.data.forEach(function(d) {
+            var v = Number(spec.value(d));
+            if (!isFinite(v)) {
+                tangelo.error("Invalid numeric value in data array: " + v.toString());
+            }
+            spec.bins.forEach(function(b, iBin) {
+                if (b.min <= v && (b.max > v || b.max === maxBinValue && b.max === v)) {
+                    b.count = (b.count || 0) + 1;
+                }
+            });
+        });
+        return spec.bins;
     };
 })(window.tangelo);
