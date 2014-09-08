@@ -11,6 +11,8 @@ Package.on_use(function (api) {
   api.add_files('jquery-ui.min.js', 'client');
   api.add_files('tangelo.js', 'client');
   api.add_files('spacemap.js', 'client');
+  api.add_files('plotbase.js', 'client');
+  api.add_files('histogram.js', 'client');
   api.add_files('post.js', 'client');
 
   api.export('tangelo', 'client');
