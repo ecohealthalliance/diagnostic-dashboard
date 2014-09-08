@@ -72,9 +72,35 @@ template(name="dash")
               if male
                 b Sex:
                 | male
+                br
               if female
                 b Sex:
                 | female
+                br
+              if location
+                b Location:
+                | #{location.name}, {{location/[country code]}}
+                br
+              if occupation
+                b Occupation: 
+                | #{occupation}
+                br
+              if symptom
+                b Symptom:
+                | #{symptom}
+                br
+              if risk
+                b Risk factor: 
+                | #{risk}
+                br
+              if host
+                b Host:
+                | #{host}
+                br
+              if time
+                b Time:
+                | #{time.label}
+                br
       .features
         if showCategory 'symptom'
           .feature-section.symptoms
