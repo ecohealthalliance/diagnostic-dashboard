@@ -134,7 +134,17 @@
 
     tangelo.widget('tangelo.healthmapMapSimple', $.tangelo.geojsMap, widgetSpec);
 
-    var node = '#geomap';
+    var node = '#geomap',
+        tileURL;
+
+    // Set the base url for the osm tile server.  When serving over
+    // https, this should be proxied locally and the tile url
+    // set to something like '/tiles/', where
+    //
+    //   https://localhost/tiles/ -> http://tile.openstreetmap.org/
+    //
+    // by apache mod_proxy.
+    tileURL = '/tiles/';
 
     Template.geomapSimple.rendered = function () {
         if (!this.initialized) {
@@ -155,7 +165,8 @@
 
     Deps.autorun(function () {
         $(node).healthmapMapSimple({
-            data: Session.get('locations')
+            data: Session.get('locations'),
+            tileURL: tileURL
         });
     });
 
