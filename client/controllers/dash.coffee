@@ -60,6 +60,13 @@ Template.dash.rendered = () ->
     )
     this.initialized = true
 
+  $('body').keyup (event) ->
+    if event.keyCode is 27
+      $('#annotation').hide()
+      updatedFeatures = _.filter Session.get('features') or [], (feature) ->
+        feature.type != 'adding'
+      Session.set('features', updatedFeatures)
+
 Template.dash.updatePanes = () ->
   # updating the panes as a side effect of a template call is temporary
   dateFeatures = _.filter(@features, (feature) ->
