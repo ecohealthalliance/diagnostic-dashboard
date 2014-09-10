@@ -42,8 +42,11 @@ Router.map () ->
     onBeforeAction: () ->
       AccountsEntry.signInRequired(@)
     waitOn: () ->
-      Meteor.subscribe('results')
-      Meteor.subscribe('item')
+      [
+        Meteor.subscribe('results')
+        Meteor.subscribe('item')
+        Meteor.subscribe('feedback')
+      ]
     data: () ->
       data = Results.findOne(@params._id)
       if data?.prevDiagnosisId
@@ -52,6 +55,11 @@ Router.map () ->
           data.prevDiagnosisError = true
       data
     onAfterAction: () ->
+      try
+        if typeof(@params.showKeypoints) != 'undefined'
+          Session.set('showKeypoints', JSON.parse(@params.showKeypoints))
+      catch
+        alert('Invalid value for showKeypoints')
       result = @data()
       if result?.error and result?.updatedDiagnosisId
         Router.go "dash", {_id: result.updatedDiagnosisId}
@@ -107,6 +115,24 @@ Router.map () ->
     onBeforeAction: () ->
       AccountsEntry.signInRequired(@)
   )
+
+  @route("authenticateSubmission",
+    path: '/authenticateSubmission/:_id'
+    where: 'client'
+    template: 'authenticateSubmission'
+    onBeforeAction: () ->
+      AccountsEntry.signInRequired(@)
+    onAfterAction: () ->
+      submissionId = @params._id
+      Meteor.call('submitFromQuarantine', submissionId, (error, resultId) ->
+        if resultId
+          Router.go 'dash', {_id: resultId}
+        else
+          Router.go 'timeout'
+      )
+  )
+
+  @route("timeout")
 
   @route("help",
     where: 'client'

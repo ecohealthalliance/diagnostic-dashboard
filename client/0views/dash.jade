@@ -27,61 +27,118 @@ template(name="dash")
         else
           a.btn.btn-default.rediagnose Rediagnose
       +feedback
+      if showKeypoints
+        .keypoints
+          h4 Key Points
+          each keypoints
+            .keypoint
+              if count
+                b Cases: 
+                if count.approximate
+                  | ~
+                if count.number
+                  | #{count.number}
+                if count.range_start
+                  | #{count.range_start} - #{count.range_end}
+                if count.max
+                  | ≤ #{count.max}
+                if count.min
+                  | ≥ #{count.min}
+                if count.death
+                  | deaths
+                if count.hospitalization
+                  | hospitalizations
+                br
+              if age
+                b Age:
+                if age.child
+                  | Child
+                if age.approximate
+                  | ~
+                if age.number
+                  | #{age.number}
+                if age.range_start
+                  | #{age.range_start} - #{age.range_end}
+                if age.max
+                  | ≤ #{age.max}
+                if age.min
+                  | ≥ #{age.min}
+                if age.month_units
+                  | months old
+                else
+                  if age.year_units
+                    | years old
+                br
+              if male
+                b Sex:
+                | male
+                br
+              if female
+                b Sex:
+                | female
+                br
+              if location
+                b Location:
+                | #{location.name}, {{location/[country code]}}
+                br
+              if occupation
+                b Occupation: 
+                | #{occupation}
+                br
+              if symptom
+                b Symptom:
+                | #{symptom}
+                br
+              if risk
+                b Risk factor: 
+                | #{risk}
+                br
+              if host
+                b Host:
+                | #{host}
+                br
+              if time
+                b Time:
+                | #{time.label}
+                br
       .features
-        if showCategory 'symptom'
-          .feature-section.symptoms
-            h4 Symptoms
-            each keywords
-              if hasCategory categories 'symptom'
-                .label(style="background-color:{{color}}") #{name}
-        if showCategory 'host'
-          .feature-section.hosts
-            h4 Hosts
-            each keywords
-              if hasCategory categories 'host'
-                .label(style="background-color:{{color}}") #{name}
-        if showCategory 'pathogen'
-          .feature-section.pathogens
-            h4 Pathogens
-            each keywords
-              if hasCategory categories 'pathogen'
-                .label(style="background-color:{{color}}") #{name}
-        if showCategory 'transmi'
-          .feature-section.transmission
-            h4 Modes of Transmission
-            each keywords
-              if hasCategory categories 'transmi'
-                .label(style="background-color:{{color}}") #{name}
+        each keywordCategories
+          if showCategory pattern ../keywords
+            .feature-section
+              h4 #{label}
+              each ../keywords
+                if hasCategory categories ../pattern
+                  .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color) #{name}
         if showCategory 'datetime'
           .feature-section.dates
-            h4 Dates
+            h4.datetime Dates
             each features
               if eq type "datetime"
-                .label #{formatDate}
+                .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color) #{formatDate}
         if showCategory 'caseCount'
           .feature-section.case-counts
-            h4 Case Counts
+            h4.caseCount Case Counts
             each features
               if eq type "caseCount"
-                .label.caseCount #{value}
+                .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color) #{value}
         if showCategory 'deathCount'
           .feature-section.death-counts
-            h4 Death Counts
+            h4.deathCount Death Counts
             each features
               if eq type "deathCount"
-                .label.deathCount #{value}
+                .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color) #{value}
         if showCategory 'hospitalizationCount'
           .feature-section.hospitalization-counts
-            h4 Hospitalization Counts
+            h4.hospitalizationCount Hospitalization Counts
             each features
               if eq type "hospitalizationCount"
-                .label.hospitalizationCount #{value}
+                .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color) #{value}
         if showCategory 'location'
           .feature-section.locations
-            h4 Locations
+            h4.location Locations
             each features
               if eq type "location"
-                .label.location #{formatLocation}
+                .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color, value=name) #{formatLocation}
     .pane-container
       .pane.minimized
         +geomapSimple

@@ -1,4 +1,5 @@
 Results = @grits.Results
+Quarantine = @grits.Quarantine
 
 submit = (content, userId, prevDiagnosis) ->
   if prevDiagnosis
@@ -25,12 +26,18 @@ submit = (content, userId, prevDiagnosis) ->
           ready: true
           error: message
         }}
+      else if result.error
+        Results.update resultId, { '$set': {
+          ready: true
+          error: result.error
+        }}
       else
         Results.update resultId, {
           $set : {
             diseases: result.diseases
             features: result.features
             keywords: result.keywords_found
+            keypoints: result.keypoints
             diagnoserVersion: result.diagnoserVersion
             ready: true
             createDate: new Date()
@@ -44,6 +51,15 @@ Meteor.methods(
   'submit' : (content) ->
     submit(content, @userId)
 
+  'submitFromQuarantine' : (submissionId) ->
+    content = Quarantine.findOne(submissionId)?.content
+    result = false
+    if content
+      Quarantine.remove(submissionId)
+      result = submit(content, @userId)
+    result
+
   'rediagnose' : (prevDiagnosis) ->
     submit(prevDiagnosis.content, @userId, prevDiagnosis)
+
 )
