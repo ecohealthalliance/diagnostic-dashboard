@@ -1,58 +1,121 @@
-template(name="annotation")
-  #annotation(style="display: none")
+template(name='annotation')
+  #annotation(style='display: none')
 
     h4.annotation Add annotation
     br
-    label Value
+    label Target:
     | {{ selectedText }}
     br
-    label(for="annotationType") Type
+    label(for="annotationType") Type:
     select#annotationType
-      option Symptom
-      option Host
-      option Pathogen
-      option Mode of transmission
-      option Date
-      option Case count
-      option Death count
-      option Hospitalization count
-      option Location
+      option(value='') Select...
+      option(value='disease') Disease
+      option(value='symptom') Symptom
+      option(value='host') Host
+      option(value='pathogen') Pathogen
+      option(value='mode') Mode of transmission
+      option(value='datetime') Date / Time
+      option(value='caseCount') Case count
+      option(value='deathCount') Death count
+      option(value='hospitalizationCount') Hospitalization count
+      option(value='location') Location
 
+    #subform
+      if showSubform 'disease'
+        +diseaseAnnotation
 
-//- template(name="search")
-//-   div(style="display:none") #{updatePanes}
-//-   .dashboard-container
-//-     .left-panel.diagnosis
-//-       h3 Find articles with...
-//-       h4 Any of these diseases:
-//-       each diseasesSelected
-//-         div
-//-           i.fa.fa-times-circle(data-name="{{name}}" class="remove-disease" style="color:crimson;")
-//-           span {{name}}
-//-       +inputAutocomplete settings=diseaseCompleteSettings id="new-disease" class="input-xlarge"
-//-       button(id="add-disease") Add
-//-       h4 Any of these keywords:
-//-       each anyKeywordsSelected
-//-         div
-//-           i.fa.fa-times-circle(data-name="{{name}}" class="remove-any-keyword" style="color:crimson;")
-//-           span {{name}}
-//-       +inputAutocomplete settings=keywordCompleteSettings id="new-any-keyword" class="input-xlarge"
-//-       button(id="add-any-keyword") Add
-//-       h4 All of these keywords:
-//-       each allKeywordsSelected
-//-         div
-//-           i.fa.fa-times-circle(data-name="{{name}}" class="remove-all-keyword" style="color:crimson;")
-//-           span {{name}}
-//-       +inputAutocomplete settings=keywordCompleteSettings id="new-all-keyword" class="input-xlarge"
-//-       button(id="add-all-keyword") Add
-//-     .pane-container
-//-       .pane
-//-         +geomapSimple
-//-       .pane
-//-         +resultList
+      if showSubform 'symptom'
+        +symptomAnnotation
 
-//- template(name="searchPill")
-//-   span(class="sp-label") {{_id}}
-//-   span(class="sp-categories")
-//-     each value.categories
-//-       span(class="sp-category") [{{this}}]
+      if showSubform 'host'
+        +hostAnnotation
+
+      if showSubform 'pathogen'
+        +pathogenAnnotation
+
+      if showSubform 'mode'
+        +modeAnnotation
+
+      if showSubform 'location'
+        +locationAnnotation
+
+      if showSubform 'datetime'
+        +datetimeAnnotation
+
+      if showSubform 'caseCount'
+        +caseCountAnnotation
+
+      if showSubform 'deathCount'
+        +deathCountAnnotation
+
+      if showSubform 'hospitalizationCount'
+        +hospitalizationCountAnnotation
+
+template(name='diseaseAnnotation')
+  #diseaseAnnotation
+    label(for='diseaseValue') Value:
+    +inputAutocomplete settings=autocompleteSettings id='diseaseValue'
+    div.annotationButton
+      button#annotationSubmit Submit
+
+template(name='symptomAnnotation')
+  #symptomAnnotation
+    label(for='symptomValue') Value:
+    +inputAutocomplete settings=autocompleteSettings id='symptomValue'
+    div.annotationButton
+      button#annotationSubmit Submit
+
+template(name='hostAnnotation')
+  #hostAnnotation
+    label(for='hostValue') Value:
+    +inputAutocomplete settings=autocompleteSettings id='hostValue'
+    div.annotationButton
+      button#annotationSubmit Submit
+
+template(name='pathogenAnnotation')
+  #pathogenAnnotation
+    label(for='pathogenValue') Value:
+    +inputAutocomplete settings=autocompleteSettings id='pathogenValue'
+    div.annotationButton
+      button#annotationSubmit Submit
+
+template(name='modeAnnotation')
+  #modeAnnotation
+    label(for='modeValue') Value:
+    +inputAutocomplete settings=autocompleteSettings id='modeValue'
+    div.annotationButton
+      button#annotationSubmit Submit
+
+template(name='datetimeAnnotation')
+  #datetimeAnnotation
+    label(for='datetimeValue') Value:
+    div.annotationButton
+      button#annotationSubmit Submit
+
+template(name='caseCountAnnotation')
+  #caseCountAnnotation
+    label(for='caseCountValue') Value:
+    input(type='text', id='caseCountValue')
+    div.annotationButton
+      button#annotationSubmit Submit
+
+template(name='deathCountAnnotation')
+  #deathCountAnnotation
+    label(for='deathCountValue') Value:
+    input(type='text', id='deathCountValue')
+    div.annotationButton
+      button#annotationSubmit Submit
+
+template(name='hospitalizationCountAnnotation')
+  #hospitalizationCountAnnotation
+    label(for='hospitalizationCountValue') Value:
+    input(type='text', id='hospitalizationCountValue')
+    div.annotationButton
+      button#annotationSubmit Submit
+
+template(name='locationAnnotation')
+  #locationAnnotation
+    label(for='locationValue') Value:
+    +inputAutocomplete settings=autocompleteSettings id='locationValue'
+    div.annotationButton
+      button#annotationSubmit Submit

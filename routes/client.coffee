@@ -44,6 +44,14 @@ Router.map () ->
     waitOn: () ->
       Meteor.subscribe('results')
       Meteor.subscribe('item')
+      Meteor.subscribe('diseases')
+      Meteor.subscribe('hosts')
+      Meteor.subscribe('symptoms')
+      Meteor.subscribe('pathogens')
+      Meteor.subscribe('modes')
+      console.log "subscribed all but"
+      Meteor.subscribe('geonames')
+      console.log "subscribed all"
     data: () ->
       Results.findOne(@params._id)
     onStop: () ->
@@ -98,7 +106,7 @@ Router.map () ->
     onBeforeAction: () ->
       AccountsEntry.signInRequired(@)
   )
-  
+
   @route("help",
     where: 'client'
   )
