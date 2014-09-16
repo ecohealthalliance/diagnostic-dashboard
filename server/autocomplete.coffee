@@ -40,16 +40,5 @@ Meteor.publish('modes', (query) ->
 
 Meteor.publish('geonames', (selector, options) ->
   if @userId
-    collection = grits.Geonames.AllCountries
-    sub = this
-    handle = collection.find(selector, options).observeChanges
-      added: (id, fields) ->
-        sub.added('geonames', id, fields)
-      changed: (id, fields) ->
-        sub.changed('geonames', id, fields)
-      removed: (id) ->
-        sub.removed('geonames', id)
-
-    sub.ready()
-    sub.onStop -> handle.stop()
+    grits.Geonames.AllCountries.find(selector, options)
 )
