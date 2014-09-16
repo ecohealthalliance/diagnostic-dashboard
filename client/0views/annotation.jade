@@ -119,3 +119,9 @@ template(name='locationAnnotation')
     +inputAutocomplete settings=autocompleteSettings id='locationValue'
     div.annotationButton
       button#annotationSubmit Submit
+
+template(name="annotationSearchPill")
+  span(class="sp-label") {{_id}}
+
+template(name="geonamesSearchPill")
+  span(class="sp-label") {{name}}

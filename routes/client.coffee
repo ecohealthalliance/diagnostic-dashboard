@@ -49,9 +49,7 @@ Router.map () ->
       Meteor.subscribe('symptoms')
       Meteor.subscribe('pathogens')
       Meteor.subscribe('modes')
-      console.log "subscribed all but"
       Meteor.subscribe('geonames')
-      console.log "subscribed all"
     data: () ->
       Results.findOne(@params._id)
     onStop: () ->

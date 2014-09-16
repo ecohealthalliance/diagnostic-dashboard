@@ -43,7 +43,7 @@ autocompleteSettings = (type) ->
   {
    position: "top"
    limit: 5
-   rules: [ { collection: collection, field: "_id", template: Template.searchPill } ]
+   rules: [ { collection: collection, field: "_id", template: Template.annotationSearchPill } ]
   }
 
 
@@ -56,7 +56,12 @@ Template.locationAnnotation.autocompleteSettings = () ->
   {
     position: "top"
     limit: 5
-    rules: [ { collection: AllCountries, field: "name", template: Template.geonameSearchPill } ]
+    rules: [ {
+              collection: 'Geonames.allCountries'
+              field: "name"
+              template: Template.geonamesSearchPill
+              callback: (doc) -> console.log doc
+            } ]
   }
 
 Template.annotation.events
