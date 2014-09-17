@@ -57,8 +57,9 @@ Template.locationAnnotation.autocompleteSettings = () ->
     position: "top"
     limit: 5
     rules: [ {
-              collection: grits.Geonames.AllCountries
+              collection: "allCountries"
               field: "name"
+              subscription: "geonames"
               template: Template.geonamesSearchPill
               callback: (doc) -> console.log doc
             } ]

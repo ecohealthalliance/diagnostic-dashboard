@@ -49,7 +49,6 @@ Router.map () ->
       Meteor.subscribe('symptoms')
       Meteor.subscribe('pathogens')
       Meteor.subscribe('modes')
-      Meteor.subscribe('geonames')
     data: () ->
       Results.findOne(@params._id)
     onStop: () ->
