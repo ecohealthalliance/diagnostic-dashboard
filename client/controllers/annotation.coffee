@@ -23,8 +23,8 @@ Pathogens = () =>
 Modes = () =>
   @grits.Annotation.Modes
 
-AllCountries = () =>
-  @grits.Geonames.AllCountries
+# Locations = () =>
+#   @grits.Annotation.Locations
 
 autocompleteSettings = (type) ->
 
@@ -57,11 +57,10 @@ Template.locationAnnotation.autocompleteSettings = () ->
     position: "top"
     limit: 5
     rules: [ {
-              collection: "allCountries"
+              collection: "locations"
               field: "name"
-              subscription: "geonames"
-              template: Template.geonamesSearchPill
-              callback: (doc) -> console.log doc
+              subscription: "locations"
+              template: Template.locationSearchPill
             } ]
   }
 

@@ -38,9 +38,9 @@ Meteor.publish('modes', (query) ->
     grits.Annotation.Modes.find({})
 )
 
-Meteor.publish 'geonames', (selector, options, collName) ->
+Meteor.publish 'locations', (selector, options, collName) ->
 
-  collection = grits.Geonames.AllCountries
+  collection = grits.Annotation.Locations
 
   unless collection
     throw new Error(collName + ' is not defined on the global namespace of the server.')

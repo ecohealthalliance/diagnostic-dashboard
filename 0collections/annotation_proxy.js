@@ -8,7 +8,8 @@ Meteor.startup(function() {
             { db: "hosts", name: "Hosts" },
             { db: "symptoms", name: "Symptoms" },
             { db: "pathogens", name: "Pathogens" },
-            { db: "modes", name: "Modes" }
+            { db: "modes", name: "Modes" },
+            { db: "locations", name: "Locations" }
         ]
         , bindables: ["find", "findOne"] //specify all the operators you want to bind
     };
