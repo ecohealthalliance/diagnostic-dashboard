@@ -18,8 +18,7 @@
       "spin": {},
       "dbproxy": {},
       "autocomplete": {},
-      "marked": {},
-      "selenium-nightwatch": {}
+      "marked": {}
     },
     "packages": {
       "iron-router": {
@@ -45,8 +44,8 @@
       },
       "reactive-table": {
         "git": "https://github.com/ecohealthalliance/reactive-table.git",
-        "tag": "v0.3.17",
-        "commit": "19ae3d81852a478ca873f90ff98aacee8d622da7"
+        "tag": "v0.3.21",
+        "commit": "7068f1011b46b6312bd8c21c2d3b91d4e3cbcd59"
       },
       "d3": {
         "git": "https://github.com/sergeyt/meteor-d3.git",
@@ -60,8 +59,8 @@
       },
       "accounts-entry": {
         "git": "https://github.com/Differential/accounts-entry.git",
-        "tag": "v0.8.0",
-        "commit": "cf7f7d0ecc285824bc2748e305f5d693df99b4ae"
+        "tag": "v0.8.1",
+        "commit": "3102c0641cab394ce4c3e54b655c85ec1610c092"
       },
       "spin": {
         "git": "https://github.com/SachaG/meteor-spin.git",
@@ -82,11 +81,6 @@
         "git": "https://github.com/chuangbo/meteor-marked.git",
         "tag": "v0.3.3",
         "commit": "a0966771f9108835755368d0879429675d7e0db4"
-      },
-      "selenium-nightwatch": {
-        "git": "https://github.com/awatson1978/selenium-nightwatch.git",
-        "tag": "v0.3.3",
-        "commit": "026bb6ec3b3c99efcaf5e9262c904dcb04b6bdf8"
       },
       "iron-layout": {
         "git": "https://github.com/EventedMind/iron-layout.git",
