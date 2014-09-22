@@ -223,27 +223,19 @@ Template.dash.events
 
   "click .diagnosis .label" : (event) ->
 
-    if @textOffsets
+    currentFeatures = Session.get('features') or []
 
-      # We need to filter out any non-offset-based features. We can't handle
-      # highlighting both kinds at the same time.
-
-      currentFeatures = _.filter Session.get('features') or [], (feature) ->
-        feature.textOffsets
-
-      found = false
-      for item, index in currentFeatures
-        if _.isEqual(item, this)
-          found = true
-          currentFeatures.splice(index, 1)
-          Session.set('features', currentFeatures)
-
-      if not found
-        currentFeatures.push(this)
+    found = false
+    for item, index in currentFeatures
+      if _.isEqual(item, this)
+        found = true
+        currentFeatures.splice(index, 1)
         Session.set('features', currentFeatures)
 
-    else
-      Session.set('features', [this])
+    if not found
+      currentFeatures.push(this)
+      Session.set('features', currentFeatures)
+
 
   "click .reset-panels": (event) ->
     setHeights()
