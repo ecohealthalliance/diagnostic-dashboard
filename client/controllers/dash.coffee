@@ -226,27 +226,19 @@ Template.dash.events
     Session.set('features', keyword for keyword in @keywords)
 
   "click .diagnosis .label" : (event) ->
-    if not DISABLE_MULTI_HIGHLIGHT and @textOffsets
+    currentFeatures = Session.get('features') or []
 
-      # We need to filter out any non-offset-based features. We can't handle
-      # highlighting both kinds at the same time.
-
-      currentFeatures = _.filter Session.get('features') or [], (feature) ->
-        feature.textOffsets
-
-      found = false
-      for item, index in currentFeatures
-        if _.isEqual(item, this)
-          found = true
-          currentFeatures.splice(index, 1)
-          Session.set('features', currentFeatures)
-
-      if not found
-        currentFeatures.push(this)
+    found = false
+    for item, index in currentFeatures
+      if _.isEqual(item, this)
+        found = true
+        currentFeatures.splice(index, 1)
         Session.set('features', currentFeatures)
 
-    else
-      Session.set('features', [this])
+    if not found
+      currentFeatures.push(this)
+      Session.set('features', currentFeatures)
+
 
   "click .diagnosis .keypoint" : (event) ->
     $('.keypoint.selected').removeClass('selected')
