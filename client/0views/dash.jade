@@ -16,24 +16,18 @@ template(name="dash")
       +feedback
       .features
         each keywordCategories
-          if showCategory pattern ../keywords
+          if showCategory pattern ../features
             .feature-section
-              h4 #{label}
-              each ../keywords
-                if hasCategory categories ../pattern
-                  .label(style="background-color:{{color}}") #{name}
+              h4(class=pattern) #{label}
+              each ../features
+                if eq type ../pattern
+                  .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color) #{value}
         if showCategory 'datetime'
           .feature-section.dates
             h4.datetime Dates
             each features
               if eq type "datetime"
                 .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color) #{formatDate}
-        if showCategory 'deathCount'
-          .feature-section.death-counts
-            h4.deathCount Death Counts
-            each features
-              if eq type "deathCount"
-                .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color) #{value}
         if showCategory 'location'
           .feature-section.locations
             h4.location Locations
