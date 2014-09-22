@@ -96,16 +96,19 @@ Template.dash.updatePanes = () ->
 Template.dash.eq = (a, b) ->
   a == b
 
-Template.dash.showCategory = (category, keywords) ->
-  visibleCats = [
-    'datetime'
-    'location'
-    'caseCount'
-    'deathCount'
-    'hospitalizationCount'
-  ]
-  if category in visibleCats
-    _.any(@features, (feature) ->
+
+Template.dash.showCategory = (category, features) ->
+  if category in ['datetime',
+                  'caseCount',
+                  'deathCount',
+                  'hospitalizationCount',
+                  'location',
+                  'diseases',
+                  'hosts',
+                  'modes',
+                  'pathogens',
+                  'symptoms']
+    _.any(@features or features, (feature) ->
       feature.type is category
     )
   else
@@ -145,7 +148,7 @@ Template.dash.formatDate = () ->
 Template.dash.color = () ->
   if @categories
     color @categories[0] + @name
-  else if @type in ['caseCount', 'hospitalizationCount', 'deathCount', 'datetime']
+  else if @type in ['caseCount', 'hospitalizationCount', 'deathCount', 'datetime', 'adding', 'diseases', 'hosts', 'modes', 'pathogens', 'symptoms']
     color @type + @value
   else if @type in ['location']
     color @type + @name
@@ -294,14 +297,8 @@ Template.dash.events
         Router.go 'dash', {_id: resultId}
     )
   "click .features h4": (event, template) =>
-    if DISABLE_MULTI_HIGHLIGHT then return false
     category = $(event.target).attr('class')
-    if category in ['symptom', 'host', 'pathogen', 'transmi']
-      source = template.data.keywords
-      nameKey = 'name'
-      # These are not offset-based at the moment, so punt
-      return false
-    else if category in ['caseCount', 'hospitalizationCount', 'deathCount', 'datetime']
+    if category in ['caseCount', 'hospitalizationCount', 'deathCount', 'datetime', 'diseases', 'hosts', 'modes', 'pathogens', 'symptoms']
       source = template.data.features
       nameKey = 'value'
     else if category is 'location'

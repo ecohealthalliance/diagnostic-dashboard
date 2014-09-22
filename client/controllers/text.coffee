@@ -1,7 +1,7 @@
 color = (feature) =>
   if feature.categories
     colorKey = feature.categories[0] + feature.name
-  else if feature.type in ['caseCount', 'hospitalizationCount', 'deathCount', 'datetime']
+  else if feature.type in ['caseCount', 'hospitalizationCount', 'deathCount', 'datetime', 'diseases', 'hosts', 'modes', 'pathogens', 'symptoms']
     colorKey =  feature.type + feature.value
   else if feature.type in ['location']
     colorKey = feature.type + feature.name
