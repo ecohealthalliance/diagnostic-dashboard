@@ -111,12 +111,6 @@ Template.dash.showCategory = (category, features) ->
     _.any(@features or features, (feature) ->
       feature.type is category
     )
-  else
-    _.any(@keywords or keywords, (keyword) ->
-      _.any(keyword.categories, (keywordCategory) ->
-        keywordCategory.indexOf(category) >= 0
-      )
-    )
 
 Template.dash.showKeypoints = ()->
   Session.get('showKeypoints')
@@ -159,7 +153,17 @@ Template.dash.getIdKey = () ->
   Template.dash.getIdKeyFromFeature @
 
 Template.dash.getIdKeyFromFeature = (feature) ->
-  return '_' + _.indexOf(Session.get('features'), feature)
+  if feature.categories
+    idKey = feature.categories[0] + '_' + feature.name
+  else if feature.type in ['caseCount', 'hospitalizationCount', 'deathCount', 'datetime', 'adding', 'diseases', 'hosts', 'modes', 'pathogens', 'symptoms']
+    idKey = feature.type + '_' + feature.value
+  else if feature.type in ['location']
+    idKey = feature.type + '_' + feature.name
+  else if feature.text in ['datetime']
+    idKey = feature.type + '_' + feature.text
+
+  idKey.replace(/[^A-Za-z0-9]/g, '_')
+
 
 Template.dash.setActiveFeatureStyle = () ->
 
