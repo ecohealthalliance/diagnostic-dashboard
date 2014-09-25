@@ -10,6 +10,9 @@ template(name="search")
           span {{name}}
       +inputAutocomplete settings=diseaseCompleteSettings id="new-disease" class="input-xlarge"
       button(id="add-disease") Add
+      // h4 Keyword Search:
+      // inputAutocomplete settings=keywordCompleteSettings id="keyword-search" class="input-xlarge"
+      // button(id="search-for-keywords") Search
       h4 Any of these keywords:
       each anyKeywordsSelected
         div

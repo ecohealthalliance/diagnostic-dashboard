@@ -21,4 +21,14 @@ template(name="resultList")
               span #{value} deaths
             if eq type "hospitalizationCount"
               span #{value} hospitalizations
+        br
+        b Distinctness:
+        span #{distinctness}
+        br
+        b Distinct Keywords:
+        span.inline-list
+          each distinctKeywords
+            span #{name}
+    else
+      p No Results Found
               

@@ -166,19 +166,32 @@ Template.search.events
     selectedPane.fadeIn()
 
   "click #add-disease" : (event) ->
-    DiseasesSelected.insert({name : $("#new-disease").val()})
+    kwName = $("#new-disease").val()
+    if DiseaseNames().findOne({_id : kwName})
+      DiseasesSelected.insert({name : kwName})
+    else
+      alert("You can only search for terms in the auto-complete menu.")
 
   "click .remove-disease" : (event) ->
     DiseasesSelected.remove({name : $(event.currentTarget).data('name')})
 
   "click #add-any-keyword" : (event) ->
-    AnyKeywordsSelected.insert({name : $("#new-any-keyword").val()})
+    kwName = $("#new-any-keyword").val()
+    if Keywords().findOne({_id : kwName})
+      AnyKeywordsSelected.insert({name : kwName})
+    else
+      alert("You can only search for terms in the auto-complete menu.")
 
   "click .remove-any-keyword" : (event) ->
     AnyKeywordsSelected.remove({name : $(event.currentTarget).data('name')})
 
   "click #add-all-keyword" : (event) ->
-    AllKeywordsSelected.insert({name : $("#new-all-keyword").val()})
+    kwName = $("#new-all-keyword").val()
+    console.log(Keywords().find().fetch())
+    if Keywords().findOne({_id : kwName})
+      AllKeywordsSelected.insert({name : kwName})
+    else
+      alert("You can only search for terms in the auto-complete menu.")
 
   "click .remove-all-keyword" : (event) ->
     AllKeywordsSelected.remove({name : $(event.currentTarget).data('name')})
