@@ -1,6 +1,6 @@
 Template.resultList.results = () ->
   keywordCounts = {}
-  items = grits.Girder.Items.find().fetch()
+  items = Session.get('searchResults') or []
   items.forEach((item)->
     if not item.meta.diagnosis.keywords_found
       return

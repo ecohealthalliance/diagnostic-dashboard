@@ -125,32 +125,30 @@ Template.search.keywordCompleteSettings = ()->
 @AllKeywordsSelected = new Meteor.Collection(null)
 
 Deps.autorun ()->
-  conditions = []
-  if DiseasesSelected.find().count() > 0
-    conditions.push({
-      $or : DiseasesSelected.find().map((d)->
-        {'meta.diagnosis.diseases.name' : d.name}
-      )
-    })
-  if AnyKeywordsSelected.find().count() > 0
-    conditions.push({
-      'meta.diagnosis.keywords_found.name' : {
-        $in : AnyKeywordsSelected.find().map((k)-> k.name)
-      }
-    })
-  if AllKeywordsSelected.find().count() > 0
-    conditions.push({
-      'meta.diagnosis.keywords_found.name' : {
-        $all : AllKeywordsSelected.find().map((k)-> k.name)
-      }
-    })
-  if conditions.length > 0
-    Meteor.subscribe('item', {
-      $and : conditions
-    }, {
-      onready : ()->
-        console.log "reports loaded"
-    })
+  # TODO: Debounce
+  disease_terms = DiseasesSelected.find().map (k)->
+    term :
+      'meta.disease' : k.name
+  
+  should_terms = AnyKeywordsSelected.find().map (k)->
+    term :
+      'private.scrapedData.content'  : k.name
+  
+  must_terms = AllKeywordsSelected.find().map (k)->
+    term : 
+      'private.scrapedData.content' : k.name
+  
+  if [].concat(disease_terms, should_terms, must_terms).length > 0
+    
+    Meteor.call('elasticsearch', {
+      query:
+        bool:
+          must: must_terms
+          should: [].concat(disease_terms, should_terms)
+    }, (e,r)->
+      console.log(r)
+      Session.set('searchResults', (hit._source for hit in r.hits.hits))
+    )
 
 Template.search.diseasesSelected = ()-> DiseasesSelected.find()
 Template.search.anyKeywordsSelected = ()-> AnyKeywordsSelected.find()
@@ -177,10 +175,7 @@ Template.search.events
 
   "click #add-any-keyword" : (event) ->
     kwName = $("#new-any-keyword").val()
-    if Keywords().findOne({_id : kwName})
-      AnyKeywordsSelected.insert({name : kwName})
-    else
-      alert("You can only search for terms in the auto-complete menu.")
+    AnyKeywordsSelected.insert({name : kwName})
 
   "click .remove-any-keyword" : (event) ->
     AnyKeywordsSelected.remove({name : $(event.currentTarget).data('name')})
@@ -188,10 +183,7 @@ Template.search.events
   "click #add-all-keyword" : (event) ->
     kwName = $("#new-all-keyword").val()
     console.log(Keywords().find().fetch())
-    if Keywords().findOne({_id : kwName})
-      AllKeywordsSelected.insert({name : kwName})
-    else
-      alert("You can only search for terms in the auto-complete menu.")
+    AllKeywordsSelected.insert({name : kwName})
 
   "click .remove-all-keyword" : (event) ->
     AllKeywordsSelected.remove({name : $(event.currentTarget).data('name')})
