@@ -27,6 +27,10 @@ template(name="search")
           span {{name}}
       +inputAutocomplete settings=keywordCompleteSettings id="new-all-keyword" class="input-xlarge"
       button(id="add-all-keyword") Add
+      if countries
+        h4 Country:
+        each countries
+          p {{key}} : {{doc_count}}
     .pane-container
       .pane
         +geomapSimple

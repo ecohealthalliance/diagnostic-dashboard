@@ -124,8 +124,7 @@ Template.search.keywordCompleteSettings = ()->
 @AnyKeywordsSelected = new Meteor.Collection(null)
 @AllKeywordsSelected = new Meteor.Collection(null)
 
-Deps.autorun ()->
-  # TODO: Debounce
+Deps.autorun(()->
   disease_terms = DiseasesSelected.find().map (k)->
     term :
       'meta.disease' : k.name
@@ -139,16 +138,31 @@ Deps.autorun ()->
       'private.scrapedData.content' : k.name
   
   if [].concat(disease_terms, should_terms, must_terms).length > 0
-    
-    Meteor.call('elasticsearch', {
+    doQuery({
       query:
         bool:
           must: must_terms
           should: [].concat(disease_terms, should_terms)
-    }, (e,r)->
-      console.log(r)
-      Session.set('searchResults', (hit._source for hit in r.hits.hits))
-    )
+      aggregations:
+        countries:
+          terms:
+            field: 'meta.country'
+    })
+)
+doQuery = _.debounce(((query)->
+  console.log(query)
+  Meteor.call('elasticsearch', query, (e,r)->
+    if e
+      console.error(e)
+      return
+    console.log(r)
+    Session.set('searchResults', (hit._source for hit in r.hits.hits))
+    Session.set('countries', r.aggregations.countries.buckets)
+  )
+), 1000)
+
+Template.search.countries = ()->
+  Session.get('countries')
 
 Template.search.diseasesSelected = ()-> DiseasesSelected.find()
 Template.search.anyKeywordsSelected = ()-> AnyKeywordsSelected.find()
@@ -167,6 +181,7 @@ Template.search.events
     kwName = $("#new-disease").val()
     if DiseaseNames().findOne({_id : kwName})
       DiseasesSelected.insert({name : kwName})
+      $("#new-disease").val('')
     else
       alert("You can only search for terms in the auto-complete menu.")
 
@@ -176,6 +191,7 @@ Template.search.events
   "click #add-any-keyword" : (event) ->
     kwName = $("#new-any-keyword").val()
     AnyKeywordsSelected.insert({name : kwName})
+    $("#new-any-keyword").val('')
 
   "click .remove-any-keyword" : (event) ->
     AnyKeywordsSelected.remove({name : $(event.currentTarget).data('name')})
@@ -184,6 +200,7 @@ Template.search.events
     kwName = $("#new-all-keyword").val()
     console.log(Keywords().find().fetch())
     AllKeywordsSelected.insert({name : kwName})
+    $("#new-all-keyword").val('')
 
   "click .remove-all-keyword" : (event) ->
     AllKeywordsSelected.remove({name : $(event.currentTarget).data('name')})

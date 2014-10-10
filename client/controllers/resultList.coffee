@@ -2,7 +2,7 @@ Template.resultList.results = () ->
   keywordCounts = {}
   items = Session.get('searchResults') or []
   items.forEach((item)->
-    if not item.meta.diagnosis.keywords_found
+    if not item.meta.diagnosis?.keywords_found
       return
     item.meta.diagnosis.keywords_found.forEach((kw)->
       if !keywordCounts[kw.name]
