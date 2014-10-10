@@ -102,3 +102,4 @@ The following are all the commands needed for a local setup.
     sudo npm install -g meteorite forever
     mrt update
     meteor
+
