@@ -937,7 +937,7 @@ vgl.primitive = function() {
     }, this;
 }, inherit(vgl.renderer, vgl.object);
 
-var gl = null;
+window.gl = null;
 
 vgl.renderWindow = function(canvas) {
     "use strict";
@@ -4107,8 +4107,9 @@ ggl._vglViewerInstances = {
         var canvas = $(document.createElement("canvas"));
         canvas.attr("class", ".webgl-canvas");
         var viewer = vgl.viewer(canvas.get(0));
-        return viewer.renderWindow().removeRenderer(viewer.renderWindow().activeRenderer()), 
-        viewer.init(), viewer;
+        viewer.renderWindow().removeRenderer(viewer.renderWindow().activeRenderer()); 
+        viewer.init();
+        return viewer;
     }
     var mapIdx, maps = ggl._vglViewerInstances.maps, viewers = ggl._vglViewerInstances.viewers;
     for (mapIdx = 0; mapIdx < maps.length && map !== maps[mapIdx]; mapIdx += 1) ;
