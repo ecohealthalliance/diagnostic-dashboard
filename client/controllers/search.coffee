@@ -64,12 +64,12 @@ Template.search.rendered = () ->
 Template.search.updatePanes = () ->
   data = []
   
-  locationFeatures = grits.Girder.Items.find().fetch()
+  searchResults = Session.get('searchResults') or []
 
   # It would be cool if we could highligh all the points for a given article 
   # when someone clicks one.
 
-  data = _.chain(locationFeatures.map (d) ->
+  data = _.chain(searchResults.map (d) ->
     if d.meta.diagnosis?.features
       d.meta.diagnosis.features.map (f)->
         if f.type == "location"
@@ -123,6 +123,7 @@ Template.search.keywordCompleteSettings = ()->
 @DiseasesSelected = new Meteor.Collection(null)
 @AnyKeywordsSelected = new Meteor.Collection(null)
 @AllKeywordsSelected = new Meteor.Collection(null)
+@CountriesSelected = new Meteor.Collection(null)
 
 Deps.autorun(()->
   disease_terms = DiseasesSelected.find().map (k)->
@@ -140,16 +141,39 @@ Deps.autorun(()->
   if [].concat(disease_terms, should_terms, must_terms).length > 0
     doQuery({
       query:
-        bool:
-          must: must_terms
-          should: [].concat(disease_terms, should_terms)
+        filtered:
+          query:
+            bool:
+              must: must_terms
+              should: [].concat(disease_terms, should_terms)
+          filter:
+            terms:
+              'meta.country': CountriesSelected.find().map( (k)-> k.name )
       aggregations:
         countries:
           terms:
             field: 'meta.country'
     })
 )
+removeEmptyKeys = (obj)->
+  out = {}
+  for own k, v of obj
+    if _.isArray(v)
+      if v.length == 0
+        continue
+      else
+        out[k] = v
+    else if _.isObject(v)
+      nestedObj = removeEmptyKeys(v)
+      if not _.isEmpty(nestedObj)
+        out[k] = nestedObj
+    else
+      out[k] = v
+  return out
 doQuery = _.debounce(((query)->
+  # Remove empty array keys so that we don't end up with no results because
+  # a filter has no clauses.
+  query = removeEmptyKeys(query)
   console.log(query)
   Meteor.call('elasticsearch', query, (e,r)->
     if e
@@ -167,6 +191,7 @@ Template.search.countries = ()->
 Template.search.diseasesSelected = ()-> DiseasesSelected.find()
 Template.search.anyKeywordsSelected = ()-> AnyKeywordsSelected.find()
 Template.search.allKeywordsSelected = ()-> AllKeywordsSelected.find()
+Template.search.countriesSelected = ()-> CountriesSelected.find()
 
 Template.search.events
   "click .pane:not(.maximized)": (event) ->
@@ -198,12 +223,17 @@ Template.search.events
 
   "click #add-all-keyword" : (event) ->
     kwName = $("#new-all-keyword").val()
-    console.log(Keywords().find().fetch())
     AllKeywordsSelected.insert({name : kwName})
     $("#new-all-keyword").val('')
 
   "click .remove-all-keyword" : (event) ->
     AllKeywordsSelected.remove({name : $(event.currentTarget).data('name')})
+
+  "click .add-country-filter" : (event) ->
+    CountriesSelected.insert({name : $(event.currentTarget).data('name')})
+
+  "click .remove-country-filter" : (event) ->
+    CountriesSelected.remove({name : $(event.currentTarget).data('name')})
 
   "click .reset-panels": (event) ->
     setHeights()

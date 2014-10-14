@@ -22,6 +22,7 @@ Template.resultList.results = () ->
       if keywordCounts[kw.name] <= threashold
         distinctKeywords.push(kw)
     )
+    distinctKeywords = _.sortBy(distinctKeywords, (kw)-> keywordCounts[kw])
     item.distinctness = distinctKeywords.length
     item.distinctKeywords = distinctKeywords
     return item
