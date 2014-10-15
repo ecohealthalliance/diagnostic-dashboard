@@ -27,16 +27,16 @@ template(name="search")
           span {{name}}
       +inputAutocomplete settings=keywordCompleteSettings id="new-all-keyword" class="input-xlarge"
       button(id="add-all-keyword") Add
-      h4 In one of these countries:
-      each countriesSelected
-        div
-          i.fa.fa-times-circle(data-name="{{name}}" class="remove-country-filter" style="color:crimson;")
-          span {{name}}
-      h5 Add Country:
-      each countries
-        div
-          a.add-country-filter(href="#" data-name="{{key}}") {{key}}
-          span : {{doc_count}} reports
+      // h4 In one of these countries:
+      // each countriesSelected
+      //   div
+      //     i.fa.fa-times-circle(data-name="{{name}}" class="remove-country-filter" style="color:crimson;")
+      //     span {{name}}
+      // h5 Add Country:
+      // each countries
+      //   div
+      //     a.add-country-filter(href="#" data-name="{{key}}") {{key}}
+      //     span : {{doc_count}} reports
     .pane-container
       .pane
         +geomapSimple

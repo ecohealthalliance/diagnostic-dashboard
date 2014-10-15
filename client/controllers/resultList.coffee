@@ -13,10 +13,10 @@ Template.resultList.results = () ->
   console.log(keywordCounts)
   threashold = 2 #TODO This should be 1 S.D. below the mean
   return items.map((item)->
-    if not item.meta.diagnosis.keywords_found
+    if not item.meta.diagnosis?.keywords_found
       item.distinctness = 0
       item.distinctKeywords = []
-      return
+      return item
     distinctKeywords = []
     item.meta.diagnosis.keywords_found.forEach((kw)->
       if keywordCounts[kw.name] <= threashold

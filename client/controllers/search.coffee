@@ -128,15 +128,15 @@ Template.search.keywordCompleteSettings = ()->
 Deps.autorun(()->
   disease_terms = DiseasesSelected.find().map (k)->
     term :
-      'meta.disease' : k.name
+      'meta.disease' : k.name.toLowerCase()
   
   should_terms = AnyKeywordsSelected.find().map (k)->
     term :
-      'private.scrapedData.content'  : k.name
+      'private.scrapedData.content'  : k.name.toLowerCase()
   
   must_terms = AllKeywordsSelected.find().map (k)->
     term : 
-      'private.scrapedData.content' : k.name
+      'private.scrapedData.content' : k.name.toLowerCase()
   
   if [].concat(disease_terms, should_terms, must_terms).length > 0
     doQuery({
