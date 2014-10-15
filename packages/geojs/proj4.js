@@ -80,6 +80,8 @@ function proj4(fromProj,toProj,coord){
     };
   }
 }
+window.proj4 = proj4;
+
     /**
      * Property: defaultDatum
      * The datum to use when no others a specified
