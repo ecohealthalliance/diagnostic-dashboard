@@ -64,7 +64,8 @@ Router.map () ->
             message = "Here are some possible diagnoses:\n"
             for disease in result.diseases
               message += "#{disease.name}: #{disease.probability}\n"
-          message += "\nView the dashboard: https://grits.ecohealth.io/dash/#{submissionId}\n"
+          url = Meteor.absoluteUrl("dash/#{submissionId}")
+          message += "\nView the dashboard: #{url}\n"
           Email.send(
             from: 'grits@ecohealth.io'
             to: from
