@@ -48,8 +48,8 @@ submit = (content, userId, prevDiagnosis) ->
 
 
 Meteor.methods(
-  'submit' : (content) ->
-    submit(content, @userId)
+  'submit' : (content, userId) ->
+    submit(content, userId or @userId)
 
   'submitFromQuarantine' : (submissionId) ->
     content = Quarantine.findOne(submissionId)?.content
