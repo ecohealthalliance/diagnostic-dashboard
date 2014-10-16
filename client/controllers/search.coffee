@@ -127,15 +127,15 @@ Template.search.keywordCompleteSettings = ()->
 
 Deps.autorun(()->
   disease_terms = DiseasesSelected.find().map (k)->
-    term :
+    match_phrase :
       'meta.disease' : k.name.toLowerCase()
   
   should_terms = AnyKeywordsSelected.find().map (k)->
-    term :
+    match_phrase :
       'private.scrapedData.content'  : k.name.toLowerCase()
   
   must_terms = AllKeywordsSelected.find().map (k)->
-    term : 
+    match_phrase : 
       'private.scrapedData.content' : k.name.toLowerCase()
   
   if [].concat(disease_terms, should_terms, must_terms).length > 0
@@ -228,6 +228,9 @@ Template.search.events
 
   "click .remove-all-keyword" : (event) ->
     AllKeywordsSelected.remove({name : $(event.currentTarget).data('name')})
+
+  "click .add-keyword-link" : (event) ->
+    AllKeywordsSelected.insert({name : $(event.currentTarget).text()})
 
   "click .add-country-filter" : (event) ->
     CountriesSelected.insert({name : $(event.currentTarget).data('name')})

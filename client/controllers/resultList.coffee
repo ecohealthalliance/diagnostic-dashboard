@@ -10,8 +10,15 @@ Template.resultList.results = () ->
       keywordCounts[kw.name] += 1
     )
   )
-  console.log(keywordCounts)
-  threashold = 2 #TODO This should be 1 S.D. below the mean
+  countValues = _.values(keywordCounts)
+  meanCount = _.reduce(countValues, ((sofar, val)->
+    return sofar + val
+  ), 0) / countValues.length
+  standardDeviation = Math.sqrt(_.reduce(countValues, ((sofar, val)->
+    difference = val - meanCount
+    return sofar + (difference * difference)
+  ), 0) / countValues.length)
+  threashold = Math.max(1, meanCount - standardDeviation)
   return items.map((item)->
     if not item.meta.diagnosis?.keywords_found
       item.distinctness = 0

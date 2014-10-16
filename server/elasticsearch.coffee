@@ -1,10 +1,9 @@
 Meteor.methods(
   'elasticsearch' : (query) ->
-    must_terms = if must_terms then must_terms else []
-    should_terms = if should_terms then should_terms else []
-    #54.225.25.198
-    response = HTTP.post("http://localhost:9200/item_index/_search", {
-      data: query
-    })
-    JSON.parse(response.content)
+    if @userId
+      #54.225.25.198
+      response = HTTP.post("http://localhost:9200/item_index/_search", {
+        data: query
+      })
+      JSON.parse(response.content)
 )

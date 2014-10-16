@@ -28,7 +28,10 @@ template(name="resultList")
         b Distinct Keywords:
         span.inline-list
           each distinctKeywords
-            span #{name}
+            span
+              a.add-keyword-link(href="#") #{name}
+          else
+            span None
     else
       p No Results Found
               
