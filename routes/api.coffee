@@ -48,9 +48,14 @@ Router.map () ->
     where: 'server'
     action: () ->
       email = @request.body.email
-      from = email.split("From:")?[1]?.split("<")?[1]?.split(">")?[0]
+    
+      from = email.split("\nFrom:")?[1]?.split("<")?[1]?.split(">")?[0]
+      subject = email.split("\nSubject: ")?[1]?.split("\n")[0]
+      messageId = email.split("Message-ID: <")?[1]?.split(">")?[0]
+      date = /Date:\s(.*)/.exec(email)?[1]
+
       boundary = /boundary=([0-9a-f]{28})/.exec(email)?[1]
-      content = email.split("--#{boundary}")[1]
+      content = email.split("--#{boundary}")?[1].replace(/\sContent-Type:\s.*\s/, "")
 
       user = Meteor.users.findOne({'emails.0.address': from})
       submissionId = Meteor.call('submit', content, user?._id)
@@ -66,11 +71,21 @@ Router.map () ->
               message += "#{disease.name}: #{disease.probability}\n"
           url = Meteor.absoluteUrl("dash/#{submissionId}")
           message += "\nView the dashboard: #{url}\n"
+
+          message += "\n\nOn #{date}, #{from} wrote:\n"
+          for line in content.split('\n')
+            if line
+              message += "> #{line}\n"
+            else
+              message += ">\n"
+
           Email.send(
             from: 'grits@ecohealth.io'
             to: from
-            subject: 'Grits Diagnosis'
+            subject: "Re: #{subject}"
             text: message
+            headers:
+              "In-Reply-To": "<#{messageId}>"
           )
         else
           Meteor.setTimeout(checkResult, 1000)
