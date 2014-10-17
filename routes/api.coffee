@@ -87,6 +87,7 @@ Router.map () ->
             text: message
             headers:
               "In-Reply-To": "<#{messageId}>"
+              "Reply-To": "feedback@ecohealth.io"
           )
         else
           Meteor.setTimeout(checkResult, 1000)
