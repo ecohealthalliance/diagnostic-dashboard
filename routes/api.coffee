@@ -48,10 +48,10 @@ Router.map () ->
     where: 'server'
     action: () ->
       email = @request.body.email
-    
+
       from = email.split("\nFrom:")?[1]?.split("<")?[1]?.split(">")?[0]
       subject = email.split("\nSubject: ")?[1]?.split("\n")[0]
-      messageId = email.split("Message-ID: <")?[1]?.split(">")?[0]
+      messageId = email.split("Message-ID: <")?[1]?.split(">")?[0].replace(/\s/g, "+")
       date = /Date:\s(.*)/.exec(email)?[1]
 
       boundary = /boundary=([0-9a-f]{28})/.exec(email)?[1]
