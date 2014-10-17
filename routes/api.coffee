@@ -70,6 +70,7 @@ Router.map () ->
             for disease in result.diseases
               message += "#{disease.name}: #{disease.probability}\n"
           url = Meteor.absoluteUrl("dash/#{submissionId}")
+          domain = Meteor.absoluteUrl().replace(/https?:\/\//, "").replace(/\//, "")
           message += "\nView the dashboard: #{url}\n"
 
           message += "\n\nOn #{date}, #{from} wrote:\n"
@@ -80,7 +81,7 @@ Router.map () ->
               message += ">\n"
 
           Email.send(
-            from: 'grits@ecohealth.io'
+            from: "grits@#{domain}"
             to: from
             subject: "Re: #{subject}"
             text: message
