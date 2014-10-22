@@ -4,6 +4,13 @@
 (function ($, geo, d3) {
     'use strict';
 
+    // Hide popovers when unrelated things are clicked.
+    $(document).on('click', function(evt){
+        if($(evt.target).closest('.popover-content').length === 0) {
+            $('body div.popover').popover('hide');
+        }
+    });
+
     var widgetSpec = {
         options: {
             data: [],
@@ -14,6 +21,11 @@
             height: 400
         },
         _create: function () {
+            // This makes the map on the search page fill it's container.
+            if($('.non-interactive-pane').length > 0){
+                this.options.width = $('.non-interactive-pane').outerWidth();
+                this.options.height = $('.non-interactive-pane').innerHeight() - $('.search-view-bar').outerHeight() - 4;
+            }
             // remove global viewer context if it exists to get around vgl bug
             window.gl = null;
 
@@ -31,9 +43,6 @@
             this._layer = this._map.createLayer('feature', {'renderer': 'd3Renderer'});
             this._feature = this._layer.createFeature('point');
 
-            this._layer.geoOn([geo.event.pan, geo.event.zoom, geo.event.resize], function () {
-              $('body div.popover').popover('hide');
-            });
             this._geomapCreated = true;
             this._data = [];
             this.update();
@@ -102,9 +111,10 @@
                     trigger: 'manual',
                     content: msg.join('<br>\n')
                 })
-                .off('mousedown')
-                .on('mousedown', function (evt) {
-                    $(this).popover('toggle');
+                .off('mouseover')
+                .on('mouseover', function (evt) {
+                    $('body div.popover').popover('hide');
+                    $(this).popover('show');
                     evt.stopPropagation();
                 });
             }

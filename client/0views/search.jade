@@ -1,7 +1,7 @@
 template(name="search")
   div(style="display:none") #{updatePanes}
   .dashboard-container
-    .left-panel.diagnosis
+    .left-panel.diagnosis.search-sidebar
       h3 Find articles with...
       h4 Any of these diseases:
       each diseasesSelected
@@ -38,10 +38,32 @@ template(name="search")
       //     a.add-country-filter(href="#" data-name="{{key}}") {{key}}
       //     span : {{doc_count}} reports
     .pane-container
-      .pane
-        +geomapSimple
-      .pane
-        +resultList
+      .non-interactive-pane
+        .search-view-bar
+          if numResults
+            span Showing {{numResults}} of {{totalResults}} Results
+            span |
+              a.prev-page Previous
+              | -
+              a.next-page Next
+          else
+            span No Results
+          span.view-select
+            | | Sorted By:
+            select#sort-by
+              option(selected=sortByDate value="date") Date
+              option(selected=sortByRelevance value="relevance") Relevance
+          span.view-select
+            | | Choose View:
+            select#choose-view
+              option(selected=mapView value="mapView") Map View
+              option(selected=listView value="listView") List View
+        if searching
+          p Searching...
+        else if mapView
+          +geomapSimple
+        else if listView
+          +resultList
 
 template(name="searchPill")
   span(class="sp-label") {{_id}}

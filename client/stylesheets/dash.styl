@@ -3,6 +3,11 @@
   flex-direction row
   align-items top
   justify-content flex-end
+  top: 62px
+  bottom: 0
+  right: 0
+  left: 0
+  position: absolute
 
 .loading-message ~ .dashboard-container
   display none
@@ -24,13 +29,11 @@
     height 100px
 
 .left-panel, .diagnosis
-  margin-left 10px
+  margin: 0;
+  border-right: 2px solid black;
   flex 0 0 340px
   background-color gainsboro
   color black
-  border-top 1px solid black
-  border-bottom 2px solid gainsboro
-  border-right 2px solid black
   overflow auto
   // Vertical padding will break the code that positions the panes
   padding 0 5px
@@ -68,6 +71,7 @@
   flex-direction row
   align-items left
   flex-wrap wrap
+  
 
 .pane
   flex 0 1 auto

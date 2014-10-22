@@ -1,66 +1,3 @@
-setHeights = () ->
-
-  # width of the diagnostic side panal
-  diagnosisWidth = 375
-
-  # determine the layout
-  paneCount = $('.pane').length
-  columns = Math.round(Math.sqrt(paneCount))
-  rows = Math.ceil(paneCount / columns)
-
-  minPaneCount = paneCount - 1
-  minPaneCols = Math.round(1.5 * Math.sqrt(minPaneCount))
-  minPaneRows = Math.ceil(minPaneCount / minPaneCols)
-
-  # get the absolute position of the bottom of the header
-  top = $('.header').outerHeight(true)
-
-  # get the full size for vis panes
-  fullHeight = $(window).height() - top
-  fullWidth = $(window).width() - diagnosisWidth
-
-  defaultHeight = Math.floor(fullHeight / rows)
-  defaultWidth = Math.floor(fullWidth / columns)
-
-  maximizedHeight = Math.floor(fullHeight * 0.75)
-  maximizedWidth = fullWidth
-
-  minimizedHeight = Math.floor((fullHeight * 0.25) / minPaneRows)
-  minimizedWidth = Math.floor(fullWidth / minPaneCols)
-
-  $('.pane').height(defaultHeight)
-  $('.pane').width(defaultWidth)
-
-  $('.minimized').height(minimizedHeight)
-  $('.minimized').width(minimizedWidth)
-  $('.maximized').height(maximizedHeight)
-  $('.maximized').width(maximizedWidth)
-
-  $('.diagnosis').height(fullHeight)
-  $('.diagnosis').width(diagnosisWidth)
-
-  $('.pane').each (i, node) ->
-    n = $(node)
-    n.children().trigger('resizeApp', {
-      width: n.width()
-      height: n.height()
-    })
-
-color = (text) =>
-  @grits.services.color text
-
-
-Template.search.rendered = () ->
-  if !this.initialized
-    setHeights()
-    $(window).resize(setHeights)
-    $('.pane-container').on('resetPanes', () ->
-      $('.pane').removeClass('maximized').removeClass('minimized')
-      setHeights()
-    )
-    this.initialized = true
-
-
 Template.search.updatePanes = () ->
   data = []
   
@@ -144,8 +81,14 @@ Deps.autorun(()->
         filtered:
           query:
             bool:
-              must: must_terms
-              should: [].concat(disease_terms, should_terms)
+              must: must_terms.concat([
+                bool:
+                  should:
+                    disease_terms
+                  minimum_should_match: 1
+              ])
+              should: should_terms
+              minimum_should_match: 1
           filter:
             terms:
               'meta.country': CountriesSelected.find().map( (k)-> k.name )
@@ -175,18 +118,32 @@ doQuery = _.debounce(((query)->
   # a filter has no clauses.
   query = removeEmptyKeys(query)
   console.log(query)
+  Session.set('searching', true)
   Meteor.call('elasticsearch', query, (e,r)->
     if e
       console.error(e)
       return
     console.log(r)
+    Session.set('searching', false)
     Session.set('searchResults', (hit._source for hit in r.hits.hits))
+    Session.set('totalResults', r.hits.total)
     Session.set('countries', r.aggregations.countries.buckets)
   )
 ), 1000)
 
 Template.search.countries = ()->
   Session.get('countries')
+
+Session.setDefault('useView', 'mapView')
+Template.search.mapView = ()-> Session.get('useView') == 'mapView'
+Template.search.listView = ()-> Session.get('useView') == 'listView'
+
+Session.setDefault('sortBy', 'date')
+Template.search.sortByDate = ()-> Session.get('sortBy') == 'date'
+Template.search.sortByRelevance = ()-> Session.get('sortBy') == 'relevance'
+Template.search.searching = ()-> Session.get('searching')
+Template.search.numResults = ()-> Session.get('searchResults').length
+Template.search.totalResults = ()-> Session.get('totalResults')
 
 Template.search.diseasesSelected = ()-> DiseasesSelected.find()
 Template.search.anyKeywordsSelected = ()-> AnyKeywordsSelected.find()
@@ -238,5 +195,14 @@ Template.search.events
   "click .remove-country-filter" : (event) ->
     CountriesSelected.remove({name : $(event.currentTarget).data('name')})
 
-  "click .reset-panels": (event) ->
-    setHeights()
+  "click .prev-page": (event) ->
+    Session.set('page', Session.get('page') - 1)
+
+  "change .next-page": (event) ->
+    Session.set('page', Session.get('page') + 1)
+
+  "change #sort-by": (event) ->
+    Session.set('sortBy', $(event.target).val())
+
+  "change #choose-view": (event) ->
+    Session.set('useView', $(event.target).val())
