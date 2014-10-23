@@ -27,16 +27,31 @@ template(name="search")
           span {{name}}
       +inputAutocomplete settings=keywordCompleteSettings id="new-all-keyword" class="input-xlarge"
       button(id="add-all-keyword") Add
-      // h4 In one of these countries:
-      // each countriesSelected
-      //   div
-      //     i.fa.fa-times-circle(data-name="{{name}}" class="remove-country-filter" style="color:crimson;")
-      //     span {{name}}
-      // h5 Add Country:
-      // each countries
-      //   div
-      //     a.add-country-filter(href="#" data-name="{{key}}") {{key}}
-      //     span : {{doc_count}} reports
+      h4 In one of these countries:
+      +selector collection=countriesSelected
+      each aggregations.countries.buckets
+        div
+          a.add-country-filter(href="#" data-name="{{key}}") {{key}}
+          span : {{doc_count}} reports
+      h4 In the date range:
+      label Start
+        input.date-selector.from-date(type="date")
+      br
+      label End
+        input.date-selector.to-date(type="date")
+      each aggregations.months.buckets
+        div
+          a.add-date-filter(href="#" data-name="{{key}}") {{timestampToMonthYear key}}
+          span : {{doc_count}} reports
+
+    // div.search-results
+    // h4 Date Groups:
+    // each results
+    //   div.date-group.month-group
+    //     p {{month}} {{year}}
+    //     p Number of results: {{results}}
+    // else
+    //   p No Results Found
     .pane-container
       .non-interactive-pane
         .search-view-bar
@@ -51,22 +66,42 @@ template(name="search")
           span.view-select
             | | Sorted By:
             select#sort-by
-              option(selected=sortByDate value="date") Date
-              option(selected=sortByRelevance value="relevance") Relevance
+              each sortMethods
+                if eq sortBy name
+                  option(selected value=name) {{label}}
+                else
+                  option(value=name) {{label}}
           span.view-select
             | | Choose View:
             select#choose-view
-              option(selected=mapView value="mapView") Map View
-              option(selected=listView value="listView") List View
+              each viewTypes
+                if eq useView name
+                  option(selected value=name) {{label}}
+                else
+                  option(value=name) {{label}}
         if searching
           p Searching...
-        else if mapView
+        else if eq useView "mapView"
           +geomapSimple
-        else if listView
+        else if eq useView "listView"
           +resultList
-
+        else if eq useView "dateGroupView"
+          +dateGroups
+        else if eq useView "locationGroupView"
+          +locationGroups
+        else if eq useView "diseaseGroupView"
+          +diseaseGroups
 template(name="searchPill")
   span(class="sp-label") {{_id}}
   span(class="sp-categories")
     each value.categories
       span(class="sp-category") [{{this}}]
+      
+template(name="selector")
+  each itemsInCollection
+    div
+      i.fa.fa-times-circle.remove-item(style="color:crimson;")
+      span {{name}}
+  div
+    input.input-xlarge
+    button.add-item Add

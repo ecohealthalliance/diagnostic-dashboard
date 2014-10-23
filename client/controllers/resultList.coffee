@@ -36,3 +36,6 @@ Template.resultList.results = () ->
   )
 Template.resultList.eq = (a, b) ->
   a == b
+
+Template.resultList.toDateString = (d)->
+  (new Date(d)).toDateString()

@@ -4,6 +4,9 @@ template(name="resultList")
     each results
       div(class="search-result")
         a(href="#{meta.link}" target="_blank" class="title-link") #{description}
+        b Date:
+        span {{toDateString meta.date}}
+        br
         b HealthMap Disease Label: 
         span #{meta.disease}
         br
@@ -22,9 +25,6 @@ template(name="resultList")
             if eq type "hospitalizationCount"
               span #{value} hospitalizations
         br
-        // b Distinctness:
-        // span #{distinctness}
-        // br
         b Distinct Keywords:
         span.inline-list
           each distinctKeywords
