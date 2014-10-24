@@ -937,7 +937,7 @@ vgl.primitive = function() {
     }, this;
 }, inherit(vgl.renderer, vgl.object);
 
-window.gl = null;
+var gl = null;
 
 vgl.renderWindow = function(canvas) {
     "use strict";
@@ -2457,8 +2457,12 @@ window.geo = geo, geo.renderers = {}, geo.features = {}, geo.fileReaders = {}, i
     }, layer = null;
     return name in geo.layers ? (void 0 !== arg && $.extend(!0, options, arg), layer = geo.layers[name](options), 
     layer._init(), layer) : null;
-}, function() {
+}, window.requestAnimationFrame || (window.requestAnimationFrame = function(func) {
     "use strict";
+    window.setTimeout(func, 15);
+}), geo.version = "0.1.0", function() {
+    "use strict";
+    var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     geo.util = {
         isFunction: function(f) {
             return "function" == typeof f;
@@ -2467,9 +2471,170 @@ window.geo = geo, geo.renderers = {}, geo.features = {}, geo.fileReaders = {}, i
             return geo.util.isFunction(f) ? f : function() {
                 return f;
             };
+        },
+        randomString: function(n) {
+            var s, i, r;
+            for (n = n || 8, s = "", i = 0; n > i; i += 1) r = Math.floor(Math.random() * chars.length), 
+            s += chars.substring(r, r + 1);
+            return s;
         }
     };
-}(), geo.version = "0.1.0", geo.object = function() {
+}(), function() {
+    "use strict";
+    function vect(x, y) {
+        return new Vector2D(x, y);
+    }
+    var RangeNode = function(elem, start, end, current) {
+        this.data = elem[current], this.left = null, this.right = null, start != current && (this.left = new RangeNode(elem, start, current - 1, parseInt((start + (current - 1)) / 2, 10))), 
+        end != current && (this.right = new RangeNode(elem, current + 1, end, parseInt((end + (current + 1)) / 2, 10))), 
+        this.subtree = [];
+        for (var i = start; end >= i; i++) this.subtree.push(elem[i]);
+        this.subtree.sort(function(a, b) {
+            return a.y - b.y;
+        });
+        var xrange = function(b) {
+            return b.x_in(elem[start]) && b.x_in(elem[end]);
+        };
+        this.yrange = function(b, start, end) {
+            return b.y_in(this.subtree[start]) && b.y_in(this.subtree[end]);
+        }, this.subquery = function(result, box, start, end, current) {
+            if (this.yrange(box, start, end)) for (var i = start; end >= i; i++) result.push(this.subtree[i]); else box.y_in(this.subtree[current]) && result.push(this.subtree[current]), 
+            box.y_left(this.subtree[current]) ? current != end && this.subquery(result, box, current + 1, end, parseInt((end + (current + 1)) / 2, 10)) : box.x_right(this.subtree[current]) ? current != start && this.subquery(result, box, start, current - 1, parseInt((start + (current - 1)) / 2, 10)) : (current != end && this.subquery(result, box, current + 1, end, parseInt((end + (current + 1)) / 2, 10)), 
+            current != start && this.subquery(result, box, start, current - 1, parseInt((start + (current - 1)) / 2, 10)));
+        }, this.search = function(result, box) {
+            return xrange(box) ? void this.subquery(result, box, 0, this.subtree.length - 1, parseInt((this.subtree.length - 1) / 2, 10)) : (box.contains(this.data) && result.push(this.data), 
+            void (box.x_left(this.data) ? this.right && this.right.search(result, box) : box.x_right(this.data) ? this.left && this.left.search(result, box) : (this.left && this.left.search(result, box), 
+            this.right && this.right.search(result, box))));
+        };
+    }, RangeTree = function(elem) {
+        elem.sort(function(a, b) {
+            return a.x - b.x;
+        }), this.root = elem.length > 0 ? new RangeNode(elem, 0, elem.length - 1, parseInt((elem.length - 1) / 2, 10)) : null, 
+        this.search = function(_box) {
+            if (!this.root) return [];
+            var box = _box.clone(), result = [];
+            return this.root.search(result, box), result;
+        };
+    }, Box = function(v1, v2) {
+        this.min = v1.clone(), this.max = v2.clone(), this.contains = function(p) {
+            return v1.x <= p.x && v2.x >= p.x && v1.y <= p.y && v2.y >= p.y;
+        }, this.x_in = function(p) {
+            return v1.x <= p.x && v2.x >= p.x;
+        }, this.x_left = function(p) {
+            return v1.x >= p.x;
+        }, this.x_right = function(p) {
+            return v2.x <= p.x;
+        }, this.y_in = function(p) {
+            return v1.y <= p.y && v2.y >= p.y;
+        }, this.y_left = function(p) {
+            return v1.y >= p.y;
+        }, this.y_right = function(p) {
+            return v2.y <= p.y;
+        }, this.area = function() {
+            return (this.max.x - this.min.x) * (this.max.y - this.min.y);
+        }, this.height = function() {
+            return this.max.y - this.min.y;
+        }, this.width = function() {
+            return this.max.x - this.min.x;
+        }, this.vertex = function(index) {
+            switch (index) {
+              case 0:
+                return this.min.clone();
+
+              case 1:
+                return new vect(this.max.x, this.min.y);
+
+              case 2:
+                return this.max.clone();
+
+              case 3:
+                return new vect(this.min.x, this.max.y);
+
+              default:
+                throw "Index out of bounds: " + index;
+            }
+        }, this.intersects = function(box) {
+            for (var i = 0; 4 > i; i++) for (var j = 0; 4 > j; j++) if (vect.intersects(this.vertex(i), this.vertex((i + 1) % 4), box.vertex(j), box.vertex((j + 1) % 4))) return !0;
+            return this.contains(box.min) && this.contains(box.max) && this.contains(new vect(box.min.x, box.max.y)) && this.contains(new vect(box.max.x, box.min.y)) ? !0 : box.contains(this.min) && box.contains(this.max) && box.contains(new vect(this.min.x, this.max.y)) && box.contains(new vect(this.max.x, this.min.y)) ? !0 : !1;
+        }, this.union = function(b) {
+            this.min.x = Math.min(this.min.x, b.min.x), this.min.y = Math.min(this.min.y, b.min.y), 
+            this.max.x = Math.max(this.max.x, b.max.x), this.max.y = Math.max(this.max.y, b.max.y);
+        }, this.centroid = function() {
+            return new vect((this.max.x + this.min.x) / 2, (this.max.y + this.min.y) / 2);
+        }, this.clone = function() {
+            return new Box(v1, v2);
+        };
+    }, Vector2D = function(x, y) {
+        this.x = x, this.y = y, this.add = function(v) {
+            return this.x += v.x, this.y += v.y, this;
+        }, this.sub = function(v) {
+            return this.x -= v.x, this.y -= v.y, this;
+        }, this.scale = function(s) {
+            return this.x *= s, this.y *= s, this;
+        }, this.length = function() {
+            return Math.sqrt(this.x * this.x + this.y * this.y);
+        }, this.normalize = function() {
+            var scale = this.length();
+            return 0 === scale ? this : (this.x /= scale, this.y /= scale, this);
+        }, this.div = function(v) {
+            return this.x /= v.x, this.y /= v.y, this;
+        }, this.floor = function() {
+            return this.x = Math.floor(this.x), this.y = Math.floor(this.y), this;
+        }, this.zero = function(tol) {
+            return tol = tol || 0, this.length() <= tol;
+        }, this.dot = function(v) {
+            return this.x * v.x + this.y * v.y;
+        }, this.cross = function(v) {
+            return this.x * v.y - this.y * v.x;
+        }, this.rotate = function(omega) {
+            var cos = Math.cos(omega), sin = Math.sin(omega);
+            return xp = cos * this.x - sin * this.y, yp = sin * this.x + cos * this.y, this.x = xp, 
+            this.y = yp, this;
+        }, this.clone = function() {
+            return new Vector2D(this.x, this.y);
+        }, this.array = function() {
+            return [ this.x, this.y ];
+        };
+    };
+    vect.scale = function(v, s) {
+        return v.clone().scale(s);
+    }, vect.add = function(v1, v2) {
+        return v1.clone().add(v2);
+    }, vect.sub = function(v1, v2) {
+        return v1.clone().sub(v2);
+    }, vect.dist = function(v1, v2) {
+        return v1.clone().sub(v2).length();
+    }, vect.dir = function(v1, v2) {
+        return v1.clone().sub(v2).normalize();
+    }, vect.dot = function(v1, v2) {
+        return v1.x * v2.x + v1.y * v2.y;
+    }, vect.cross = function(v1, v2) {
+        return v1.x * v2.y - v1.y * v2.x;
+    }, vect.left = function(a, b, c, tol) {
+        tol || (tol = 0);
+        var v1 = vect.sub(b, a), v2 = vect.sub(c, a);
+        return vect.cross(v1, v2) >= -tol;
+    }, vect.intersects = function(a, b, c, d, tol) {
+        return tol || (tol = 0), vect.left(a, b, c, tol) != vect.left(a, b, d, tol) && vect.left(c, d, b, tol) != vect.left(c, d, a, tol);
+    }, vect.intersect2dt = function(a, b, c, d) {
+        var denom = a.x * (d.y - c.y) + b.x * (c.y - d.y) + d.x * (b.y - a.y) + c.x * (a.y - b.y);
+        if (0 === denom) return 1/0;
+        var num_t = (a.x * (d.y - c.y) + c.x * (a.y - d.y) + d.x * (c.y - a.y), -(a.x * (c.y - b.y) + b.x * (a.y - c.y) + c.x * (b.y - a.y))), t = num_t / denom;
+        return t;
+    }, vect.intersect2dpos = function(a, b, c, d) {
+        var denom = a.x * (d.y - c.y) + b.x * (c.y - d.y) + d.x * (b.y - a.y) + c.x * (a.y - b.y);
+        if (0 === denom) return 1/0;
+        var num_s = a.x * (d.y - c.y) + c.x * (a.y - d.y) + d.x * (c.y - a.y), s = num_s / denom, dir = vect.sub(b, a);
+        return dir.scale(s), vect.add(a, dir);
+    }, vect.rotate = function(v, omega) {
+        var cos = Math.cos(omega), sin = Math.sin(omega);
+        xp = cos * v.x - sin * v.y, yp = sin * v.x + cos * v.y;
+        var c = new vect(xp, yp);
+        return c;
+    }, vect.normalize = function(v) {
+        return v.clone().normalize();
+    }, geo.util.RangeTree = RangeTree, geo.util.Box = Box, geo.util.vect = vect;
+}(), geo.object = function() {
     "use strict";
     if (!(this instanceof geo.object)) return new geo.object();
     var m_this = this, m_eventHandlers = {}, m_idleHandlers = [], m_deferredCount = 0;
@@ -2642,18 +2807,22 @@ geo.ellipsoid.UNIT_SPHERE = vgl.freezeObject(geo.ellipsoid(1, 1, 1)), geo.mercat
     do con = e * Math.sin(Phi), dphi = HALFPI - 2 * Math.atan(ts * Math.pow((1 - con) / (1 + con), eccnth)) - Phi, 
     Phi += dphi, i -= 1; while (Math.abs(dphi) > TOL && i);
     return Phi;
-}, geo.latlng = function(arg1, arg2) {
+}, geo.latlng = function(arg1, arg2, arg3) {
     "use strict";
-    if (!(this instanceof geo.latlng)) return new geo.latlng(arg1, arg2);
-    var m_this = this, m_lat = void 0 === arg2 ? arg1.lat() : arg1, m_lng = void 0 === arg2 ? arg1.lng() : arg2;
+    if (!(this instanceof geo.latlng)) return new geo.latlng(arg1, arg2, arg3);
+    var m_this = this, m_lat = void 0 === arg2 && void 0 === arg3 ? arg1.lat() : arg1, m_lng = void 0 === arg2 && void 0 === arg3 ? arg1.lng() : arg2, m_elv = void 0 === arg2 && void 0 === arg3 ? arg1.elv() : arg3;
     return this.lat = function(val) {
         return void 0 === val ? m_lat : void (m_lat = val);
     }, this.lng = function(val) {
         return void 0 === val ? m_lng : void (m_lng = val);
+    }, this.elv = function(val) {
+        return void 0 === val ? m_elv : void (m_elv = val);
     }, this.x = function(val) {
         return void 0 === val ? m_this.lng() : void (m_lng = val);
     }, this.y = function(val) {
         return void 0 === val ? m_this.lat() : void (m_lat = val);
+    }, this.z = function(val) {
+        return void 0 === val ? m_this.elv() : void (m_elv = val);
     }, this;
 }, geo.layerOptions = function() {
     "use strict";
@@ -2796,10 +2965,16 @@ geo.event.layerUnselect = "geo_layerUnselect", geo.event.zoom = "geo_zoom", geo.
 geo.event.rotate = "geo_rotate", geo.event.resize = "geo_resize", geo.event.animate = "geo_animate", 
 geo.event.query = "geo_query", geo.event.draw = "geo_draw", geo.event.drawEnd = "geo_drawEnd", 
 geo.event.animationPause = "geo_animationPause", geo.event.animationStop = "geo_animationStop", 
-geo.event.animationComplete = "geo_animationComplete", geo.mapInteractor = function(args) {
+geo.event.animationComplete = "geo_animationComplete", geo.event.mousemove = "geo_mousemove", 
+geo.event.mouseclick = "geo_mouseclick", geo.event.brush = "geo_brush", geo.event.brushend = "geo_brushend", 
+geo.event.brushstart = "geo_brushstart", geo.mapInteractor = function(args) {
     "use strict";
     function eventMatch(button, modifiers) {
         return ("wheel" === button || m_mouse.buttons[button]) && !!m_mouse.modifiers.alt == !!modifiers.alt && !!m_mouse.modifiers.meta == !!modifiers.meta && !!m_mouse.modifiers.shift == !!modifiers.shift && !!m_mouse.modifiers.ctrl == !!modifiers.ctrl;
+    }
+    function calcSpeed(v) {
+        var x = v.x, y = v.y;
+        return Math.sqrt(x * x + y * y);
     }
     function doRespond() {
         return m_disableThrottle ? !0 : m_wait ? !1 : (m_wait = !0, window.setTimeout(function() {
@@ -2826,7 +3001,17 @@ geo.event.animationComplete = "geo_animationComplete", geo.mapInteractor = funct
         zoomWheelModifiers: {},
         wheelScaleX: 1,
         wheelScaleY: 1,
-        zoomScale: 1
+        zoomScale: 1,
+        selectionButton: "left",
+        selectionModifiers: {
+            shift: !0
+        },
+        momentum: {
+            enabled: !0,
+            maxSpeed: 10,
+            minSpeed: .01,
+            drag: .005
+        }
     }, m_options), m_mouse = {
         page: {
             x: 0,
@@ -2846,34 +3031,67 @@ geo.event.animationComplete = "geo_animationComplete", geo.mapInteractor = funct
             ctrl: !1,
             shift: !1,
             meta: !1
-        }
+        },
+        time: new Date(),
+        deltaTime: 1,
+        velocity: 0
     }, m_keyboard = {}, m_state = {}, this._connectEvents = function() {
         return m_options.map ? (m_this._disconnectEvents(), $node = $(m_options.map.node()), 
         $node.on("mousemove.geojs", m_this._handleMouseMove), $node.on("mousedown.geojs", m_this._handleMouseDown), 
         $node.on("mouseup.geojs", m_this._handleMouseUp), $node.on("mousewheel.geojs", m_this._handleMouseWheel), 
-        m_this) : m_this;
+        ("right" === m_options.panMoveButton || "right" === m_options.zoomMoveButton) && $node.on("contextmenu.geojs", function() {
+            return !1;
+        }), m_this) : m_this;
     }, this._disconnectEvents = function() {
         return $node && ($node.off(".geojs"), $node = null), m_this;
     }, this.map = function(val) {
         return void 0 !== val ? (m_options.map = val, m_this._connectEvents(), m_this) : m_options.map;
+    }, this.options = function(opts) {
+        return void 0 === opts ? $.extend({}, m_options) : ($.extend(m_options, opts), m_this);
     }, this._getMousePosition = function(evt) {
-        var offset = $node.offset();
-        m_mouse.page = {
+        var dt, t, offset = $node.offset();
+        t = new Date().valueOf(), dt = t - m_mouse.time, m_mouse.time = t, m_mouse.deltaTime = dt, 
+        m_mouse.velocity = {
+            x: (evt.pageX - m_mouse.page.x) / dt,
+            y: (evt.pageY - m_mouse.page.y) / dt
+        }, m_mouse.page = {
             x: evt.pageX,
             y: evt.pageY
         }, m_mouse.map = {
             x: evt.pageX - offset.left,
             y: evt.pageY - offset.top
-        };
+        }, m_mouse.geo = m_this.map().displayToGcs(m_mouse.map);
     }, this._getMouseButton = function(evt) {
         1 === evt.which ? m_mouse.buttons.left = "mouseup" !== evt.type : 3 === evt.which ? m_mouse.buttons.right = "mouseup" !== evt.type : 2 === evt.which && (m_mouse.buttons.middle = "mouseup" !== evt.type);
     }, this._getMouseModifiers = function(evt) {
         m_mouse.modifiers.alt = evt.altKey, m_mouse.modifiers.ctrl = evt.ctrlKey, m_mouse.modifiers.meta = evt.metaKey, 
         m_mouse.modifiers.shift = evt.shiftKey;
+    }, this._getSelection = function() {
+        var origin = m_state.origin, mouse = m_this.mouse(), map = m_this.map(), display = {}, gcs = {};
+        return display.upperLeft = {
+            x: Math.min(origin.map.x, mouse.map.x),
+            y: Math.min(origin.map.y, mouse.map.y)
+        }, display.lowerRight = {
+            x: Math.max(origin.map.x, mouse.map.x),
+            y: Math.max(origin.map.y, mouse.map.y)
+        }, display.upperRight = {
+            x: display.lowerRight.x,
+            y: display.upperLeft.y
+        }, display.lowerLeft = {
+            x: display.upperLeft.x,
+            y: display.lowerRight.y
+        }, gcs.upperLeft = map.displayToGcs(display.upperLeft), gcs.lowerRight = map.displayToGcs(display.lowerRight), 
+        gcs.upperRight = map.displayToGcs(display.upperRight), gcs.lowerLeft = map.displayToGcs(display.lowerLeft), 
+        {
+            display: display,
+            gcs: gcs,
+            mouse: mouse,
+            origin: $.extend({}, m_state.origin)
+        };
     }, this._handleMouseDown = function(evt) {
         var action = null;
-        m_this._getMousePosition(evt), m_this._getMouseButton(evt), m_this._getMouseModifiers(evt), 
-        eventMatch(m_options.panMoveButton, m_options.panMoveModifiers) ? action = "pan" : eventMatch(m_options.zoomMoveButton, m_options.zoomMoveModifiers) && (action = "zoom"), 
+        "momentum" === m_state.action && (m_state = {}), m_this._getMousePosition(evt), 
+        m_this._getMouseButton(evt), m_this._getMouseModifiers(evt), eventMatch(m_options.panMoveButton, m_options.panMoveModifiers) ? action = "pan" : eventMatch(m_options.zoomMoveButton, m_options.zoomMoveModifiers) ? action = "zoom" : eventMatch(m_options.selectionButton, m_options.selectionModifiers) && (action = "select"), 
         action && (m_state = {
             action: action,
             origin: $.extend(!0, {}, m_mouse),
@@ -2881,29 +3099,46 @@ geo.event.animationComplete = "geo_animationComplete", geo.mapInteractor = funct
                 x: 0,
                 y: 0
             }
-        }, $(document).on("mousemove.geojs", m_this._handleMouseMoveDocument), $(document).on("mouseup.geojs", m_this._handleMouseUpDocument));
+        }, "select" === action && m_this.map().geoTrigger(geo.event.brushstart, m_this._getSelection()), 
+        $(document).on("mousemove.geojs", m_this._handleMouseMoveDocument), $(document).on("mouseup.geojs", m_this._handleMouseUpDocument));
     }, this._handleMouseMove = function(evt) {
-        m_state.action || (m_this._getMousePosition(evt), m_this._getMouseButton(evt), m_this._getMouseModifiers(evt));
+        m_state.action || (m_this._getMousePosition(evt), m_this._getMouseButton(evt), m_this._getMouseModifiers(evt), 
+        m_this.map().geoTrigger(geo.event.mousemove, m_this.mouse()));
     }, this._handleMouseMoveDocument = function(evt) {
-        var dx, dy;
+        var dx, dy, selectionObj;
         return m_this._getMousePosition(evt), m_this._getMouseButton(evt), m_this._getMouseModifiers(evt), 
         m_state.action ? void (doRespond() && (dx = m_mouse.map.x - m_state.origin.map.x - m_state.delta.x, 
         dy = m_mouse.map.y - m_state.origin.map.y - m_state.delta.y, m_state.delta.x += dx, 
         m_state.delta.y += dy, "pan" === m_state.action ? m_this.map().pan({
             x: dx,
             y: dy
-        }) : "zoom" === m_state.action && m_this.map().zoom(m_this.map().zoom() - dy * m_options.zoomScale / 120), 
-        evt.preventDefault())) : void console.log("WARNING: Invalid state in mapInteractor.");
+        }) : "zoom" === m_state.action ? m_this.map().zoom(m_this.map().zoom() - dy * m_options.zoomScale / 120) : "select" === m_state.action && (selectionObj = m_this._getSelection(), 
+        m_this.map().geoTrigger(geo.event.brush, selectionObj)), evt.preventDefault())) : void console.log("WARNING: Invalid state in mapInteractor.");
     }, this._handleMouseUpDocument = function(evt) {
-        m_this._getMousePosition(evt), m_this._getMouseButton(evt), m_this._getMouseModifiers(evt), 
-        $(document).off(".geojs"), m_state = {};
+        var selectionObj, oldAction;
+        m_this._getMouseButton(evt), m_this._getMouseModifiers(evt), $(document).off(".geojs"), 
+        m_mouse.buttons.right && evt.preventDefault(), "select" === m_state.action && (selectionObj = m_this._getSelection(), 
+        m_this.map().geoTrigger(geo.event.brushend, selectionObj)), oldAction = m_state.action, 
+        m_state = {}, m_options.momentum.enabled && "pan" === oldAction && (m_state.action = "momentum", 
+        m_state.origin = m_this.mouse(), m_state.handler = function() {
+            var vx, vy, speed, s;
+            if ("momentum" === m_state.action && m_this.map()) {
+                if (vx = m_mouse.velocity.x, vy = m_mouse.velocity.y, speed = calcSpeed(m_mouse.velocity), 
+                s = speed, vx /= speed, vy /= speed, speed = Math.min(speed, m_options.momentum.maxSpeed), 
+                speed *= Math.exp(-m_options.momentum.drag * m_mouse.deltaTime), speed < m_options.momentum.minSpeed) return void (m_state = {});
+                m_mouse.velocity.x = speed * vx, m_mouse.velocity.y = speed * vy, m_this.map().pan({
+                    x: m_mouse.velocity.x * m_mouse.deltaTime,
+                    y: m_mouse.velocity.y * m_mouse.deltaTime
+                }), window.requestAnimationFrame(m_state.handler);
+            }
+        }, window.requestAnimationFrame(m_state.handler));
     }, this._handleMouseUp = function(evt) {
-        m_this._getMousePosition(evt), m_this._getMouseButton(evt), m_this._getMouseModifiers(evt);
+        m_this._getMouseButton(evt), m_this._getMouseModifiers(evt), m_this.map().geoTrigger(geo.event.mouseclick, m_this.mouse());
     }, this._handleMouseWheel = function(evt) {
         var zoomFactor, direction;
-        return m_this._getMouseModifiers(evt), evt.deltaX = evt.deltaX * m_options.wheelScaleX * evt.deltaFactor / 120, 
-        evt.deltaY = evt.deltaY * m_options.wheelScaleY * evt.deltaFactor / 120, doRespond() ? (evt.deltaX += m_wheelQueue.x, 
-        evt.deltaY += m_wheelQueue.y, m_wheelQueue = {
+        return evt.deltaFactor = evt.deltaFactor || 1, m_this._getMouseModifiers(evt), evt.deltaX = evt.deltaX * m_options.wheelScaleX * evt.deltaFactor / 120, 
+        evt.deltaY = evt.deltaY * m_options.wheelScaleY * evt.deltaFactor / 120, evt.preventDefault(), 
+        doRespond() ? (evt.deltaX += m_wheelQueue.x, evt.deltaY += m_wheelQueue.y, m_wheelQueue = {
             x: 0,
             y: 0
         }, void (m_options.panWheelEnabled && eventMatch("wheel", m_options.panWheelModifiers) ? m_this.map().pan({
@@ -2988,11 +3223,18 @@ geo.event.animationComplete = "geo_animationComplete", geo.mapInteractor = funct
         function onDone(fileString) {
             "string" != typeof fileString && done(!1);
             try {
-                object = JSON.parse(fileString);
+                object = JSON.parse(fileString), done(object);
             } catch (e) {
-                done(!1);
+                object || $.ajax({
+                    type: "GET",
+                    url: fileString,
+                    dataType: "text"
+                }).done(function(data) {
+                    object = JSON.parse(data), done(object);
+                }).fail(function() {
+                    done(!1);
+                });
             }
-            done(object);
         }
         var object;
         file instanceof File ? m_this._getString(file, onDone, progress) : "string" == typeof file ? onDone(file) : done(file);
@@ -3005,9 +3247,10 @@ geo.event.animationComplete = "geo_animationComplete", geo.mapInteractor = funct
         var geometry = spec.geometry || {};
         return "Point" === geometry.type || "MultiPoint" === geometry.type ? "point" : "LineString" === geometry.type ? "line" : null;
     }, this._getCoordinates = function(spec) {
-        var geometry = spec.geometry || {}, coordinates = geometry.coordinates || [];
-        return (2 === coordinates.length || 3 === coordinates.length) && isFinite(coordinates[0]) && isFinite(coordinates[1]) ? [ geo.latlng(coordinates[1], coordinates[0]) ] : coordinates.map(function(c) {
-            return geo.latlng(c[1], c[0]);
+        var elv, geometry = spec.geometry || {}, coordinates = geometry.coordinates || [];
+        return (2 === coordinates.length || 3 === coordinates.length) && isFinite(coordinates[0]) && isFinite(coordinates[1]) ? (isFinite(coordinates[2]) && (elv = coordinates[2]), 
+        [ geo.latlng(coordinates[1], coordinates[0], elv) ]) : coordinates.map(function(c) {
+            return geo.latlng(c[1], c[0], c[2]);
         });
     }, this._getStyle = function() {
         return {};
@@ -3016,7 +3259,7 @@ geo.event.animationComplete = "geo_animationComplete", geo.mapInteractor = funct
             var features, allFeatures = [];
             features = m_this._featureArray(object), features.forEach(function(feature) {
                 var type = m_this._featureType(feature), coordinates = m_this._getCoordinates(feature), style = m_this._getStyle(feature);
-                type ? allFeatures.push(m_this._addFeature(type, coordinates, style)) : console.log("unsupported feature type: " + feature.geometry.type);
+                type ? allFeatures.push("line" === type ? m_this._addFeature(type, [ coordinates ], style) : m_this._addFeature(type, coordinates, style)) : console.log("unsupported feature type: " + feature.geometry.type);
             }), done && done(allFeatures);
         }
         m_this._readObject(file, _done, progress);
@@ -3026,7 +3269,7 @@ geo.event.animationComplete = "geo_animationComplete", geo.mapInteractor = funct
             return {
                 x: d.x(),
                 y: d.y(),
-                z: 0
+                z: d.z() || 0
             };
         }).style(_style);
     };
@@ -3045,7 +3288,7 @@ geo.map = function(arg) {
     }, m_intervalMap = {}, m_fileReader = null, m_interactor = null, m_validZoomRange = {
         min: 0,
         max: 16
-    };
+    }, m_transition = null;
     return m_intervalMap.milliseconds = 1, m_intervalMap.seconds = 1e3 * m_intervalMap.milliseconds, 
     m_intervalMap.minutes = 60 * m_intervalMap.seconds, m_intervalMap.hours = 60 * m_intervalMap.minutes, 
     m_intervalMap.days = 24 * m_intervalMap.hours, m_intervalMap.weeks = 7 * m_intervalMap.days, 
@@ -3276,13 +3519,113 @@ geo.map = function(arg) {
     }, this.zoomRange = function(arg) {
         return void 0 === arg ? $.extend({}, m_validZoomRange) : (m_validZoomRange.min = arg.min, 
         m_validZoomRange.max = arg.max, m_this);
+    }, this.transition = function(opts) {
+        function anim(time) {
+            if (m_transition.start.time || (m_transition.start.time = time, m_transition.end.time = time + defaultOpts.duration), 
+            time >= m_transition.end.time) return m_this.center(m_transition.end.center), m_this.zoom(m_transition.end.zoom), 
+            void (m_transition = null);
+            var z = m_transition.ease((time - m_transition.start.time) / defaultOpts.duration);
+            m_this.center({
+                x: m_transition.start.center.x + z * deltaCenterX,
+                y: m_transition.start.center.y + z * deltaCenterY
+            }), m_this.zoom(m_transition.start.zoom + z * deltaZoom), window.requestAnimationFrame(anim);
+        }
+        if (m_transition) return console.log("Cannot start a transition until the current transition is finished"), 
+        m_this;
+        var defaultOpts = {
+            center: m_this.center(),
+            zoom: m_this.zoom(),
+            duration: 1e3,
+            ease: function(t) {
+                return t;
+            }
+        };
+        $.extend(defaultOpts, opts), m_transition = {
+            start: {
+                center: m_this.center(),
+                zoom: m_this.zoom()
+            },
+            end: {
+                center: defaultOpts.center,
+                zoom: defaultOpts.zoom
+            },
+            ease: defaultOpts.ease
+        };
+        var deltaCenterX = m_transition.end.center.x - m_transition.start.center.x, deltaCenterY = m_transition.end.center.y - m_transition.start.center.y, deltaZoom = m_transition.end.zoom - m_transition.start.zoom;
+        return window.requestAnimationFrame(anim), m_this;
     }, this.interactor(arg.interactor || geo.mapInteractor()), this;
 }, inherit(geo.map, geo.sceneObject), geo.feature = function(arg) {
     "use strict";
     if (!(this instanceof geo.feature)) return new geo.feature(arg);
     geo.sceneObject.call(this), arg = arg || {};
-    var m_this = this, m_style = {}, m_layer = void 0 === arg.layer ? null : arg.layer, m_gcs = void 0 === arg.gcs ? "EPSG:4326" : arg.gcs, m_visible = void 0 === arg.visible ? !0 : arg.visible, m_bin = void 0 === arg.bin ? 0 : arg.bin, m_renderer = void 0 === arg.renderer ? null : arg.renderer, m_data = [], m_dataTime = geo.timestamp(), m_buildTime = geo.timestamp(), m_updateTime = geo.timestamp();
-    return this.style = function(arg1, arg2) {
+    var m_this = this, m_selectionAPI = void 0 === arg.selectionAPI ? !1 : arg.selectionAPI, m_style = {}, m_layer = void 0 === arg.layer ? null : arg.layer, m_gcs = void 0 === arg.gcs ? "EPSG:4326" : arg.gcs, m_visible = void 0 === arg.visible ? !0 : arg.visible, m_bin = void 0 === arg.bin ? 0 : arg.bin, m_renderer = void 0 === arg.renderer ? null : arg.renderer, m_data = [], m_dataTime = geo.timestamp(), m_buildTime = geo.timestamp(), m_updateTime = geo.timestamp(), m_selectedFeatures = [];
+    return this._bindMouseHandlers = function() {
+        m_selectionAPI && (m_this._unbindMouseHandlers(), m_this.geoOn(geo.event.mousemove, m_this._handleMousemove), 
+        m_this.geoOn(geo.event.mouseclick, m_this._handleMouseclick), m_this.geoOn(geo.event.brushend, m_this._handleBrushend), 
+        m_this.geoOn(geo.event.brush, m_this._handleBrush));
+    }, this._unbindMouseHandlers = function() {
+        m_this.geoOff(geo.event.mousemove, m_this._handleMousemove), m_this.geoOff(geo.event.mouseclick, m_this._handleMouseclick), 
+        m_this.geoOff(geo.event.brushend, m_this._handleBrushend), m_this.geoOff(geo.event.brush, m_this._handleBrush);
+    }, this.pointSearch = function() {
+        return {
+            index: [],
+            found: []
+        };
+    }, this._handleMousemove = function() {
+        var mouse = m_this.layer().map().interactor().mouse(), data = m_this.data(), over = m_this.pointSearch(mouse.geo), newFeatures = [], oldFeatures = [];
+        newFeatures = over.index.filter(function(i) {
+            return m_selectedFeatures.indexOf(i) < 0;
+        }), oldFeatures = m_selectedFeatures.filter(function(i) {
+            return over.index.indexOf(i) < 0;
+        }), newFeatures.forEach(function(i) {
+            m_this.geoTrigger(geo.event.feature.mouseover, {
+                data: data[i],
+                index: i,
+                mouse: mouse
+            }, !0);
+        }), oldFeatures.forEach(function(i) {
+            m_this.geoTrigger(geo.event.feature.mouseout, {
+                data: data[i],
+                index: i,
+                mouse: mouse
+            }, !0);
+        }), over.index.forEach(function(i) {
+            m_this.geoTrigger(geo.event.feature.mousemove, {
+                data: data[i],
+                index: i,
+                mouse: mouse
+            }, !0);
+        }), m_selectedFeatures = over.index;
+    }, this._handleMouseclick = function() {
+        var mouse = m_this.layer().map().interactor().mouse(), data = m_this.data(), over = m_this.pointSearch(mouse.geo);
+        over.index.forEach(function(i) {
+            m_this.geoTrigger(geo.event.feature.mouseclick, {
+                data: data[i],
+                index: i,
+                mouse: mouse
+            }, !0);
+        });
+    }, this._handleBrush = function(brush) {
+        var idx = m_this.boxSearch(brush.gcs.lowerLeft, brush.gcs.upperRight), data = m_this.data();
+        idx.forEach(function(i) {
+            m_this.geoTrigger(geo.event.feature.brush, {
+                data: data[i],
+                index: i,
+                mouse: brush.mouse,
+                brush: brush
+            }, !0);
+        });
+    }, this._handleBrushend = function(brush) {
+        var idx = m_this.boxSearch(brush.gcs.lowerLeft, brush.gcs.upperRight), data = m_this.data();
+        idx.forEach(function(i) {
+            m_this.geoTrigger(geo.event.feature.brushend, {
+                data: data[i],
+                index: i,
+                mouse: brush.mouse,
+                brush: brush
+            }, !0);
+        });
+    }, this.style = function(arg1, arg2) {
         return void 0 === arg1 ? m_style : void 0 === arg2 ? (m_style = $.extend({}, m_style, arg1), 
         m_this.modified(), m_this) : (m_style[arg1] = arg2, m_this.modified(), m_this);
     }, this.layer = function() {
@@ -3310,19 +3653,83 @@ geo.map = function(arg) {
         if (!m_layer) throw "Feature requires a valid layer";
         m_style = $.extend({}, {
             opacity: 1
-        }, void 0 === arg.style ? {} : arg.style);
+        }, void 0 === arg.style ? {} : arg.style), m_this._bindMouseHandlers();
     }, this._build = function() {}, this._drawables = function() {}, this._update = function() {}, 
-    this._exit = function() {}, this._init(arg), this;
+    this._exit = function() {
+        m_this._unbindMouseHandlers();
+    }, this._init(arg), this;
+}, geo.event.feature = {
+    mousemove: "geo_feature_mousemove",
+    mouseover: "geo_feature_mouseover",
+    mouseout: "geo_feature_mouseout",
+    mouseclick: "geo_feature_mouseclick",
+    brushend: "geo_feature_brushend",
+    brush: "geo_feature_brush"
 }, inherit(geo.feature, geo.sceneObject), geo.pointFeature = function(arg) {
     "use strict";
     if (!(this instanceof geo.pointFeature)) return new geo.pointFeature(arg);
     arg = arg || {}, geo.feature.call(this, arg);
     var m_this = this, m_position = void 0 === arg.position ? function(d) {
         return d;
-    } : arg.position, s_init = this._init;
+    } : arg.position, s_init = this._init, m_rangeTree = null, s_data = this.data, s_style = this.style, m_maxRadius = 0;
     return this.position = function(val) {
         return void 0 === val ? m_position : (m_position = val, m_this.dataTime().modified(), 
-        m_this.modified(), m_this);
+        m_this._updateRangeTree(), m_this.modified(), m_this);
+    }, this._updateRangeTree = function() {
+        var pts, position, radius = m_this.style().radius, stroke = m_this.style().stroke, strokeWidth = m_this.style().strokeWidth;
+        position = m_this.position(), m_maxRadius = 0, pts = m_this.data().map(function(d, i) {
+            var pt = position(d);
+            return pt.idx = i, m_maxRadius = Math.max(m_maxRadius, radius(d, i) + (stroke(d, i) ? strokeWidth(d, i) : 0)), 
+            pt;
+        }), m_rangeTree = new geo.util.RangeTree(pts);
+    }, this.pointSearch = function(p) {
+        var min, max, data, box, map, pt, idx = [], found = [], ifound = [], stroke = m_this.style().stroke, strokeWidth = m_this.style().strokeWidth, radius = m_this.style().radius;
+        return data = m_this.data(), m_this.data && m_this.data.length ? (map = m_this.layer().map(), 
+        pt = map.gcsToDisplay(p), min = map.displayToGcs({
+            x: pt.x - m_maxRadius,
+            y: pt.y + m_maxRadius
+        }), max = map.displayToGcs({
+            x: pt.x + m_maxRadius,
+            y: pt.y - m_maxRadius
+        }), box = new geo.util.Box(geo.util.vect(min.x, min.y), geo.util.vect(max.x, max.y)), 
+        m_rangeTree.search(box).forEach(function(q) {
+            idx.push(q.idx);
+        }), idx.forEach(function(i) {
+            var dx, dy, rad, d = data[i], p = m_this.position()(d, i);
+            rad = radius(data[i], i), rad += stroke(data[i], i) ? strokeWidth(data[i], i) : 0, 
+            p = map.gcsToDisplay(p), dx = p.x - pt.x, dy = p.y - pt.y, Math.sqrt(dx * dx + dy * dy) <= rad && (found.push(d), 
+            ifound.push(i));
+        }), {
+            data: found,
+            index: ifound
+        }) : {
+            found: [],
+            index: []
+        };
+    }, this.boxSearch = function(lowerLeft, upperRight) {
+        var pos = m_this.position(), idx = [];
+        return m_this.data().forEach(function(d, i) {
+            var p = pos(d);
+            p.x >= lowerLeft.x && p.x <= upperRight.x && p.y >= lowerLeft.y && p.y <= upperRight.y && idx.push(i);
+        }), idx;
+    }, this.data = function(data) {
+        return void 0 === data ? s_data() : (s_data(data), m_this._updateRangeTree(), m_this);
+    }, this.style = function(arg1, arg2) {
+        return void 0 === arg1 ? s_style() : (s_style(arg1, arg2), m_this._updateRangeTree(), 
+        m_this);
+    }, this._boundingBox = function(d) {
+        var pt, radius;
+        return pt = m_this.position()(d), pt = m_this.layer().map().gcsToDisplay(pt), radius = m_this.style().radius(d), 
+        {
+            min: {
+                x: pt.x - radius,
+                y: pt.y - radius
+            },
+            max: {
+                x: pt.x + radius,
+                y: pt.y + radius
+            }
+        };
     }, this._init = function(arg) {
         s_init.call(m_this, arg);
         var defaultStyle = $.extend({}, {
@@ -3363,12 +3770,16 @@ geo.map = function(arg) {
         }, void 0 === arg.style ? {} : arg.style);
         m_this.style(defaultStyle), m_position && m_this.dataTime().modified();
     }, m_this;
-}, inherit(geo.pointFeature, geo.feature), geo.lineFeature = function(arg) {
+}, geo.event.pointFeature = $.extend({}, geo.event.feature), inherit(geo.pointFeature, geo.feature), 
+geo.lineFeature = function(arg) {
     "use strict";
     if (!(this instanceof geo.lineFeature)) return new geo.lineFeature(arg);
     arg = arg || {}, geo.feature.call(this, arg);
-    var m_this = this, m_position = void 0 === arg.position ? [] : arg.position, s_init = this._init;
-    return this.position = function(val) {
+    var m_this = this, m_position = void 0 === arg.position ? null : arg.position, m_line = void 0 === arg.line ? null : arg.line, s_init = this._init;
+    return this.line = function(val) {
+        return void 0 === val ? m_line : (m_line = val, m_this.dataTime().modified(), m_this.modified(), 
+        m_this);
+    }, this.position = function(val) {
         return void 0 === val ? m_position : (m_position = val, m_this.dataTime().modified(), 
         m_this.modified(), m_this);
     }, this._init = function(arg) {
@@ -3380,8 +3791,8 @@ geo.map = function(arg) {
             strokeColor: function() {
                 return {
                     r: 1,
-                    g: 1,
-                    b: 1
+                    g: .8431372549,
+                    b: 0
                 };
             },
             strokeStyle: function() {
@@ -3929,37 +4340,63 @@ ggl = ogs.namespace("geo.gl"), ggl.renderer = function(arg) {
 ggl.lineFeature = function(arg) {
     "use strict";
     function createVertexShader() {
-        var vertexShaderSource = [ "attribute vec3 pos;", "attribute vec3 strokeColor;", "attribute float strokeOpacity;", "attribute float strokeWidth;", "uniform mat4 modelViewMatrix;", "uniform mat4 projectionMatrix;", "varying vec3 strokeColorVar;", "varying float strokeWidthVar;", "varying float strokeOpacityVar;", "void main(void)", "{", "  strokeColorVar = strokeColor;", "  strokeWidthVar = strokeWidth;", "  strokeOpacityVar = strokeOpacity;", "  vec4 p = (projectionMatrix * modelViewMatrix * vec4(pos, 1.0)).xyzw;", "  if (p.w != 0.0) {", "    p = p/p.w;", "  }", "  gl_Position = p;", "}" ].join("\n"), shader = new vgl.shader(gl.VERTEX_SHADER);
+        var vertexShaderSource = [ "attribute vec3 pos;", "attribute vec3 prev;", "attribute vec3 next;", "attribute float offset;", "attribute vec3 strokeColor;", "attribute float strokeOpacity;", "attribute float strokeWidth;", "uniform mat4 modelViewMatrix;", "uniform mat4 projectionMatrix;", "uniform float pixelWidth;", "varying vec3 strokeColorVar;", "varying float strokeWidthVar;", "varying float strokeOpacityVar;", "void main(void)", "{", "  vec4 worldPos = projectionMatrix * modelViewMatrix * vec4(pos.xyz, 1);", "  if (worldPos.w != 0.0) {", "    worldPos = worldPos/worldPos.w;", "  }", "  vec4 worldNext = projectionMatrix * modelViewMatrix * vec4(next.xyz, 1);", "  if (worldNext.w != 0.0) {", "    worldNext = worldNext/worldNext.w;", "  }", "  vec4 worldPrev = projectionMatrix* modelViewMatrix * vec4(prev.xyz, 1);", "  if (worldPrev.w != 0.0) {", "    worldPrev = worldPrev/worldPrev.w;", "  }", "  strokeColorVar = strokeColor;", "  strokeWidthVar = strokeWidth;", "  strokeOpacityVar = strokeOpacity;", "  vec2 deltaNext = worldNext.xy - worldPos.xy;", "  vec2 deltaPrev = worldPos.xy - worldPrev.xy;", "  float angleNext = atan(deltaNext.y, deltaNext.x);", "  float anglePrev = atan(deltaPrev.y, deltaPrev.x);", "  if (deltaPrev.xy == vec2(0, 0)) anglePrev = angleNext;", "  if (deltaNext.xy == vec2(0, 0)) angleNext = anglePrev;", "  float angle = (anglePrev + angleNext) / 2.0;", "  float distance = (offset * strokeWidth * pixelWidth) /", "                    cos(anglePrev - angle);", "  worldPos.x += distance * sin(angle);", "  worldPos.y -= distance * cos(angle);", "  vec4  p = worldPos;", "  gl_Position = p;", "}" ].join("\n"), shader = new vgl.shader(gl.VERTEX_SHADER);
         return shader.setShaderSource(vertexShaderSource), shader;
     }
     function createFragmentShader() {
-        var fragmentShaderSource = [ "#ifdef GL_ES", "  precision highp float;", "#endif", "varying vec3 strokeColorVar;", "varying float strokeWidthVar;", "varying float strokeOpacityVar;", "void main () {", "  gl_FragColor = vec4 (strokeColorVar, strokeOpacityVar);", "}" ], shader = new vgl.shader(gl.FRAGMENT_SHADER);
+        var fragmentShaderSource = [ "#ifdef GL_ES", "  precision highp float;", "#endif", "varying vec3 strokeColorVar;", "varying float strokeWidthVar;", "varying float strokeOpacityVar;", "void main () {", "  gl_FragColor = vec4 (strokeColorVar, strokeOpacityVar);", "}" ].join("\n"), shader = new vgl.shader(gl.FRAGMENT_SHADER);
         return shader.setShaderSource(fragmentShaderSource), shader;
     }
     function createGLLines() {
-        var i, start, posFunc, strokeWidthFunc, strokeColorFunc, strokeOpacityFunc, numPts = m_this.data().length, position = [], strokeWidth = [], strokeColor = [], strokeOpacity = [], buffers = vgl.DataBuffers(1024), sourcePositions = vgl.sourceDataP3fv(), sourceStokeWidth = vgl.sourceDataAnyfv(1, vgl.vertexAttributeKeys.CountAttributeIndex + 1), sourceStrokeColor = vgl.sourceDataAnyfv(3, vgl.vertexAttributeKeys.CountAttributeIndex + 2), sourceStrokeOpacity = vgl.sourceDataAnyfv(1, vgl.vertexAttributeKeys.CountAttributeIndex + 3), linesPrimitive = vgl.lines(), mat = vgl.material(), blend = vgl.blend(), prog = vgl.shaderProgram(), vertexShader = createVertexShader(), fragmentShader = createFragmentShader(), posAttr = vgl.vertexAttribute("pos"), stokeWidthAttr = vgl.vertexAttribute("strokeWidth"), strokeColorAttr = vgl.vertexAttribute("strokeColor"), strokeOpacityAttr = vgl.vertexAttribute("strokeOpacity"), modelViewUniform = new vgl.modelViewUniform("modelViewMatrix"), projectionUniform = new vgl.projectionUniform("projectionMatrix"), geom = vgl.geometryData(), mapper = vgl.mapper();
-        for (posFunc = m_this.position(), strokeWidthFunc = m_this.style().strokeWidth, 
-        strokeColorFunc = m_this.style().strokeColor, strokeOpacityFunc = m_this.style().strokeOpacity, 
-        m_this.data().forEach(function(item) {
-            var p = posFunc(item);
-            position.push([ p.x, p.y, p.z || 0 ]), strokeWidth.push(strokeWidthFunc(item)), 
-            strokeColor.push(strokeColorFunc(item)), strokeOpacity.push(strokeOpacityFunc(item));
+        var i, start, posFunc, strokeWidthFunc, strokeColorFunc, strokeOpacityFunc, prev = [], next = [], numPts = m_this.data().length, itemIndex = 0, lineItemIndex = 0, lineItem = null, p = null, position = [], strokeWidth = [], strokeColor = [], strokeOpacity = [], buffers = vgl.DataBuffers(1024), sourcePositions = vgl.sourceDataP3fv(), prevSourcePositions = vgl.sourceDataAnyfv(3, vgl.vertexAttributeKeysIndexed.Four), nextSourcePositions = vgl.sourceDataAnyfv(3, vgl.vertexAttributeKeysIndexed.Five), offsetSourcePositions = vgl.sourceDataAnyfv(1, vgl.vertexAttributeKeysIndexed.Six), sourceStokeWidth = vgl.sourceDataAnyfv(1, vgl.vertexAttributeKeysIndexed.One), sourceStrokeColor = vgl.sourceDataAnyfv(3, vgl.vertexAttributeKeysIndexed.Two), sourceStrokeOpacity = vgl.sourceDataAnyfv(1, vgl.vertexAttributeKeysIndexed.Three), trianglePrimitive = vgl.triangles(), mat = vgl.material(), blend = vgl.blend(), prog = vgl.shaderProgram(), vertexShader = createVertexShader(), fragmentShader = createFragmentShader(), posAttr = vgl.vertexAttribute("pos"), prevAttr = vgl.vertexAttribute("prev"), nextAttr = vgl.vertexAttribute("next"), offsetAttr = vgl.vertexAttribute("offset"), stokeWidthAttr = vgl.vertexAttribute("strokeWidth"), strokeColorAttr = vgl.vertexAttribute("strokeColor"), strokeOpacityAttr = vgl.vertexAttribute("strokeOpacity"), modelViewUniform = new vgl.modelViewUniform("modelViewMatrix"), projectionUniform = new vgl.projectionUniform("projectionMatrix"), pixelWidthUniform = new vgl.floatUniform("pixelWidth", 2 / m_this.renderer().width()), geom = vgl.geometryData(), mapper = vgl.mapper();
+        posFunc = m_this.position(), strokeWidthFunc = m_this.style().strokeWidth, strokeColorFunc = m_this.style().strokeColor, 
+        strokeOpacityFunc = m_this.style().strokeOpacity, m_this.data().forEach(function(item) {
+            lineItem = m_this.line()(item, itemIndex), lineItem.forEach(function(lineItemData) {
+                p = posFunc(item, itemIndex, lineItemData, lineItemIndex), position.push(p instanceof geo.latlng ? [ p.x(), p.y(), 0 ] : [ p.x, p.y, p.z || 0 ]), 
+                strokeWidth.push(strokeWidthFunc(item, itemIndex, lineItemData, lineItemIndex));
+                var sc = strokeColorFunc(item, itemIndex, lineItemData, lineItemIndex);
+                if (strokeColor.push([ sc.r, sc.g, sc.b ]), strokeOpacity.push(strokeOpacityFunc(item, itemIndex, lineItemData, lineItemIndex)), 
+                0 === lineItemIndex) {
+                    var posxx = position[position.length - 1];
+                    prev.push(posxx), position.push(posxx), prev.push(posxx), next.push(posxx), strokeWidth.push(strokeWidthFunc(item, itemIndex, lineItemData, lineItemIndex)), 
+                    strokeOpacity.push(strokeOpacityFunc(item, itemIndex, lineItemData, lineItemIndex)), 
+                    strokeColor.push([ sc.r, sc.g, sc.b ]);
+                } else prev.push(position[position.length - 2]), next.push(position[position.length - 1]);
+                lineItemIndex += 1;
+            }), next.push(position[position.length - 1]), lineItemIndex = 0, itemIndex += 1;
         }), position = geo.transform.transformCoordinates(m_this.gcs(), m_this.layer().map().gcs(), position, 3), 
-        buffers.create("pos", 3), buffers.create("indices", 1), buffers.create("strokeWidth", 1), 
-        buffers.create("strokeColor", 3), buffers.create("strokeOpacity", 1), prog.addVertexAttribute(posAttr, vgl.vertexAttributeKeys.Position), 
-        prog.addVertexAttribute(stokeWidthAttr, vgl.vertexAttributeKeys.CountAttributeIndex + 1), 
-        prog.addVertexAttribute(strokeColorAttr, vgl.vertexAttributeKeys.CountAttributeIndex + 2), 
-        prog.addVertexAttribute(strokeOpacityAttr, vgl.vertexAttributeKeys.CountAttributeIndex + 3), 
-        prog.addUniform(modelViewUniform), prog.addUniform(projectionUniform), prog.addShader(fragmentShader), 
+        prev = geo.transform.transformCoordinates(m_this.gcs(), m_this.layer().map().gcs(), prev, 3), 
+        next = geo.transform.transformCoordinates(m_this.gcs(), m_this.layer().map().gcs(), next, 3), 
+        buffers.create("pos", 3), buffers.create("next", 3), buffers.create("prev", 3), 
+        buffers.create("offset", 1), buffers.create("indices", 1), buffers.create("strokeWidth", 1), 
+        buffers.create("strokeColor", 3), buffers.create("strokeOpacity", 1), numPts = position.length, 
+        prog.addVertexAttribute(posAttr, vgl.vertexAttributeKeys.Position), prog.addVertexAttribute(stokeWidthAttr, vgl.vertexAttributeKeysIndexed.One), 
+        prog.addVertexAttribute(strokeColorAttr, vgl.vertexAttributeKeysIndexed.Two), prog.addVertexAttribute(strokeOpacityAttr, vgl.vertexAttributeKeysIndexed.Three), 
+        prog.addVertexAttribute(prevAttr, vgl.vertexAttributeKeysIndexed.Four), prog.addVertexAttribute(nextAttr, vgl.vertexAttributeKeysIndexed.Five), 
+        prog.addVertexAttribute(offsetAttr, vgl.vertexAttributeKeysIndexed.Six), prog.addUniform(modelViewUniform), 
+        prog.addUniform(projectionUniform), prog.addUniform(pixelWidthUniform), prog.addShader(fragmentShader), 
         prog.addShader(vertexShader), mat.addAttribute(prog), mat.addAttribute(blend), m_actor = vgl.actor(), 
-        m_actor.setMaterial(mat), start = buffers.alloc(numPts), i = 0; numPts > i; i += 1) buffers.write("pos", position[i], start + i, 1), 
-        buffers.write("indices", [ i ], start + i, 1), buffers.write("strokeWidth", [ strokeWidth[i] ], start + 1 * i, 1), 
-        buffers.write("strokeColor", strokeColor[i], start + 1 * i, 1), buffers.write("strokeOpacity", [ strokeOpacity[i] ], start + 1 * i, 1);
-        sourcePositions.pushBack(buffers.get("pos")), geom.addSource(sourcePositions), sourceStokeWidth.pushBack(buffers.get("strokeWidth")), 
+        m_actor.setMaterial(mat), start = buffers.alloc(6 * numPts);
+        var currentIndex = start;
+        for (i = 0; numPts > i; i += 1) buffers.repeat("strokeWidth", [ strokeWidth[i] ], start + 6 * i, 6), 
+        buffers.repeat("strokeColor", strokeColor[i], start + 6 * i, 6), buffers.repeat("strokeOpacity", [ strokeOpacity[i] ], start + 6 * i, 6);
+        var addVert = function(p, c, n, offset) {
+            buffers.write("prev", p, currentIndex, 1), buffers.write("pos", c, currentIndex, 1), 
+            buffers.write("next", n, currentIndex, 1), buffers.write("offset", [ offset ], currentIndex, 1), 
+            buffers.write("indices", [ currentIndex ], currentIndex, 1), currentIndex += 1;
+        };
+        for (i = 1; i < position.length; i += 1) addVert(prev[i - 1], position[i - 1], next[i - 1], 1), 
+        addVert(prev[i], position[i], next[i], -1), addVert(prev[i - 1], position[i - 1], next[i - 1], -1), 
+        addVert(prev[i - 1], position[i - 1], next[i - 1], 1), addVert(prev[i], position[i], next[i], 1), 
+        addVert(prev[i], position[i], next[i], -1);
+        sourcePositions.pushBack(buffers.get("pos")), geom.addSource(sourcePositions), prevSourcePositions.pushBack(buffers.get("prev")), 
+        geom.addSource(prevSourcePositions), nextSourcePositions.pushBack(buffers.get("next")), 
+        geom.addSource(nextSourcePositions), sourceStokeWidth.pushBack(buffers.get("strokeWidth")), 
         geom.addSource(sourceStokeWidth), sourceStrokeColor.pushBack(buffers.get("strokeColor")), 
         geom.addSource(sourceStrokeColor), sourceStrokeOpacity.pushBack(buffers.get("strokeOpacity")), 
-        geom.addSource(sourceStrokeOpacity), linesPrimitive.setIndices(buffers.get("indices")), 
-        geom.addPrimitive(linesPrimitive), mapper.setGeometryData(geom), m_actor.setMapper(mapper);
+        geom.addSource(sourceStrokeOpacity), offsetSourcePositions.pushBack(buffers.get("offset")), 
+        geom.addSource(offsetSourcePositions), trianglePrimitive.setIndices(buffers.get("indices")), 
+        geom.addPrimitive(trianglePrimitive), mapper.setGeometryData(geom), m_actor.setMapper(mapper);
     }
     if (!(this instanceof ggl.lineFeature)) return new ggl.lineFeature(arg);
     arg = arg || {}, geo.lineFeature.call(this, arg);
@@ -3984,12 +4421,14 @@ ggl.pointFeature = function(arg) {
         return shader.setShaderSource(vertexShaderSource), shader;
     }
     function createFragmentShader() {
-        var fragmentShaderSource = [ "#ifdef GL_ES", "  precision highp float;", "#endif", "uniform float aspect;", "varying vec3 unitVar;", "varying vec4 fillColorVar;", "varying vec4 strokeColorVar;", "varying float radiusVar;", "varying float strokeWidthVar;", "varying float fillVar;", "varying float strokeVar;", "bool to_bool (in float value) {", "  if (value < 1.0)", "    return false;", "  else", "    return true;", "}", "void main () {", "  bool fill = to_bool (fillVar);", "  bool stroke = to_bool (strokeVar);", "  vec4 strokeColor, fillColor;", "  // No stroke or fill implies nothing to draw", "  if (!fill && !stroke)", "    discard;", "  // Get normalized texture coordinates and polar r coordinate", "  vec2 tex = (unitVar.xy + 1.0) / 2.0;", "  float rad = length (unitVar.xy);", "  // If there is no stroke, the fill region should transition to nothing", "  if (!stroke)", "    strokeColor = vec4 (fillColorVar.rgb, 0.0);", "  else", "    strokeColor = strokeColorVar;", "  // Likewise, if there is no fill, the stroke should transition to nothing", "  if (!fill)", "    fillColor = vec4 (strokeColor.rgb, 0.0);", "  else", "    fillColor = fillColorVar;", "  float radiusWidth = radiusVar;", "  // Distance to antialias over", "  float antialiasDist = 3.0 / (2.0 * radiusVar);", "  if (rad < (radiusWidth / (radiusWidth + strokeWidthVar))) {", "    float endStep = radiusWidth / (radiusWidth + strokeWidthVar);", "    float step = smoothstep (endStep - antialiasDist, endStep, rad);", "    gl_FragColor = mix (fillColorVar, strokeColorVar, step);", "  }", "  else {", "    float step = smoothstep (1.0 - antialiasDist, 1.0, rad);", "    gl_FragColor = mix (strokeColor, vec4 (strokeColor.rgb, 0.0), step);", "  }", "}" ].join("\n"), shader = new vgl.shader(gl.FRAGMENT_SHADER);
+        var fragmentShaderSource = [ "#ifdef GL_ES", "  precision highp float;", "#endif", "uniform float aspect;", "varying vec3 unitVar;", "varying vec4 fillColorVar;", "varying vec4 strokeColorVar;", "varying float radiusVar;", "varying float strokeWidthVar;", "varying float fillVar;", "varying float strokeVar;", "bool to_bool (in float value) {", "  if (value < 1.0)", "    return false;", "  else", "    return true;", "}", "void main () {", "  bool fill = to_bool (fillVar);", "  bool stroke = to_bool (strokeVar);", "  vec4 strokeColor, fillColor;", "  // No stroke or fill implies nothing to draw", "  if (!fill && !stroke)", "    discard;", "  // Get normalized texture coordinates and polar r coordinate", "  vec2 tex = (unitVar.xy + 1.0) / 2.0;", "  float rad = length (unitVar.xy);", "  // If there is no stroke, the fill region should transition to nothing", "  if (!stroke)", "    strokeColor = vec4 (fillColorVar.rgb, 0.0);", "  else", "    strokeColor = strokeColorVar;", "  // Likewise, if there is no fill, the stroke should transition to nothing", "  if (!fill)", "    fillColor = vec4 (strokeColor.rgb, 0.0);", "  else", "    fillColor = fillColorVar;", "  float radiusWidth = radiusVar;", "  // Distance to antialias over", "  float antialiasDist = 3.0 / (2.0 * radiusVar);", "  if (rad < (radiusWidth / (radiusWidth + strokeWidthVar))) {", "    float endStep = radiusWidth / (radiusWidth + strokeWidthVar);", "    float step = smoothstep (endStep - antialiasDist, endStep, rad);", "    gl_FragColor = mix (fillColor, strokeColor, step);", "  }", "  else {", "    float step = smoothstep (1.0 - antialiasDist, 1.0, rad);", "    gl_FragColor = mix (strokeColor, vec4 (strokeColor.rgb, 0.0), step);", "  }", "}" ].join("\n"), shader = new vgl.shader(gl.FRAGMENT_SHADER);
         return shader.setShaderSource(fragmentShaderSource), shader;
     }
     function createGLPoints() {
-        var i, start, posFunc, radFunc, strokeWidthFunc, fillColorFunc, fillFunc, strokeColorFunc, strokeFunc, fillOpacityFunc, strokeOpactityFunc, numPts = m_this.data().length, unit = rect(0, 0, 1, 1), position = [], radius = [], strokeWidth = [], fillColor = [], fill = [], strokeColor = [], stroke = [], fillOpacity = [], strokeOpacity = [], buffers = vgl.DataBuffers(1024), sourcePositions = vgl.sourceDataP3fv(), sourceUnits = vgl.sourceDataAnyfv(2, vgl.vertexAttributeKeysIndexed.One), sourceRadius = vgl.sourceDataAnyfv(1, vgl.vertexAttributeKeysIndexed.Two), sourceStokeWidth = vgl.sourceDataAnyfv(1, vgl.vertexAttributeKeysIndexed.Three), sourceFillColor = vgl.sourceDataAnyfv(3, vgl.vertexAttributeKeysIndexed.Four), sourceFill = vgl.sourceDataAnyfv(1, vgl.vertexAttributeKeysIndexed.Five), sourceStrokeColor = vgl.sourceDataAnyfv(3, vgl.vertexAttributeKeysIndexed.Six), sourceStroke = vgl.sourceDataAnyfv(1, vgl.vertexAttributeKeysIndexed.Seven), sourceAlpha = vgl.sourceDataAnyfv(1, vgl.vertexAttributeKeysIndexed.Eight), sourceStrokeOpacity = vgl.sourceDataAnyfv(1, vgl.vertexAttributeKeysIndexed.Nine), trianglesPrimitive = vgl.triangles(), mat = vgl.material(), blend = vgl.blend(), prog = vgl.shaderProgram(), vertexShader = createVertexShader(), fragmentShader = createFragmentShader(), posAttr = vgl.vertexAttribute("pos"), unitAttr = vgl.vertexAttribute("unit"), radAttr = vgl.vertexAttribute("rad"), stokeWidthAttr = vgl.vertexAttribute("strokeWidth"), fillColorAttr = vgl.vertexAttribute("fillColor"), fillAttr = vgl.vertexAttribute("fill"), strokeColorAttr = vgl.vertexAttribute("strokeColor"), strokeAttr = vgl.vertexAttribute("stroke"), fillOpacityAttr = vgl.vertexAttribute("fillOpacity"), strokeOpacityAttr = vgl.vertexAttribute("strokeOpacity"), pixelWidthUniform = new vgl.floatUniform("pixelWidth", 2 / m_this.renderer().width()), aspectUniform = new vgl.floatUniform("aspect", m_this.renderer().width() / m_this.renderer().height()), modelViewUniform = new vgl.modelViewUniform("modelViewMatrix"), projectionUniform = new vgl.projectionUniform("projectionMatrix"), geom = vgl.geometryData(), mapper = vgl.mapper();
-        for (posFunc = m_this.position(), radFunc = m_this.style().radius, strokeWidthFunc = m_this.style().strokeWidth, 
+        var i, start, posFunc, radFunc, strokeWidthFunc, fillColorFunc, fillFunc, strokeColorFunc, strokeFunc, fillOpacityFunc, strokeOpactityFunc, numPts = m_this.data().length, unit = rect(0, 0, 1, 1), position = [], radius = [], strokeWidth = [], fillColor = [], fill = [], strokeColor = [], stroke = [], fillOpacity = [], strokeOpacity = [], buffers = vgl.DataBuffers(1024), sourcePositions = vgl.sourceDataP3fv(), sourceUnits = vgl.sourceDataAnyfv(2, vgl.vertexAttributeKeysIndexed.One), sourceRadius = vgl.sourceDataAnyfv(1, vgl.vertexAttributeKeysIndexed.Two), sourceStokeWidth = vgl.sourceDataAnyfv(1, vgl.vertexAttributeKeysIndexed.Three), sourceFillColor = vgl.sourceDataAnyfv(3, vgl.vertexAttributeKeysIndexed.Four), sourceFill = vgl.sourceDataAnyfv(1, vgl.vertexAttributeKeysIndexed.Five), sourceStrokeColor = vgl.sourceDataAnyfv(3, vgl.vertexAttributeKeysIndexed.Six), sourceStroke = vgl.sourceDataAnyfv(1, vgl.vertexAttributeKeysIndexed.Seven), sourceAlpha = vgl.sourceDataAnyfv(1, vgl.vertexAttributeKeysIndexed.Eight), sourceStrokeOpacity = vgl.sourceDataAnyfv(1, vgl.vertexAttributeKeysIndexed.Nine), trianglesPrimitive = vgl.triangles(), mat = vgl.material(), blend = vgl.blend(), prog = vgl.shaderProgram(), vertexShader = createVertexShader(), fragmentShader = createFragmentShader(), posAttr = vgl.vertexAttribute("pos"), unitAttr = vgl.vertexAttribute("unit"), radAttr = vgl.vertexAttribute("rad"), stokeWidthAttr = vgl.vertexAttribute("strokeWidth"), fillColorAttr = vgl.vertexAttribute("fillColor"), fillAttr = vgl.vertexAttribute("fill"), strokeColorAttr = vgl.vertexAttribute("strokeColor"), strokeAttr = vgl.vertexAttribute("stroke"), fillOpacityAttr = vgl.vertexAttribute("fillOpacity"), strokeOpacityAttr = vgl.vertexAttribute("strokeOpacity"), modelViewUniform = new vgl.modelViewUniform("modelViewMatrix"), projectionUniform = new vgl.projectionUniform("projectionMatrix"), geom = vgl.geometryData(), mapper = vgl.mapper();
+        for (m_pixelWidthUniform = new vgl.floatUniform("pixelWidth", 2 / m_this.renderer().width()), 
+        m_aspectUniform = new vgl.floatUniform("aspect", m_this.renderer().width() / m_this.renderer().height()), 
+        posFunc = m_this.position(), radFunc = m_this.style().radius, strokeWidthFunc = m_this.style().strokeWidth, 
         fillColorFunc = m_this.style().fillColor, fillFunc = m_this.style().fill, strokeColorFunc = m_this.style().strokeColor, 
         strokeFunc = m_this.style().stroke, fillOpacityFunc = m_this.style().fillOpacity, 
         strokeOpactityFunc = m_this.style().strokeOpacity, m_this.data().forEach(function(item) {
@@ -4008,7 +4447,7 @@ ggl.pointFeature = function(arg) {
         prog.addVertexAttribute(fillAttr, vgl.vertexAttributeKeysIndexed.Five), prog.addVertexAttribute(strokeColorAttr, vgl.vertexAttributeKeysIndexed.Six), 
         prog.addVertexAttribute(strokeAttr, vgl.vertexAttributeKeysIndexed.Seven), prog.addVertexAttribute(fillOpacityAttr, vgl.vertexAttributeKeysIndexed.Eight), 
         prog.addVertexAttribute(strokeOpacityAttr, vgl.vertexAttributeKeysIndexed.Nine), 
-        prog.addUniform(pixelWidthUniform), prog.addUniform(aspectUniform), prog.addUniform(modelViewUniform), 
+        prog.addUniform(m_pixelWidthUniform), prog.addUniform(m_aspectUniform), prog.addUniform(modelViewUniform), 
         prog.addUniform(projectionUniform), prog.addShader(fragmentShader), prog.addShader(vertexShader), 
         mat.addAttribute(prog), mat.addAttribute(blend), m_actor = vgl.actor(), m_actor.setMaterial(mat), 
         start = buffers.alloc(6 * numPts), i = 0; numPts > i; i += 1) buffers.repeat("pos", position[i], start + 6 * i, 6), 
@@ -4030,7 +4469,7 @@ ggl.pointFeature = function(arg) {
     }
     if (!(this instanceof ggl.pointFeature)) return new ggl.pointFeature(arg);
     arg = arg || {}, geo.pointFeature.call(this, arg);
-    var m_this = this, m_actor = null, s_init = this._init, s_update = this._update, rect = function(x, y, w, h) {
+    var m_this = this, m_actor = null, m_pixelWidthUniform = null, m_aspectUniform = null, s_init = this._init, s_update = this._update, rect = function(x, y, w, h) {
         var verts = [ x - w, y + h, x - w, y - h, x + w, y + h, x - w, y - h, x + w, y - h, x + w, y + h ];
         return verts;
     };
@@ -4042,6 +4481,7 @@ ggl.pointFeature = function(arg) {
         m_this.buildTime().modified();
     }, this._update = function() {
         s_update.call(m_this), (m_this.dataTime().getMTime() >= m_this.buildTime().getMTime() || m_this.updateTime().getMTime() < m_this.getMTime()) && m_this._build(), 
+        m_pixelWidthUniform.set(2 / m_this.renderer().width()), m_aspectUniform.set(m_this.renderer().width() / m_this.renderer().height()), 
         m_actor.setVisible(m_this.visible()), m_actor.material().setBinNumber(m_this.bin()), 
         m_this.updateTime().modified();
     }, this._exit = function() {
@@ -4087,7 +4527,7 @@ ggl.geomFeature = function(arg) {
         m_this.visible(!0), m_onloadCallback && m_onloadCallback.call(m_this)) : image.onload = function() {
             texture.setImage(image), m_actor.material().addAttribute(texture), m_this.visible(!0), 
             m_onloadCallback && m_onloadCallback.call(m_this), m_this.drawOnAsyncResourceLoad() && (m_this._update(), 
-            m_this.layer()._draw());
+            m_this.layer().draw());
         }) : (m_actor = vgl.utils.createPlane(or[0], or[1], or[2], ul[0], ul[1], ul[2], lr[0], lr[1], lr[2]), 
         m_this.renderer().contextRenderer().addActor(m_actor));
     }, this._update = function() {
@@ -4105,11 +4545,10 @@ ggl._vglViewerInstances = {
     "use strict";
     function makeViewer() {
         var canvas = $(document.createElement("canvas"));
-        canvas.attr("class", ".webgl-canvas");
+        canvas.attr("class", "webgl-canvas");
         var viewer = vgl.viewer(canvas.get(0));
-        viewer.renderWindow().removeRenderer(viewer.renderWindow().activeRenderer()); 
-        viewer.init();
-        return viewer;
+        return viewer.renderWindow().removeRenderer(viewer.renderWindow().activeRenderer()), 
+        viewer.init(), viewer;
     }
     var mapIdx, maps = ggl._vglViewerInstances.maps, viewers = ggl._vglViewerInstances.viewers;
     for (mapIdx = 0; mapIdx < maps.length && map !== maps[mapIdx]; mapIdx += 1) ;
