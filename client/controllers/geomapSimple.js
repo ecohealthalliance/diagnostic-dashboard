@@ -33,7 +33,7 @@
                 that.resize();
             });
 
-            this._osm = this._map.createLayer('osm');
+            this._osm = this._map.createLayer('osm', {'baseUrl': 'http://otile1.mqcdn.com/tiles/1.0.0/osm/'});
 
             this._layer = this._map.createLayer('feature', {'renderer': 'd3Renderer'});
             this._feature = this._layer.createFeature('point');
@@ -57,6 +57,7 @@
         },
         resize: function () {
             this.map().resize(0, 0, this.options.width, this.options.height);
+            this.map().draw();
         },
         update: function () {
             var that = this;
