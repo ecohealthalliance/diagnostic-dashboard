@@ -57,7 +57,7 @@
         },
         resize: function () {
             this.map().resize(0, 0, this.options.width, this.options.height);
-            this.map().draw();
+            this.map().zoom(this.map().zoom() + 0.001); // this is a hack...
         },
         update: function () {
             var that = this;
