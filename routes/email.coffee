@@ -5,17 +5,14 @@ Router.map () ->
     path: '/internal/submit-by-email'
     where: 'server'
     action: () ->
-      email = @request.body.email
+      messageObject = JSON.parse(@request.body.email)
 
-      from = email.split("\nFrom:")?[1]?.split("<")?[1]?.split(">")?[0]
-      subject = email.split("\nSubject: ")?[1]?.split("\n")[0]
-      messageId = email.split("Message-ID: <")?[1]?.split(">")?[0].replace(/\s/g, "+")
-      date = /Date:\s(.*)/.exec(email)?[1]
-
-      boundary = /boundary=([0-9a-f]{28})/.exec(email)?[1]
-      content = email.split("--#{boundary}")?[1].replace(/\sContent-Type:\s.*\s/, "")
+      from = messageObject["From"].split("<")?[1]?.split(">")?[0]
+      date = messageObject["Date"]
+      content = messageObject["body"]
 
       user = Meteor.users.findOne({'emails.0.address': from})
+      
       submissionId = Meteor.call('submit', content, user?._id)
       checkResult = () ->
         result = Results.findOne({_id: submissionId})
@@ -28,7 +25,7 @@ Router.map () ->
             for disease in result.diseases
               message += "#{disease.name}: #{disease.probability}\n"
           url = Meteor.absoluteUrl("dash/#{submissionId}")
-          domain = Meteor.absoluteUrl().replace(/https?:\/\//, "").replace(/\//, "")
+          
           message += "\nView the dashboard: #{url}\n"
 
           message += "\n\nOn #{date}, #{from} wrote:\n"
@@ -37,14 +34,17 @@ Router.map () ->
               message += "> #{line}\n"
             else
               message += ">\n"
-
+          
+          domain = Meteor.absoluteUrl().replace(/https?:\/\//, "").replace(/\//, "")
+          subject = messageObject["Subject"]
+          
           Email.send(
             from: "grits@#{domain}"
             to: from
             subject: "Re: #{subject}"
             text: message
             headers:
-              "In-Reply-To": "<#{messageId}>"
+              "In-Reply-To": messageObject["Message-ID"]
               "Reply-To": "feedback@ecohealth.io"
           )
         else
