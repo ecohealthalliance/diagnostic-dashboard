@@ -44,7 +44,6 @@ Router.map () ->
     waitOn: () ->
       Meteor.subscribe('results')
       Meteor.subscribe('item')
-
     data: () ->
       Results.findOne(@params._id)
     onStop: () ->
