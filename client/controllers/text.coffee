@@ -16,26 +16,33 @@ Template.text.highlight = (content) ->
   if features and content and (features instanceof Array)
     Template.dash.setActiveFeatureStyle()
     if features.length > 0
-      # sort occurrences in descending order of start, so that we can add them
-      # to the content string from end to beginning, so that offsets remain
-      # valid.
       featuresByOccurrence = []
       for feature in features
         for occurrence in feature.textOffsets
-          newFeature = _.clone feature
-          newFeature.occurrence = occurrence
-          featuresByOccurrence.push newFeature
-      featuresByOccurrence = _.sortBy(featuresByOccurrence, (feature) -> - feature.occurrence[0])
-      highlightedContent = content
+          featuresByOccurrence.push
+            name: feature.name
+            feature: feature
+            occurrence: occurrence
+      featuresByOccurrence = _.sortBy(featuresByOccurrence, (feature) -> feature.occurrence[0])
+      highlightedContent = ''
+      last_idx = 0
       for feature in featuresByOccurrence
         occurrence = feature.occurrence
-        bgColor = color(feature)
-        openSpan = "<span class='label' style='background-color:#{bgColor}; box-shadow: 0px 0px 0px 2px #{bgColor}'>"
-        closeSpan = "</span>"
-        highlightedContent = highlightedContent.substring(0, occurrence[0]) +
-          openSpan + highlightedContent.substring(occurrence[0], occurrence[1]) +
-          closeSpan + highlightedContent.substring(occurrence[1])
-      new Spacebars.SafeString(highlightedContent)
+        highlightedContent += content.substring(last_idx, occurrence[0])
+        if feature.feature.color
+          bgColor = feature.feature.color
+        else
+          bgColor = color(feature.feature)
+        highlightText = content.substring(occurrence[0], occurrence[1])
+        highlightedContent += """<span
+          class='label'
+          style='
+            background-color:#{bgColor};
+            box-shadow: 0px 0px 0px 2px #{bgColor};
+          '>#{highlightText}</span>"""
+        last_idx = occurrence[1]
+      highlightedContent += content.substring(last_idx, content.length)
+      return new Spacebars.SafeString(highlightedContent)
     else
       content
   else
