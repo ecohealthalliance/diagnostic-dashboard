@@ -63,7 +63,7 @@ Template.search.rendered = () ->
 
 Template.search.updatePanes = () ->
   data = []
-
+  
   locationFeatures = grits.Girder.Items.find().fetch()
 
   # we can probably get a better location name from the diagnosis
@@ -90,7 +90,6 @@ Keywords = () =>
   @grits.Girder.Keywords
 
 Template.search.diseaseCompleteSettings = ()->
-  console.log "@grits", @grits
   {
    position: "top",
    limit: 5,

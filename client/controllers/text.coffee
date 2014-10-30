@@ -12,6 +12,7 @@ color = (feature) =>
 
 Template.text.highlight = (content) ->
   features = Session.get('features')
+
   # offset-based information for locations
   if features and content and (features instanceof Array)
     Template.dash.setActiveFeatureStyle()

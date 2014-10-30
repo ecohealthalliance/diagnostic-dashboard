@@ -44,11 +44,7 @@ Router.map () ->
     waitOn: () ->
       Meteor.subscribe('results')
       Meteor.subscribe('item')
-      Meteor.subscribe('diseases')
-      Meteor.subscribe('hosts')
-      Meteor.subscribe('symptoms')
-      Meteor.subscribe('pathogens')
-      Meteor.subscribe('modes')
+
     data: () ->
       Results.findOne(@params._id)
     onStop: () ->
