@@ -11,8 +11,5 @@ cd bundle/programs/server/node_modules
 rm -rf fibers
 npm install fibers
 cd ../../../..
-# Restart the forever server process
-forever stop bundle/main.js || echo "no forever running"
-source config
+sudo supervisorctl restart dashboard
 mongo .scripts/autocompleteCollections.js
-forever -a -o output.log -e error.log start bundle/main.js

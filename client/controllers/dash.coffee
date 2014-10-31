@@ -1,3 +1,4 @@
+DISABLE_MULTI_HIGHLIGHT = true
 setHeights = () ->
 
   # width of the diagnostic side panal
@@ -94,9 +95,21 @@ Template.dash.updatePanes = () ->
 Template.dash.eq = (a, b) ->
   a == b
 
-Template.dash.showCategory = (category, features) ->
-  if category in ['datetime', 'caseCount', 'deathCount', 'hospitalizationCount', 'location', 'diseases', 'hosts', 'modes', 'pathogens', 'symptoms']
-    _.any(@features or features, (feature) ->
+Template.dash.showCategory = (category, keywords) ->
+  visibleCats = [
+    'datetime'
+    'location'
+    'caseCount'
+    'deathCount'
+    'hospitalizationCount'
+    'diseases'
+    'hosts'
+    'modes'
+    'pathogens'
+    'symptoms'
+  ]
+  if category in visibleCats
+    _.any(@features, (feature) ->
       feature.type is category
     )
   else
@@ -106,9 +119,13 @@ Template.dash.showCategory = (category, features) ->
       )
     )
 
-Template.dash.hasCategory = (keywordCategories, category) ->
+Template.dash.showKeypoints = ()->
+  Session.get('showKeypoints')
+
+Template.dash.hasCategory = (keywordCategories, categoryPattern) ->
+  categoryRegex = new RegExp(categoryPattern)
   _.any(keywordCategories, (keywordCategory) ->
-    keywordCategory.indexOf(category) >= 0
+    keywordCategory.match(categoryRegex)
   )
 
 Template.dash.formatLocation = () ->
@@ -120,9 +137,20 @@ Template.dash.formatLocation = () ->
   location
 
 Template.dash.formatDate = () ->
-  date = new Date(@value)
-  date.setDate(date.getDate() + 1)
-  date.toLocaleDateString()
+  if @value == "PAST_REF"
+    return "Past reference"
+  else if @value == "PRESENT_REF"
+    return "Present reference"
+  else if @value == "FUTURE_REF"
+    return "Future reference"
+  else
+    date = new Date(@value)
+    date.setDate(date.getDate() + 1)
+    dateString = date.toLocaleDateString()
+    if dateString == 'Invalid Date'
+      return @value
+    else
+      return dateString
 
 Template.dash.color = () ->
   if @categories
@@ -138,16 +166,7 @@ Template.dash.getIdKey = () ->
   Template.dash.getIdKeyFromFeature @
 
 Template.dash.getIdKeyFromFeature = (feature) ->
-  if feature.categories
-    idKey = feature.categories[0] + '_' + feature.name
-  else if feature.type in ['caseCount', 'hospitalizationCount', 'deathCount', 'datetime', 'adding', 'diseases', 'hosts', 'modes', 'pathogens', 'symptoms']
-    idKey = feature.type + '_' + feature.value
-  else if feature.type in ['location']
-    idKey = feature.type + '_' + feature.name
-  else if feature.text in ['datetime']
-    idKey = feature.type + '_' + feature.text
-
-  idKey.replace(/[^A-Za-z0-9]/g, '_')
+  return '_' + _.indexOf(Session.get('features'), feature)
 
 Template.dash.setActiveFeatureStyle = () ->
 
@@ -200,7 +219,6 @@ Template.dash.tableSettings = () ->
 Template.dash.keywordCategories = () =>
   @grits.KEYWORD_CATEGORIES
 
-
 Template.dash.events
   "click .pane:not(.maximized)": (event) ->
     selectedPane = $(event.currentTarget)
@@ -229,12 +247,54 @@ Template.dash.events
       currentFeatures.push(this)
       Session.set('features', currentFeatures)
 
+  "click .diagnosis .keypoint" : (event) ->
+    $('.keypoint.selected').removeClass('selected')
+    $(event.currentTarget).addClass('selected')
+    this.color = 'goldenrod'
+    Session.set('features', [this])
+
   "click .reset-panels": (event) ->
     setHeights()
 
-  "click .open-feedback": (event) =>
+  "click .open-feedback": (event) ->
+    feedbackBaseData = {
+      userId: Meteor.userId()
+      diagnosisId: @._id
+    }
+    storedFeedback = grits.feedback.findOne(feedbackBaseData)
+    # Dynamically load disease names for the autocomplete
+    Meteor.subscribe('diseaseNames')
+    # Clear the missing diseases collection
+    missingDiseases.find().fetch().forEach((d)->
+      missingDiseases.remove(d._id)
+    )
+    if storedFeedback
+      Session.set('feedbackId', storedFeedback._id)
+      # Repopulate feedback form so users can edit it later
+      $('[name="comments"]').val(storedFeedback.comments)
+      $('[name="general_comments"]').val(storedFeedback.generalComments)
+      storedFeedback.correctDiseases?.forEach((d)->
+        $('[name="' + d + '-correct"][value=true]').prop('checked', true)
+      )
+      storedFeedback.incorrectDiseases?.forEach((d)->
+        $('[name="' + d + '-correct"][value=false]').prop('checked', true)
+      )
+      storedFeedback.missingDiseases?.forEach((d)->
+        missingDiseases.insert(name : d)
+      )
+    else
+      Session.set('feedbackId', grits.feedback.insert(
+        _.extend({created: new Date()}, feedbackBaseData))
+      )
     $('form.feedback').show()
 
+  "click .rediagnose": (event) ->
+    Meteor.call('rediagnose', @, (error, resultId) ->
+      if error
+        alert "Could not rediagnose: " + error.message
+      else
+        Router.go 'dash', {_id: resultId}
+    )
   "click .features h4": (event, template) ->
     category = $(event.target).attr('class')
     if category in ['caseCount', 'hospitalizationCount', 'deathCount', 'datetime', 'diseases', 'hosts', 'modes', 'pathogens', 'symptoms']

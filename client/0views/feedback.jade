@@ -11,8 +11,15 @@ template(name="feedback")
           | &nbsp;
           input.correct(type="radio" name="{{name}}-correct" value="false")
           | No
-      label.control-label(for="missing_diseases") Please list any missing diseases separated by commas:
-      textarea.form-control(name="missing_diseases")
+      label.control-label Please add any missing diseases:
+      div
+        each missingDiseases
+          div
+            input(readonly=readonly value="{{name}}") 
+            i.fa.fa-times-circle(data-name="{{name}}" class="remove-disease" style="color:crimson;")
+      +inputAutocomplete settings=diseaseCompleteSettings id="new-disease" name="missing_diseases" class="input-xlarge"
+      button(id="add-disease" type="button") Add
+      br
       label.control-label(for="comments") Diagnosis Comments:
       textarea.form-control(name="comments")
       label.control-label(for="general_comments") General Dashboard Feedback:

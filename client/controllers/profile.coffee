@@ -8,14 +8,19 @@ Template.profile.tableSettings = () ->
       label: 'Date'
       sort: -1
       fn: (date) ->
-        new Date(date).toDateString()
+        date = if date then new Date(date) else new Date(0)
+        dateString = date.toDateString()
+        sortString = date.toISOString()
+        # The column is sorted by this string, so the sort string comes first
+        new Spacebars.SafeString("<span value=#{sortString}>#{dateString}</span>")
     },
     {
       key: 'diseases'
       label: 'Diagnosis'
       fn: (diseases) ->
-        diseaseNames = (disease.name for disease in diseases)
-        diseaseNames.join(", ")
+        if diseases
+          diseaseNames = (disease.name for disease in diseases)
+          diseaseNames.join(", ")
     },
     {
       key: 'content'

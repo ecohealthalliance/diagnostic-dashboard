@@ -1,76 +1,75 @@
 /*jslint browser: true, unparam: true*/
 /*global Template*/
 
-(function (tangelo, $, geo, d3) {
+(function ($, geo, d3) {
     'use strict';
 
     var widgetSpec = {
         options: {
             data: [],
             target: null,
-            pointSize: {'value': 5},
-            lineWidth: {'value': 1},
+            pointSize: 5,
+            lineWidth: 1,
             width: 400,
             height: 400
         },
         _create: function () {
-          var that = this;
-          this._super();
-          this.element.on('rescale', function () {
-              that._rescale();
-          });
-          this.map().on([geo.event.pan, geo.event.zoom, geo.event.resize], function () {
+            // remove global viewer context if it exists to get around vgl bug
+            window.gl = null;
+
+            var that = this;
+
+            this._map = geo.map({node: this.element.get(0), zoom: 0});
+            this.resize();
+
+            this.element.on('rescale', function () {
+                that.resize();
+            });
+
+            this._osm = this._map.createLayer('osm');
+
+            this._layer = this._map.createLayer('feature', {'renderer': 'd3Renderer'});
+            this._feature = this._layer.createFeature('point');
+
+            this._layer.geoOn([geo.event.pan, geo.event.zoom, geo.event.resize], function () {
               $('body div.popover').popover('hide');
-          });
-          this._geomapCreated = true;
-          this._data = [];
-          this._update();
+            });
+            this._geomapCreated = true;
+            this._data = [];
+            this.update();
         },
-        _rescale: function () {
-            var that = this,
-                scale,
-                lw = tangelo.accessor(this.options.lineWidth),
-                pt = tangelo.accessor(this.options.pointSize);
-            if (this.map()) {
-                scale = this.scale();
-                d3.select(this.svg())
-                    .selectAll('.marker')
-                    .data(this._data)
-                    .attr('r', function (d) {
-                        return pt(d) / scale;
-                    })
-                    .style('stroke-width', function (d) {
-                        return lw(d) / scale;
-                    });
+        _destroy: function () {
+            this._map.interactor().destroy();
+        },
+        map: function () {
+            return this._map;
+        },
+        selection: function () {
+            if (this._feature) {
+                return this._feature.select();
+            } else {
+                return [];
             }
         },
         resize: function () {
-            this._resize();
+            this.map().resize(0, 0, this.options.width, this.options.height);
         },
-        _update: function () {
-            var that = this,
-                svg,
-                select,
-                enter,
-                exit,
-                lat = tangelo.accessor({'field': '_georef.y'}),
-                lng = tangelo.accessor({'field': '_georef.x'});
+        update: function () {
+            var that = this;
 
             if (!this._geomapCreated) {
+                this._create();
                 return;
             }
 
-            this._super();
             // georeference the data
             this._data = [];
             this.options.data.forEach(function (d) {
                 if (Number.isFinite(d.latitude) && Number.isFinite(d.longitude)) {
-                    var pt = geo.latlng(d.latitude, d.longitude);
-                    d._georef = that.latlng2display(pt);
                     that._data.push(d);
                 }
             });
-            
+
             // function for adding a pop over on mouse over
             function makePopOver(data) {
                 var msg = [];
@@ -95,44 +94,63 @@
                     msg.push('<a target="MarkerArticle" href="' + data.link + '">link</a>');
                 }
 
-                $(this).popover({
+                $(this)
+                .popover({
                     html: true,
                     container: 'body',
                     placement: 'auto top',
                     trigger: 'manual',
                     content: msg.join('<br>\n')
                 })
+                .off('mousedown')
                 .on('mousedown', function (evt) {
                     $(this).popover('toggle');
                     evt.stopPropagation();
                 });
             }
 
-            function indexFunc(d, i) {
-                return d.name || i;
-            }
-
-            svg = d3.select(this.svg());
-            select = svg.selectAll('.marker')
-                        .data(this._data, indexFunc);
-            enter = select.enter();
-            exit = select.exit();
-
-            enter
-              .append('circle')
-                .attr('class', 'marker')
-                .each(makePopOver);
-
-            exit.remove();
-
-            select
-                .attr('cx', lng)
-                .attr('cy', lat);
-            this._rescale();
+            this._feature
+                .data(this._data)
+                .position(function (d) {
+                    return {
+                        x: d.longitude,
+                        y: d.latitude
+                    };
+                })
+                .style({
+                    stroke: function () { return true; },
+                    strokeWidth: function () { return that.options.lineWidth; },
+                    strokeColor: function () { return {r: 0, g: 0, b: 0}; },
+                    strokeOpacity: function () { return 1; },
+                    fill: function () { return true; },
+                    fillColor: function (d) {
+                        if (!d.selected) {
+                            return {r: 70/255, g: 130/255, b: 180/255 };
+                        } else {
+                            return {r: 1, g: 0, b: 0};
+                        }
+                    },
+                    fillOpacity: function (d) {
+                        if (!d.selected) {
+                            return 0.5;
+                        } else {
+                            return 1;
+                        }
+                    },
+                    radius: function () { return that.options.pointSize; }
+                })
+                .draw();
+            this._feature.select().each(function (d) {
+                makePopOver.call(this, d);
+                if (d.selected) {
+                    this.parentNode.appendChild(this);
+                }
+            });
+            this.resize();
         }
     };
 
-    tangelo.widget('tangelo.healthmapMapSimple', $.tangelo.geojsMap, widgetSpec);
+    $.widget('grits.gritsMap', widgetSpec);
 
     var node = '#geomap';
 
@@ -140,48 +158,46 @@
         if (!this.initialized) {
             $(node)
                 .on('resizeApp', function (evt, obj) {
-                    $(node).healthmapMapSimple({
+                    $(node).gritsMap({
                         width: obj.width,
-                        height: obj.height,
-                        zoom: 3
-                    });
+                        height: obj.height
+                    })
+                    .gritsMap('resize');
+
                 });
             this.initialized = true;
         }
-        $(node).healthmapMapSimple({
+        $(node).gritsMap({
             data: Session.get('locations')
         });
     };
 
     Deps.autorun(function () {
-        $(node).healthmapMapSimple({
+        $(node).gritsMap({
             data: Session.get('locations')
-        });
+        })
+        .gritsMap('update');
     });
 
     Deps.autorun(function () {
         var features = Session.get('features') || [],
-            locations = [];
+            locations = [],
+            data = [];
         features.forEach(function (feature) {
             if (feature.type === 'location') {
                 locations.push(feature);
             }
         });
-        d3.selectAll(node + ' circle').each(function (d) {
+        $(node).gritsMap('selection').each(function (d) {
             var selected = false;
             locations.forEach(function (location) {
                 selected |= Math.abs(d.latitude - location.geoname.latitude) < 10e-6 &&
                             Math.abs(d.longitude - location.geoname.longitude) < 10e-6;
             });
-            d3.select(this).classed(
-                'selected',
-                selected
-            );
-            if (selected) {
-                // move the selected circles to the top
-                this.parentNode.appendChild(this);
-            }
+            d.selected = selected;
+            data.push(d);
         });
+        $(node).gritsMap({data: data}).gritsMap('update');
     });
 
-}(window.tangelo, window.jQuery, window.geo, window.d3));
+}(window.jQuery, window.geo, window.d3));
