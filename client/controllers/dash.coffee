@@ -161,15 +161,7 @@ Template.dash.getIdKey = () ->
   Template.dash.getIdKeyFromFeature @
 
 Template.dash.getIdKeyFromFeature = (feature) ->
-  if feature.categories
-    idKey = feature.categories[0] + '_' + feature.name
-  else if feature.type in ['caseCount', 'hospitalizationCount', 'deathCount', 'datetime', 'adding', 'diseases', 'hosts', 'modes', 'pathogens', 'symptoms']
-    idKey = feature.type + '_' + feature.value
-  else if feature.type in ['location']
-    idKey = feature.type + '_' + feature.name
-  else if feature.text in ['datetime']
-    idKey = feature.type + '_' + feature.text
-
+  idKey = feature.name or feature.text or String(feature.value)
   idKey.replace(/[^A-Za-z0-9]/g, '_')
 
 Template.dash.setActiveFeatureStyle = () ->
