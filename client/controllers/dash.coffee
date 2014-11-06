@@ -233,8 +233,12 @@ Template.dash.events
     selectedPane.fadeIn()
 
   "click .diagnosis .reactive-table tbody tr" : (event) ->
-    Session.set('disease', @name)
-    Session.set('features', keyword for keyword in @keywords)
+    if Session.get('disease') is @name
+      Session.set('disease', null)
+      Session.set('features', [])
+    else
+      Session.set('disease', @name)
+      Session.set('features', @keywords)
 
   "click .diagnosis .label" : (event) ->
 
@@ -299,9 +303,12 @@ Template.dash.events
       else
         Router.go 'dash', {_id: resultId}
     )
+
   "click .features h4": (event, template) ->
     category = $(event.target).attr('class')
-    if category in ['caseCount', 'hospitalizationCount', 'deathCount', 'datetime', 'diseases', 'hosts', 'modes', 'pathogens', 'symptoms']
+    if category in ['caseCount', 'hospitalizationCount', 'deathCount',
+                    'datetime', 'diseases', 'hosts', 'modes', 'pathogens',
+                    'symptoms']
       source = template.data.features
       nameKey = 'value'
     else if category is 'location'
