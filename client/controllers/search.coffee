@@ -1,5 +1,4 @@
 RESULTS_PER_PAGE = 10
-Session.setDefault('page', 0)
 
 Template.search.eq = (a, b)->
   a == b
@@ -118,75 +117,78 @@ doQuery = _.debounce(((query, options)->
   )
 ), 1000)
 
-lastPage = null
-Deps.autorun(()->
-  # If the page did not change that means something else did
-  # so we should reset the page.
-  if Session.get('page') == lastPage
-    Session.set('page', 0)
-  else
-    lastPage = Session.get('page')
-  disease_terms = DiseasesSelected.find().map (k)->
-    match_phrase :
-      'meta.disease' : k.name.toLowerCase()
-  
-  should_terms = AnyKeywordsSelected.find().map (k)->
-    match_phrase :
-      'private.scrapedData.content'  : k.name.toLowerCase()
-  
-  must_terms = AllKeywordsSelected.find().map (k)->
-    match_phrase : 
-      'private.scrapedData.content' : k.name.toLowerCase()
-  
-  query = {}
-  if [].concat(disease_terms, should_terms, must_terms).length > 0
-    query =
-      bool:
-        must: must_terms.concat([
-          bool:
-            should:
-              disease_terms
-            minimum_should_match: 1
-        ])
-        should: should_terms
-        minimum_should_match: 1
-  sort = {}
-  if Session.get('sortBy') == 'dateDesc'
-    sort = { 'meta.date': 'desc' }
-  else if Session.get('sortBy') == 'dateAsc'
-    sort = { 'meta.date': 'asc' }
-  dateRange = {}
-  if Session.get('fromDate')
-    dateRange.from = Session.get('fromDate').toISOString()
-  if Session.get('toDate')
-    dateRange.to = Session.get('toDate').toISOString()
-  doQuery({
-    query:
-      filtered:
-        query: query
-        filter:
-          bool:
-            must: [
-              terms:
-                'meta.country': CountriesSelected.find().map( (k)-> k.name )
-            ,
-              range:
-                'meta.date': dateRange
-            ]
-    aggregations:
-      countries:
-        terms:
-          field: 'meta.country'
-      months:
-        date_histogram:
-          field: 'meta.date'
-          interval: '1M'
-    sort: sort
-  }, {
-    size: RESULTS_PER_PAGE
-    from: Session.get('page') * RESULTS_PER_PAGE
-  })
-)
+# This gets called by the router.
+# I think moving the route to this file would simplfy the code.
+@createSearchAutorunFunction = ()->
+  lastPage = null
+  Session.set('page', 0)
+  ()->
+    # If the page did not change that means something else did
+    # so we should reset the page.
+    if Session.get('page') == lastPage
+      Session.set('page', 0)
+    else
+      lastPage = Session.get('page')
+    disease_terms = DiseasesSelected.find().map (k)->
+      match_phrase :
+        'meta.disease' : k.name.toLowerCase()
+    
+    should_terms = AnyKeywordsSelected.find().map (k)->
+      match_phrase :
+        'private.scrapedData.content'  : k.name.toLowerCase()
+    
+    must_terms = AllKeywordsSelected.find().map (k)->
+      match_phrase : 
+        'private.scrapedData.content' : k.name.toLowerCase()
+    
+    query = {}
+    if [].concat(disease_terms, should_terms, must_terms).length > 0
+      query =
+        bool:
+          must: must_terms.concat([
+            bool:
+              should:
+                disease_terms
+              minimum_should_match: 1
+          ])
+          should: should_terms
+          minimum_should_match: 1
+    sort = {}
+    if Session.get('sortBy') == 'dateDesc'
+      sort = { 'meta.date': 'desc' }
+    else if Session.get('sortBy') == 'dateAsc'
+      sort = { 'meta.date': 'asc' }
+    dateRange = {}
+    if Session.get('fromDate')
+      dateRange.from = Session.get('fromDate').toISOString()
+    if Session.get('toDate')
+      dateRange.to = Session.get('toDate').toISOString()
+    doQuery({
+      query:
+        filtered:
+          query: query
+          filter:
+            bool:
+              must: [
+                terms:
+                  'meta.country': CountriesSelected.find().map( (k)-> k.name )
+              ,
+                range:
+                  'meta.date': dateRange
+              ]
+      aggregations:
+        countries:
+          terms:
+            field: 'meta.country'
+        months:
+          date_histogram:
+            field: 'meta.date'
+            interval: '1M'
+      sort: sort
+    }, {
+      size: RESULTS_PER_PAGE
+      from: Session.get('page') * RESULTS_PER_PAGE
+    })
 
 Session.setDefault('useView', 'listView')
 Template.search.useView = ()-> Session.get('useView')
@@ -233,7 +235,6 @@ Template.search.toDate = ()-> Session.get('toDate')?.toISOString().split('T')[0]
 Template.search.fromDate = ()-> Session.get('fromDate')?.toISOString().split('T')[0]
 
 Template.search.aggregations = ()->
-  console.log(Session.get('aggregations'))
   Session.get('aggregations')
 
 Template.search.events

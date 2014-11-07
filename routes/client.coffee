@@ -95,8 +95,10 @@ Router.map () ->
           if diagnosis.keywords
             diagnosis.keywords.forEach (k)->
               AnyKeywordsSelected.insert(k)
+      this.searchAutorun = Deps.autorun(createSearchAutorunFunction())
     onStop: () ->
       $('.popover').remove()
+      this.searchAutorun.stop()
   )
 
   @route("symptomTable",
