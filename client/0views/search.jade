@@ -10,9 +10,6 @@ template(name="search")
           span {{name}}
       +inputAutocomplete settings=diseaseCompleteSettings id="new-disease" class="input-xlarge"
       button(id="add-disease") Add
-      // h4 Keyword Search:
-      // inputAutocomplete settings=keywordCompleteSettings id="keyword-search" class="input-xlarge"
-      // button(id="search-for-keywords") Search
       h4 Any of these keywords:
       each anyKeywordsSelected
         div
@@ -29,29 +26,30 @@ template(name="search")
       button(id="add-all-keyword") Add
       h4 In one of these countries:
       +selector collection=countriesSelected
+      div
+        b Approximate Document Counts:
       each aggregations.countries.buckets
-        div
-          a.add-country-filter(href="#" data-name="{{key}}") {{key}}
-          span : {{doc_count}} reports
+        .document-count
+          span.count-bar(style="width: {{percentage doc_count totalResults}}%;") 
+          .count-text
+            a.add-country-filter(href="#" data-name="{{key}}") {{key}}
+            span : {{doc_count}} reports
       h4 In the date range:
-      label Start
-        input.date-selector.from-date(type="date")
+      label
+        span.date-label Start
+        input.date-selector.from-date(type="date" value="{{fromDate}}")
       br
-      label End
-        input.date-selector.to-date(type="date")
+      label
+        span.date-label End
+        input.date-selector.to-date(type="date" value="{{toDate}}")
+      div
+        b Approximate Document Counts:
       each aggregations.months.buckets
-        div
-          a.add-date-filter(href="#" data-name="{{key}}") {{timestampToMonthYear key}}
-          span : {{doc_count}} reports
-
-    // div.search-results
-    // h4 Date Groups:
-    // each results
-    //   div.date-group.month-group
-    //     p {{month}} {{year}}
-    //     p Number of results: {{results}}
-    // else
-    //   p No Results Found
+        .document-count
+          span.count-bar(style="width: {{percentage doc_count totalResults}}%;") 
+          .count-text
+            a.set-month(href="") {{timestampToMonthYear key}}
+            | : {{doc_count}} reports
     .pane-container
       .non-interactive-pane
         .search-view-bar

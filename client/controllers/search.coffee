@@ -6,7 +6,11 @@ Template.search.eq = (a, b)->
 
 Template.search.timestampToMonthYear = (t) ->
   date = new Date(t)
-  (date.getMonth() + 1) + '-' + date.getFullYear()
+  monthNames = "January,February,March,April,May,June,July,August,September,October,November,December".split(",")
+  monthNames[date.getMonth()] + ' ' + date.getFullYear()
+
+Template.search.percentage = (a,b) ->
+  100 * a / b
 
 Template.search.updatePanes = () ->
   data = []
@@ -147,8 +151,10 @@ Deps.autorun(()->
         should: should_terms
         minimum_should_match: 1
   sort = {}
-  if Session.get('sortBy') == 'date'
+  if Session.get('sortBy') == 'dateDesc'
     sort = { 'meta.date': 'desc' }
+  else if Session.get('sortBy') == 'dateAsc'
+    sort = { 'meta.date': 'asc' }
   dateRange = {}
   if Session.get('fromDate')
     dateRange.from = Session.get('fromDate').toISOString()
@@ -194,12 +200,15 @@ Template.search.viewTypes = [
   }
 ]
 
-Session.setDefault('sortBy', 'date')
+Session.setDefault('sortBy', 'dateDesc')
 Template.search.sortBy = ()-> Session.get('sortBy')
 Template.search.sortMethods = [
   {
-    name: "date"
-    label: "Date"
+    name: "dateAsc"
+    label: "Least Recent First"
+  }, {
+    name: "dateDesc"
+    label: "Most Recent First"
   }, {
     name: "relevance"
     label: "Relevance"
@@ -217,7 +226,11 @@ Template.search.pageNum = ()->
 Template.search.diseasesSelected = ()-> DiseasesSelected.find()
 Template.search.anyKeywordsSelected = ()-> AnyKeywordsSelected.find()
 Template.search.allKeywordsSelected = ()-> AllKeywordsSelected.find()
+
 Template.search.countriesSelected = CountriesSelected
+
+Template.search.toDate = ()-> Session.get('toDate')?.toISOString().split('T')[0]
+Template.search.fromDate = ()-> Session.get('fromDate')?.toISOString().split('T')[0]
 
 Template.search.aggregations = ()->
   console.log(Session.get('aggregations'))
@@ -267,6 +280,13 @@ Template.search.events
 
   "click .remove-country-filter" : (event) ->
     CountriesSelected.remove({name : $(event.currentTarget).data('name')})
+
+  "click .set-month" : (event) ->
+    fromDate = new Date(this.key)
+    toDate = new Date(fromDate)
+    toDate.setMonth(fromDate.getMonth() + 1)
+    Session.set('fromDate', fromDate)
+    Session.set('toDate', toDate)
 
   "change .from-date" : (event) ->
     date = new Date($(event.target).val())
