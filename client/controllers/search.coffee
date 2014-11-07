@@ -1,3 +1,6 @@
+RESULTS_PER_PAGE = 10
+Session.setDefault('page', 0)
+
 Template.search.eq = (a, b)->
   a == b
 
@@ -84,13 +87,13 @@ removeEmptyKeys = (obj)->
     else
       out[k] = v
   return out
-doQuery = _.debounce(((query)->
+doQuery = _.debounce(((query, options)->
   # Remove empty array keys so that we don't end up with no results because
   # a filter has no clauses.
   query = removeEmptyKeys(query)
   console.log(query)
   Session.set('searching', true)
-  Meteor.call('elasticsearch', query, (e,r)->
+  Meteor.call('elasticsearch', query, options, (e,r)->
     if e
       console.error(e)
       alert("Error")
@@ -103,7 +106,14 @@ doQuery = _.debounce(((query)->
   )
 ), 1000)
 
+lastPage = null
 Deps.autorun(()->
+  # If the page did not change that means something else did
+  # so we should reset the page.
+  if Session.get('page') == lastPage
+    Session.set('page', 0)
+  else
+    lastPage = Session.get('page')
   disease_terms = DiseasesSelected.find().map (k)->
     match_phrase :
       'meta.disease' : k.name.toLowerCase()
@@ -154,6 +164,9 @@ Deps.autorun(()->
           field: 'meta.date'
           interval: '1M'
     sort: sort
+  }, {
+    size: RESULTS_PER_PAGE
+    from: Session.get('page') * RESULTS_PER_PAGE
   })
 )
 
@@ -183,9 +196,11 @@ Template.search.sortMethods = [
 
 Template.search.searching = ()-> Session.get('searching')
 Template.search.numResults = ()->
-  if Session.get('searchResults') then Session.get('searchResults').length else 0
+  Session.get('searchResults')?.length or 0
 Template.search.totalResults = ()->
-  if Session.get('totalResults') then Session.get('totalResults') else 0
+  Session.get('totalResults') or 0
+Template.search.pageNum = ()->
+  Session.get('page') or 0
 
 Template.search.diseasesSelected = ()-> DiseasesSelected.find()
 Template.search.anyKeywordsSelected = ()-> AnyKeywordsSelected.find()
@@ -254,10 +269,14 @@ Template.search.events
     Session.set('toDate', date)
 
   "click .prev-page": (event) ->
-    Session.set('page', Session.get('page') - 1)
+    Session.set('page', Math.max(Session.get('page') - 1, 0))
 
-  "change .next-page": (event) ->
-    Session.set('page', Session.get('page') + 1)
+  "click .next-page": (event) ->
+    Session.set('page',
+      Math.min(Session.get('page') + 1,
+        Math.floor(Session.get('totalResults') / RESULTS_PER_PAGE)
+      )
+    )
 
   "change #sort-by": (event) ->
     Session.set('sortBy', $(event.target).val())

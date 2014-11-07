@@ -56,11 +56,12 @@ template(name="search")
       .non-interactive-pane
         .search-view-bar
           if numResults
-            span Showing {{numResults}} of {{totalResults}} Results
-            span |
-              a.prev-page Previous
+            span
+              | Page {{pageNum}} 
+              a(href="").prev-page Previous
               | -
-              a.next-page Next
+              a(href="#").next-page Next
+            span | {{numResults}} of {{totalResults}} Results
           else
             span No Results
           span.view-select
