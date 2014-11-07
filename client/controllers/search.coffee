@@ -72,25 +72,33 @@ Template.search.keywordCompleteSettings = ()->
 @AllKeywordsSelected = new Meteor.Collection(null)
 @CountriesSelected = new Meteor.Collection(null)
 
-removeEmptyKeys = (obj)->
-  out = {}
-  for own k, v of obj
-    if _.isArray(v)
-      if v.length == 0
-        continue
-      else
-        out[k] = v
-    else if _.isObject(v)
-      nestedObj = removeEmptyKeys(v)
-      if not _.isEmpty(nestedObj)
-        out[k] = nestedObj
-    else
-      out[k] = v
-  return out
+isntEmptyObjectyOrArray = (x)->
+  if _.isArray(x) or _.isObject(x)
+    not _.isEmpty(x)
+  else
+    true
+# Takes an array or object and recursively removes
+# properties and items that are empty.
+# E.g. empty values are removed, them values that only contained empty values
+# are removed, and so on...
+removeEmptyValues = (obj)->
+  if _.isArray(obj)
+    _.chain(obj).map((val)->
+      removeEmptyValues(val)
+    ).filter(isntEmptyObjectyOrArray).value()
+  else if _.isObject(obj)
+    _.chain(obj).map((val, key)->
+      [key, removeEmptyValues(val)]
+    ).filter((pair)->
+      isntEmptyObjectyOrArray(pair[1])
+    ).object().value()
+  else
+    obj
+
 doQuery = _.debounce(((query, options)->
   # Remove empty array keys so that we don't end up with no results because
   # a filter has no clauses.
-  query = removeEmptyKeys(query)
+  query = removeEmptyValues(query)
   console.log(query)
   Session.set('searching', true)
   Meteor.call('elasticsearch', query, options, (e,r)->
@@ -151,10 +159,14 @@ Deps.autorun(()->
       filtered:
         query: query
         filter:
-          terms:
-            'meta.country': CountriesSelected.find().map( (k)-> k.name )
-          range:
-            'meta.date': dateRange
+          bool:
+            must: [
+              terms:
+                'meta.country': CountriesSelected.find().map( (k)-> k.name )
+            ,
+              range:
+                'meta.date': dateRange
+            ]
     aggregations:
       countries:
         terms:
