@@ -19,7 +19,8 @@ Template.search.updatePanes = () ->
   # It would be cool if we could highligh all the points for a given article 
   # when someone clicks one.
 
-  data = _.chain(searchResults.map (d) ->
+  data = _.chain(searchResults.map (result) ->
+    d = result._source
     if d.meta.diagnosis?.features
       d.meta.diagnosis.features.map (f)->
         if f.type == "location"
@@ -111,7 +112,7 @@ doQuery = _.debounce(((query, options)->
       return
     console.log(r)
     Session.set('searching', false)
-    Session.set('searchResults', (hit._source for hit in r.hits.hits))
+    Session.set('searchResults', r.hits.hits)
     Session.set('totalResults', r.hits.total)
     Session.set('aggregations', r.aggregations)
   )
@@ -184,7 +185,13 @@ doQuery = _.debounce(((query, options)->
           date_histogram:
             field: 'meta.date'
             interval: '1M'
-      sort: sort
+      sort: [
+        sort
+        # Relevance score is used as a secondary criteria so it is always
+        # computed and so that it can be a tie breaker for articles that happen
+        # to occur at the same time.
+        { "_score": { "order": "desc" }}
+      ]
     }, {
       size: RESULTS_PER_PAGE
       from: Session.get('page') * RESULTS_PER_PAGE

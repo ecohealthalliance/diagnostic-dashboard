@@ -1,7 +1,18 @@
+# Convert array of numbers into a string describing the range of values in it.
+rangeString = (arr)->
+  if not _.isEmpty(arr)
+    min = _.min(arr)
+    max = _.max(arr)
+    if min == max
+      return "" + min
+    else
+      return min + " to " + max
+
 Template.resultList.results = () ->
   keywordCounts = {}
-  items = Session.get('searchResults') or []
-  items.forEach((item)->
+  searchResults = Session.get('searchResults') or []
+  searchResults.forEach((result)->
+    item = result._source
     if not item.meta.diagnosis?.keywords_found
       return
     item.meta.diagnosis.keywords_found.forEach((kw)->
@@ -19,7 +30,8 @@ Template.resultList.results = () ->
     return sofar + (difference * difference)
   ), 0) / countValues.length)
   threashold = Math.max(1, meanCount - standardDeviation)
-  return items.map((item)->
+  return searchResults.map((result)->
+    item = result._source
     if not item.meta.diagnosis?.keywords_found
       item.distinctness = 0
       item.distinctKeywords = []
@@ -32,6 +44,23 @@ Template.resultList.results = () ->
     distinctKeywords = _.sortBy(distinctKeywords, (kw)-> keywordCounts[kw])
     item.distinctness = distinctKeywords.length
     item.distinctKeywords = distinctKeywords
+    item.searchScore = result._score
+    # Create and attach an object that summarizes all the countes in the article.
+    counts = 
+      cases : rangeString(_.chain(item.meta.diagnosis.features)
+        .where({type : "caseCount"})
+        .pluck("value")
+        .value())
+      deaths : rangeString(_.chain(item.meta.diagnosis.features)
+        .where({type : "deathCount"})
+        .pluck("value")
+        .value())
+      hospitalizations : rangeString(_.chain(item.meta.diagnosis.features)
+        .where({type : "hospitalizationCount"})
+        .pluck("value")
+        .value())
+    if _.any(counts)
+      item.counts = counts
     return item
   )
 Template.resultList.eq = (a, b) ->

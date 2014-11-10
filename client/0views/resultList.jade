@@ -3,35 +3,42 @@ template(name="resultList")
     h4 Search Results:
     each results
       div(class="search-result")
-        a(href="#{meta.link}" target="_blank" class="title-link") #{description}
-        b Date:
-        span {{toDateString meta.date}}
-        br
-        b HealthMap Disease Label: 
-        span #{meta.disease}
-        br
-        b Diseases Diagnosed:
-        span.inline-list
-          each meta.diagnosis.diseases
-            span #{name}
-        br
-        b Counts:
-        span.inline-list
-          each meta.diagnosis.features
-            if eq type "caseCount"
-              span #{value} cases
-            if eq type "deathsCount"
-              span #{value} deaths
-            if eq type "hospitalizationCount"
-              span #{value} hospitalizations
-        br
-        b Distinct Keywords:
-        span.inline-list
-          each distinctKeywords
-            span
-              a.add-keyword-link(href="#") #{name}
+        div
+          a(href="#{meta.link}" target="_blank" class="title-link") #{description}
+        div
+          i {{toDateString meta.date}}
+        div
+          b HealthMap Disease Label: 
+          span #{meta.disease}
+        div
+          b Diseases Diagnosed:
+          span.inline-list
+            each meta.diagnosis.diseases
+              span #{name}
+        div
+          b Counts:
+          if counts
+            span.inline-list
+              if counts.cases
+                span #{counts.cases} cases
+              if counts.deaths
+                span #{counts.deaths} deaths
+              if counts.hospitalizations
+                span #{counts.hospitalizations} hospitalizations
           else
-            span None
+            span No counts identified
+        div
+          b Distinct Keywords:
+          span.inline-list.truncated-list
+            each distinctKeywords
+              span
+                a.add-keyword-link(href="#") #{name}
+            else
+              span None
+        if searchScore
+          div
+            b Relevance:
+            span #{searchScore}
     else
       p No Results Found
               
