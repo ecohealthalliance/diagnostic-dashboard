@@ -234,6 +234,9 @@ Template.dash.events
 
   "click .diagnosis .label" : (event) ->
 
+    Session.set('disease', null)
+    Session.set('features', [])
+
     currentFeatures = Session.get('features') or []
 
     found = false
@@ -297,6 +300,10 @@ Template.dash.events
     )
 
   "click .features h4": (event, template) ->
+
+    Session.set('disease', null)
+    Session.set('features', [])
+
     category = $(event.target).attr('class')
     if category in ['caseCount', 'hospitalizationCount', 'deathCount',
                     'datetime', 'diseases', 'hosts', 'modes', 'pathogens',
