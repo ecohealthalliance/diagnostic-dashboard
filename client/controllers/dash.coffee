@@ -96,23 +96,20 @@ Template.dash.updatePanes = () ->
 Template.dash.eq = (a, b) ->
   a == b
 
-Template.dash.showCategory = (category, keywords) ->
-  visibleCats = [
-    'datetime'
-    'location'
-    'caseCount'
-    'deathCount'
-    'hospitalizationCount'
-  ]
-  if category in visibleCats
-    _.any(@features, (feature) ->
+
+Template.dash.showCategory = (category, features) ->
+  if category in ['datetime',
+                  'caseCount',
+                  'deathCount',
+                  'hospitalizationCount',
+                  'location',
+                  'diseases',
+                  'hosts',
+                  'modes',
+                  'pathogens',
+                  'symptoms']
+    _.any(@features or features, (feature) ->
       feature.type is category
-    )
-  else
-    _.any(@keywords or keywords, (keyword) ->
-      _.any(keyword.categories, (keywordCategory) ->
-        keywordCategory.indexOf(category) >= 0
-      )
     )
 
 Template.dash.showKeypoints = ()->
@@ -151,7 +148,7 @@ Template.dash.formatDate = () ->
 Template.dash.color = () ->
   if @categories
     color @categories[0] + @name
-  else if @type in ['caseCount', 'hospitalizationCount', 'deathCount', 'datetime']
+  else if @type in ['caseCount', 'hospitalizationCount', 'deathCount', 'datetime', 'adding', 'diseases', 'hosts', 'modes', 'pathogens', 'symptoms']
     color @type + @value
   else if @type in ['location']
     color @type + @name
@@ -162,7 +159,17 @@ Template.dash.getIdKey = () ->
   Template.dash.getIdKeyFromFeature @
 
 Template.dash.getIdKeyFromFeature = (feature) ->
-  return '_' + _.indexOf(Session.get('features'), feature)
+  if feature.categories
+    idKey = feature.categories[0] + '_' + feature.name
+  else if feature.type in ['caseCount', 'hospitalizationCount', 'deathCount', 'datetime', 'adding', 'diseases', 'hosts', 'modes', 'pathogens', 'symptoms']
+    idKey = feature.type + '_' + feature.value
+  else if feature.type in ['location']
+    idKey = feature.type + '_' + feature.name
+  else if feature.text in ['datetime']
+    idKey = feature.type + '_' + feature.text
+
+  idKey.replace(/[^A-Za-z0-9]/g, '_')
+
 
 Template.dash.setActiveFeatureStyle = () ->
 
@@ -229,27 +236,19 @@ Template.dash.events
     Session.set('features', keyword for keyword in @keywords)
 
   "click .diagnosis .label" : (event) ->
-    if not DISABLE_MULTI_HIGHLIGHT and @textOffsets
+    currentFeatures = Session.get('features') or []
 
-      # We need to filter out any non-offset-based features. We can't handle
-      # highlighting both kinds at the same time.
-
-      currentFeatures = _.filter Session.get('features') or [], (feature) ->
-        feature.textOffsets
-
-      found = false
-      for item, index in currentFeatures
-        if _.isEqual(item, this)
-          found = true
-          currentFeatures.splice(index, 1)
-          Session.set('features', currentFeatures)
-
-      if not found
-        currentFeatures.push(this)
+    found = false
+    for item, index in currentFeatures
+      if _.isEqual(item, this)
+        found = true
+        currentFeatures.splice(index, 1)
         Session.set('features', currentFeatures)
 
-    else
-      Session.set('features', [this])
+    if not found
+      currentFeatures.push(this)
+      Session.set('features', currentFeatures)
+
 
   "click .diagnosis .keypoint" : (event) ->
     $('.keypoint.selected').removeClass('selected')
@@ -300,14 +299,8 @@ Template.dash.events
         Router.go 'dash', {_id: resultId}
     )
   "click .features h4": (event, template) =>
-    if DISABLE_MULTI_HIGHLIGHT then return false
     category = $(event.target).attr('class')
-    if category in ['symptom', 'host', 'pathogen', 'transmi']
-      source = template.data.keywords
-      nameKey = 'name'
-      # These are not offset-based at the moment, so punt
-      return false
-    else if category in ['caseCount', 'hospitalizationCount', 'deathCount', 'datetime']
+    if category in ['caseCount', 'hospitalizationCount', 'deathCount', 'datetime', 'diseases', 'hosts', 'modes', 'pathogens', 'symptoms']
       source = template.data.features
       nameKey = 'value'
     else if category is 'location'
