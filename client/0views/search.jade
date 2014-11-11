@@ -1,5 +1,4 @@
 template(name="search")
-  div(style="display:none") #{updatePanes}
   .dashboard-container
     .left-panel.diagnosis.search-sidebar
       h3 Find articles with...
@@ -51,33 +50,33 @@ template(name="search")
             a.set-month(href="") {{timestampToMonthYear key}}
             | : {{doc_count}} reports
     .pane-container
-      .non-interactive-pane
-        .search-view-bar
-          if numResults
-            span
-              | Page {{pageNum}} 
-              a(href="").prev-page Previous
-              | -
-              a(href="#").next-page Next
-            span | {{numResults}} of {{totalResults}} Results
-          else
-            span No Results
-          span.view-select
-            | | Sorted By:
-            select#sort-by
-              each sortMethods
-                if eq sortBy name
-                  option(selected value=name) {{label}}
-                else
-                  option(value=name) {{label}}
-          span.view-select
-            | | Choose View:
-            select#choose-view
-              each viewTypes
-                if eq useView name
-                  option(selected value=name) {{label}}
-                else
-                  option(value=name) {{label}}
+      .vis-pane-bar
+        if numResults
+          span
+            | Page {{pageNum}} 
+            a(href="").prev-page Previous
+            | -
+            a(href="#").next-page Next
+          span | {{numResults}} of {{totalResults}} Results
+        else
+          span No Results
+        span.view-select
+          | | Sorted By:
+          select#sort-by
+            each sortMethods
+              if eq sortBy name
+                option(selected value=name) {{label}}
+              else
+                option(value=name) {{label}}
+        span.view-select
+          | | Choose View:
+          select#choose-view
+            each viewTypes
+              if eq useView name
+                option(selected value=name) {{label}}
+              else
+                option(value=name) {{label}}
+      .vis-pane
         if searching
           p Searching...
         else if eq useView "mapView"
@@ -90,6 +89,7 @@ template(name="search")
           +locationGroups
         else if eq useView "diseaseGroupView"
           +diseaseGroups
+
 template(name="searchPill")
   span(class="sp-label") {{_id}}
   span(class="sp-categories")

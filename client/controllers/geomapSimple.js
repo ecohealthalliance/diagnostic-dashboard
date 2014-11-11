@@ -21,11 +21,6 @@
             height: 400
         },
         _create: function () {
-            // This makes the map on the search page fill it's container.
-            if($('.non-interactive-pane').length > 0){
-                this.options.width = $('.non-interactive-pane').outerWidth();
-                this.options.height = $('.non-interactive-pane').innerHeight() - $('.search-view-bar').outerHeight() - 4;
-            }
             // remove global viewer context if it exists to get around vgl bug
             window.gl = null;
 
@@ -164,31 +159,50 @@
 
     var node = '#geomap';
 
+    function whenElementExpands($el, cb, waitFor) {
+        if(_.isUndefined(waitFor)) {
+            waitFor = 6000;
+        }
+        if(waitFor < 0) {
+            alert("Could not generate hisogram.");
+            return;
+        } else if($el.height() < 1 || $el.width() < 1) {
+            window.setTimeout(
+                _.partial(whenElementExpands, $el, cb, waitFor - 1000),
+                1000
+            );
+        } else {
+            cb();
+        }
+    }
+    function generateGeomap() {
+        if($(node).length === 0) return;
+        whenElementExpands($(node).parent(), function(){
+            // There is a bug that's causing the viz dimensions not
+            // to match those of the parent element.
+            // Subtracting is done to prevent overflows
+            // from triggering scroll bars.
+            var width = $(node).parent().width() - 4;
+            var height = $(node).parent().height() - 4;
+            $(node).gritsMap({
+                width: width,
+                height: height,
+                data: Session.get('locations')
+            }).gritsMap('update');
+        });
+    }
+
     Template.geomapSimple.rendered = function () {
         if (!this.initialized) {
-            $(node)
-                .on('resizeApp', function (evt, obj) {
-                    $(node).gritsMap({
-                        width: obj.width,
-                        height: obj.height
-                    })
-                    .gritsMap('resize');
-
-                });
+            $(window).on('resize', generateGeomap);
             this.initialized = true;
         }
-        $(node).gritsMap({
-            data: Session.get('locations')
-        });
+        generateGeomap()
     };
 
-    Deps.autorun(function () {
-        $(node).gritsMap({
-            data: Session.get('locations')
-        })
-        .gritsMap('update');
-    });
+    Deps.autorun(generateGeomap);
 
+    // Highlight selected features on the visulization
     Deps.autorun(function () {
         var features = Session.get('features') || [],
             locations = [],
