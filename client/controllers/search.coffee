@@ -298,14 +298,6 @@ Template.search.aggregations = ()->
   Session.get('aggregations')
 
 Template.search.events
-  "click .pane:not(.maximized)": (event) ->
-    selectedPane = $(event.currentTarget)
-    selectedPane.hide()
-    $('.pane').removeClass('maximized').addClass('minimized')
-    selectedPane.removeClass('minimized').addClass('maximized')
-    setHeights()
-    selectedPane.fadeIn()
-
   "click #add-disease" : (event) ->
     kwName = $("#new-disease").val()
     if DiseaseNames().findOne({_id : kwName})

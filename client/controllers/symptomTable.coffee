@@ -97,14 +97,6 @@ Template.symptomTable.tableSettings = () ->
 
 
 Template.symptomTable.events
-  "click .pane:not(.maximized)": (event) ->
-    selectedPane = $(event.currentTarget)
-    selectedPane.hide()
-    $('.pane').removeClass('maximized').addClass('minimized')
-    selectedPane.removeClass('minimized').addClass('maximized')
-    setHeights()
-    selectedPane.fadeIn()
-
   "click .diagnosis .reactive-table tbody tr" : (event) ->
     Session.set('disease', @name)
     Session.set('features', keyword.name for keyword in @keywords)
