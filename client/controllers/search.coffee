@@ -214,10 +214,10 @@ Template.search.sortBy = ()-> Session.get('sortBy')
 Template.search.sortMethods = [
   {
     name: "dateAsc"
-    label: "Least Recent First"
+    label: "Oldest First"
   }, {
     name: "dateDesc"
-    label: "Most Recent First"
+    label: "Newest First"
   }, {
     name: "relevance"
     label: "Relevance"
