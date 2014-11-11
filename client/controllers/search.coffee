@@ -1,15 +1,5 @@
-RESULTS_PER_PAGE = 10
-
-Template.search.eq = (a, b)->
-  a == b
-
-Template.search.timestampToMonthYear = (t) ->
-  date = new Date(t)
-  monthNames = "January,February,March,April,May,June,July,August,September,October,November,December".split(",")
-  monthNames[date.getMonth()] + ' ' + date.getFullYear()
-
-Template.search.percentage = (a,b) ->
-  100 * a / b
+DiagnosisResults = () =>
+  @grits.Results
 
 DiseaseNames = () =>
   @grits.Girder.DiseaseNames
@@ -17,42 +7,20 @@ DiseaseNames = () =>
 Keywords = () =>
   @grits.Girder.Keywords
 
-Template.search.diseaseCompleteSettings = ()->
-  {
-   position: "top",
-   limit: 5,
-   rules: [
-     {
-       collection: DiseaseNames(),
-       field: "_id",
-       template: Template.searchPill,
-     }
-   ]
-  }
+RESULTS_PER_PAGE = 10
 
-Template.search.keywordCompleteSettings = ()->
-  {
-   position: "top",
-   limit: 5,
-   rules: [
-     {
-       collection: Keywords(),
-       field: "_id",
-       template: Template.searchPill,
-     }
-   ]
-  }
-
-@DiseasesSelected = new Meteor.Collection(null)
-@AnyKeywordsSelected = new Meteor.Collection(null)
-@AllKeywordsSelected = new Meteor.Collection(null)
-@CountriesSelected = new Meteor.Collection(null)
+# Temporairy collections
+DiseasesSelected = new Meteor.Collection(null)
+AnyKeywordsSelected = new Meteor.Collection(null)
+AllKeywordsSelected = new Meteor.Collection(null)
+CountriesSelected = new Meteor.Collection(null)
 
 isntEmptyObjectyOrArray = (x)->
   if _.isArray(x) or _.isObject(x)
     not _.isEmpty(x)
   else
     true
+
 # Takes an array or object and recursively removes
 # properties and items that are empty.
 # E.g. empty values are removed, them values that only contained empty values
@@ -75,14 +43,12 @@ doQuery = _.debounce(((query, options)->
   # Remove empty array keys so that we don't end up with no results because
   # a filter has no clauses.
   query = removeEmptyValues(query)
-  console.log(query)
   Session.set('searching', true)
   Meteor.call('elasticsearch', query, options, (e,r)->
     if e
       console.error(e)
       alert("Error")
       return
-    console.log(r)
     Session.set('searching', false)
     Session.set('searchResults', r.hits.hits)
     Session.set('totalResults', r.hits.total)
@@ -108,12 +74,10 @@ doQuery = _.debounce(((query, options)->
   )
 ), 1000)
 
-# This gets called by the router.
-# I think moving the route to this file would simplfy the code.
-@createSearchAutorunFunction = ()->
+createSearchAutorunFunction = ()->
   lastPage = null
   Session.set('page', 0)
-  ()->
+  return ()->
     # If the page did not change that means something else did
     # so we should reset the page.
     if Session.get('page') == lastPage
@@ -187,6 +151,105 @@ doQuery = _.debounce(((query, options)->
       from: Session.get('page') * RESULTS_PER_PAGE
     })
 
+# This route is defined in the file because its callbacks use a lot of variables
+# defined here.
+Router.route("search",
+  path: '/search'
+  where: 'client'
+  onBeforeAction: () ->
+    AccountsEntry.signInRequired(@)
+  waitOn: () ->
+    [
+      Meteor.subscribe('diseaseNames')
+      Meteor.subscribe('keywords')
+      Meteor.subscribe('results')
+    ]
+  onAfterAction: ()->
+    # Remove any previous selections which could exist
+    # if the user navigates away from the search page and comes back.
+    DiseasesSelected.find({}, {reactive:false}).forEach (d)->
+      DiseasesSelected.remove(d._id)
+    AnyKeywordsSelected.find({}, {reactive:false}).forEach (k)->
+      AnyKeywordsSelected.remove(k._id)
+    if @params.diagnosisId
+      diagnosis = DiagnosisResults().findOne(@params.diagnosisId)
+      if diagnosis
+        diagnosis.diseases.forEach (d)->
+          DiseasesSelected.insert(d)
+        if diagnosis.keywords
+          diagnosis.keywords.forEach (k)->
+            AnyKeywordsSelected.insert(k)
+    this.searchAutorun = Deps.autorun(createSearchAutorunFunction())
+  onStop: () ->
+    $('.popover').remove()
+    this.searchAutorun.stop()
+)
+
+Template.search.eq = (a, b)->
+  a == b
+
+Template.search.timestampToMonthYear = (t) ->
+  date = new Date(t)
+  monthNames = "January,February,March,April,May,June,July,August,September,October,November,December".split(",")
+  monthNames[date.getMonth()] + ' ' + date.getFullYear()
+
+Template.search.percentage = (a,b) ->
+  100 * a / b
+
+Template.search.updatePanes = () ->
+  data = []
+  
+  searchResults = Session.get('searchResults') or []
+
+  # It would be cool if we could highligh all the points for a given article 
+  # when someone clicks one.
+
+  data = _.chain(searchResults.map (result) ->
+    d = result._source
+    if d.meta.diagnosis?.features
+      d.meta.diagnosis.features.map (f)->
+        if f.type == "location"
+          location: f.geoname.name
+          summary: d.description
+          date: d.meta.date
+          disease: d.meta.disease
+          link: d.meta.link
+          species: d.meta.species
+          feed: d.meta.feed
+          latitude: f.geoname.latitude
+          longitude: f.geoname.longitude
+          name: d.name
+    ).flatten(true).filter((x)->x).value()
+    
+  Session.set('locations', data)
+  ''
+
+Template.search.diseaseCompleteSettings = ()->
+  {
+   position: "top",
+   limit: 5,
+   rules: [
+     {
+       collection: DiseaseNames(),
+       field: "_id",
+       template: Template.searchPill,
+     }
+   ]
+  }
+
+Template.search.keywordCompleteSettings = ()->
+  {
+   position: "top",
+   limit: 5,
+   rules: [
+     {
+       collection: Keywords(),
+       field: "_id",
+       template: Template.searchPill,
+     }
+   ]
+  }
+
 Session.setDefault('useView', 'listView')
 Template.search.useView = ()-> Session.get('useView')
 Template.search.viewTypes = [
@@ -204,10 +267,10 @@ Template.search.sortBy = ()-> Session.get('sortBy')
 Template.search.sortMethods = [
   {
     name: "dateAsc"
-    label: "Least Recent First"
+    label: "Oldest First"
   }, {
     name: "dateDesc"
-    label: "Most Recent First"
+    label: "Newest First"
   }, {
     name: "relevance"
     label: "Relevance"
@@ -318,7 +381,6 @@ Template.selector.itemsInCollection = ()-> this.collection.find()
 
 Template.selector.events
   "click .add-item" : (event) ->
-    console.log("Add")
     itemInput = $(event.target).parent().find('input')
     this.collection.insert({name : itemInput.val()})
     itemInput.val('')
