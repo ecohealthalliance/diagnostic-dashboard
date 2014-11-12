@@ -10,11 +10,19 @@
   position: absolute
 
 .loading-message ~ .dashboard-container
-  display none
+  // z-index hides the container, but still renders it so that visualizations 
+  // have the appropriate size.
+  z-index -1
 
 .loading-message
-  margin 50px
-  width 80%
+  padding 50px
+  z-index 100
+  background black
+  position absolute
+  top 62px
+  left 0
+  right 0
+  bottom 0
 
   h1
     position relative

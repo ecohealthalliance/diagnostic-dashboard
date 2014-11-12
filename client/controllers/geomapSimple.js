@@ -159,37 +159,16 @@
 
     var node = '#geomap';
 
-    function whenElementExpands($el, cb, waitFor) {
-        if(_.isUndefined(waitFor)) {
-            waitFor = 6000;
-        }
-        if(waitFor < 0) {
-            alert("Could not generate hisogram.");
-            return;
-        } else if($el.height() < 1 || $el.width() < 1) {
-            window.setTimeout(
-                _.partial(whenElementExpands, $el, cb, waitFor - 1000),
-                1000
-            );
-        } else {
-            cb();
-        }
-    }
     function generateGeomap() {
+        var locations = Session.get('locations');
         if($(node).length === 0) return;
-        whenElementExpands($(node).parent(), function(){
-            // There is a bug that's causing the viz dimensions not
-            // to match those of the parent element.
-            // Subtracting is done to prevent overflows
-            // from triggering scroll bars.
-            var width = $(node).parent().width() - 4;
-            var height = $(node).parent().height() - 4;
-            $(node).gritsMap({
-                width: width,
-                height: height,
-                data: Session.get('locations')
-            }).gritsMap('update');
-        });
+        var width = $(node).width();
+        var height = $(node).height();
+        $(node).gritsMap({
+            width: width,
+            height: height,
+            data: locations
+        }).gritsMap('update');
     }
 
     Template.geomapSimple.rendered = function () {
@@ -197,7 +176,7 @@
             $(window).on('resize', generateGeomap);
             this.initialized = true;
         }
-        generateGeomap()
+        generateGeomap();
     };
 
     Deps.autorun(generateGeomap);
