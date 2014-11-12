@@ -32,6 +32,7 @@ Template.resultList.results = () ->
   threashold = Math.max(1, meanCount - standardDeviation)
   return searchResults.map((result)->
     item = result._source
+    item.searchScore = result._score
     if not item.meta.diagnosis?.keywords_found
       item.distinctness = 0
       item.distinctKeywords = []
@@ -44,7 +45,6 @@ Template.resultList.results = () ->
     distinctKeywords = _.sortBy(distinctKeywords, (kw)-> keywordCounts[kw])
     item.distinctness = distinctKeywords.length
     item.distinctKeywords = distinctKeywords
-    item.searchScore = result._score
     # Create and attach an object that summarizes all the countes in the article.
     counts = 
       cases : rangeString(_.chain(item.meta.diagnosis.features)
