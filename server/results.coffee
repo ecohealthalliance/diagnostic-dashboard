@@ -2,5 +2,7 @@ Results = @grits.Results
 
 Meteor.publish('results', () ->
   if @userId
-    Results.find()
+    Results.find({
+      userId: @userId
+    })
 )
