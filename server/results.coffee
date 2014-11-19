@@ -1,8 +1,13 @@
 Results = @grits.Results
 
-Meteor.publish('results', () ->
+Meteor.publish('results', (resultId) ->
   if @userId
-    Results.find({
-      userId: @userId
-    })
+    if resultId
+      Results.find({
+        _id: resultId
+      })
+    else
+      Results.find({
+        userId: @userId
+      })
 )

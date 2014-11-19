@@ -43,9 +43,9 @@ Router.map () ->
       AccountsEntry.signInRequired(@)
     waitOn: () ->
       [
-        Meteor.subscribe('results')
         Meteor.subscribe('item')
         Meteor.subscribe('feedback')
+        Meteor.subscribe('results', @params._id)
       ]
     data: () ->
       data = Results.findOne(@params._id)
@@ -78,7 +78,7 @@ Router.map () ->
       [
         Meteor.subscribe('diseaseNames')
         Meteor.subscribe('keywords')
-        Meteor.subscribe('results')
+        Meteor.subscribe('results', @params.diagnosisId)
       ]
     onAfterAction: ()->
       # Remove any previous selections which could exist
