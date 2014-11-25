@@ -1,7 +1,6 @@
 template(name="search")
-  div(style="display:none") #{updatePanes}
   .dashboard-container
-    .left-panel.diagnosis
+    .left-panel.search-sidebar
       h3 Find articles with...
       h4 Any of these diseases:
       each diseasesSelected
@@ -24,14 +23,84 @@ template(name="search")
           span {{name}}
       +inputAutocomplete settings=keywordCompleteSettings id="new-all-keyword" class="input-xlarge"
       button(id="add-all-keyword") Add
+      h4 In one of these countries:
+      +selector collection=countriesSelected
+      div
+        b Approximate Document Counts:
+      each aggregations.countries.buckets
+        .document-count
+          span.count-bar(style="width: {{percentage doc_count totalResults}}%;") 
+          .count-text
+            a.add-country-filter(href="#" data-name="{{key}}") {{key}}
+            span : {{doc_count}} reports
+      h4 In the date range:
+      label
+        span.date-label Start
+        input.date-selector.from-date(type="date" value="{{fromDate}}")
+      br
+      label
+        span.date-label End
+        input.date-selector.to-date(type="date" value="{{toDate}}")
+      div
+        b Approximate Document Counts:
+      each aggregations.months.buckets
+        .document-count
+          span.count-bar(style="width: {{percentage doc_count totalResults}}%;") 
+          .count-text
+            a.set-month(href="") {{timestampToMonthYear key}}
+            | : {{doc_count}} reports
     .pane-container
-      .pane
-        +geomapSimple
-      .pane
-        +resultList
+      .vis-pane-bar
+        if numResults
+          span
+            | Page {{pageNum}} 
+            a(href="").prev-page Previous
+            | -
+            a(href="#").next-page Next
+          span | {{numResults}} of {{totalResults}} Results
+        else
+          span No Results
+        span.view-select
+          | | Sorted By:
+          select#sort-by
+            each sortMethods
+              if eq sortBy name
+                option(selected value=name) {{label}}
+              else
+                option(value=name) {{label}}
+        span.view-select
+          | | Choose View:
+          select#choose-view
+            each viewTypes
+              if eq useView name
+                option(selected value=name) {{label}}
+              else
+                option(value=name) {{label}}
+      .vis-pane
+        if searching
+          p Searching...
+        else if eq useView "mapView"
+          +geomapSimple
+        else if eq useView "listView"
+          +resultList
+        else if eq useView "dateGroupView"
+          +dateGroups
+        else if eq useView "locationGroupView"
+          +locationGroups
+        else if eq useView "diseaseGroupView"
+          +diseaseGroups
 
 template(name="searchPill")
   span(class="sp-label") {{_id}}
   span(class="sp-categories")
     each value.categories
       span(class="sp-category") [{{this}}]
+      
+template(name="selector")
+  each itemsInCollection
+    div
+      i.fa.fa-times-circle.remove-item(style="color:crimson;")
+      span {{name}}
+  div
+    input.input-xlarge
+    button.add-item Add

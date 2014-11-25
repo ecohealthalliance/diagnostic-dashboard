@@ -3,13 +3,26 @@
   flex-direction row
   align-items top
   justify-content flex-end
+  top: 62px
+  bottom: 0
+  right: 0
+  left: 0
+  position: absolute
 
 .loading-message ~ .dashboard-container
-  display none
+  // z-index hides the container, but still renders it so that visualizations 
+  // have the appropriate size.
+  z-index -1
 
 .loading-message
-  margin 50px
-  width 80%
+  padding 50px
+  z-index 100
+  background black
+  position absolute
+  top 62px
+  left 0
+  right 0
+  bottom 0
 
   h1
     position relative
@@ -23,14 +36,12 @@
     width 50px
     height 100px
 
-.left-panel, .diagnosis
-  margin-left 10px
+.left-panel
+  margin: 0;
+  border-right: 2px solid black;
   flex 0 0 340px
   background-color gainsboro
   color black
-  border-top 1px solid black
-  border-bottom 2px solid gainsboro
-  border-right 2px solid black
   overflow auto
   // Vertical padding will break the code that positions the panes
   padding 0 5px
@@ -61,27 +72,6 @@
   .activeLabel
     color blue
     border 1px solid black
-
-.pane-container
-  flex 1 1 auto
-  display flex
-  flex-direction row
-  align-items left
-  flex-wrap wrap
-
-.pane
-  flex 0 1 auto
-  background-color white
-  color black
-  border 1px solid black
-  overflow auto
-
-
-.pane.maximized
-  order -1
-
-.pane.minimized > div
-  pointer-events none
 
 .keypoint
   background-color darkgoldenrod

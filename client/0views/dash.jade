@@ -1,5 +1,4 @@
 template(name="dash")
-  div(style="display:none") #{updatePanes}
   unless ready
     .loading-message
       +spinner
@@ -140,11 +139,19 @@ template(name="dash")
               if eq type "location"
                 .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color, value=name) #{formatLocation}
     .pane-container
-      .pane.minimized
-        +geomapSimple
-      .pane.minimized
-        +timelineSimple
-      //-.pane
-      //-  +dendrogram
-      .pane.maximized
-        +text
+      .vis-pane-bar
+        span.view-select
+          | Choose View:
+          select#choose-view
+            each viewTypes
+              if eq useView name
+                option(selected value=name) {{label}}
+              else
+                option(value=name) {{label}}
+      .vis-pane
+        if eq useView "geomap"
+          +geomapSimple
+        else if eq useView "timeline"
+          +timelineSimple
+        else
+          +text

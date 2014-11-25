@@ -53,7 +53,38 @@ Router.map () ->
         prevDiagnosis = Results.findOne(data.prevDiagnosisId)
         if prevDiagnosis?.error
           data.prevDiagnosisError = true
-      data
+      
+      # Set dates/locations session variables for visualizations
+      features = data?.features or []
+      Session.set('dates', 
+        _.chain(features)
+          .where({type : 'datetime'})
+          .map((feature) ->
+            dateValue = new Date(feature.value)
+            if dateValue.toString() != "Invalid Date"
+              {
+                date: dateValue
+                latitude: null
+                longitude: null
+                location: null
+              }
+          ).filter(_.identity).value()
+      )
+    
+      Session.set('locations', 
+        _.chain(features)
+          .where({type : 'location'})
+          .map((location) ->
+            {
+              date: null
+              latitude: location.geoname.latitude
+              longitude: location.geoname.longitude
+              location: location.name
+            }
+          ).value()
+      )
+    
+      return data
     onAfterAction: () ->
       try
         if typeof(@params.showKeypoints) != 'undefined'
@@ -66,36 +97,6 @@ Router.map () ->
     onStop: () ->
       Session.set('disease', null)
       Session.set('features', [])
-      $('.popover').remove()
-  )
-
-  @route("search",
-    path: '/search'
-    where: 'client'
-    onBeforeAction: () ->
-      AccountsEntry.signInRequired(@)
-    waitOn: () ->
-      [
-        Meteor.subscribe('diseaseNames')
-        Meteor.subscribe('keywords')
-        Meteor.subscribe('results', {_id: @params.diagnosisId})
-      ]
-    onAfterAction: ()->
-      # Remove any previous selections which could exist
-      # if the user navigates away from the search page and comes back.
-      DiseasesSelected.find({},{reactive:false}).forEach (d)->
-        DiseasesSelected.remove(d._id)
-      AnyKeywordsSelected.find({},{reactive:false}).forEach (k)->
-        AnyKeywordsSelected.remove(k._id)
-      if @params.diagnosisId
-        diagnosis = Results.findOne(@params.diagnosisId)
-        if diagnosis
-          diagnosis.diseases.forEach (d)->
-            DiseasesSelected.insert(d)
-          if diagnosis.keywords
-            diagnosis.keywords.forEach (k)->
-              AnyKeywordsSelected.insert(k)
-    onStop: () ->
       $('.popover').remove()
   )
 

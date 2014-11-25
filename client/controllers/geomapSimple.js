@@ -4,6 +4,13 @@
 (function ($, geo, d3) {
     'use strict';
 
+    // Hide popovers when unrelated things are clicked.
+    $(document).on('click', function(evt){
+        if($(evt.target).closest('.popover-content').length === 0) {
+            $('body div.popover').popover('hide');
+        }
+    });
+
     var widgetSpec = {
         options: {
             data: [],
@@ -31,9 +38,6 @@
             this._layer = this._map.createLayer('feature', {'renderer': 'd3Renderer'});
             this._feature = this._layer.createFeature('point');
 
-            this._layer.geoOn([geo.event.pan, geo.event.zoom, geo.event.resize], function () {
-              $('body div.popover').popover('hide');
-            });
             this._geomapCreated = true;
             this._data = [];
             this.update();
@@ -102,9 +106,10 @@
                     trigger: 'manual',
                     content: msg.join('<br>\n')
                 })
-                .off('mousedown')
-                .on('mousedown', function (evt) {
-                    $(this).popover('toggle');
+                .off('mouseover')
+                .on('mouseover', function (evt) {
+                    $('body div.popover').popover('hide');
+                    $(this).popover('show');
                     evt.stopPropagation();
                 });
             }
@@ -154,31 +159,29 @@
 
     var node = '#geomap';
 
+    function generateGeomap() {
+        var locations = Session.get('locations');
+        if($(node).length === 0) return;
+        var width = $(node).width();
+        var height = $(node).height();
+        $(node).gritsMap({
+            width: width,
+            height: height,
+            data: locations
+        }).gritsMap('update');
+    }
+
     Template.geomapSimple.rendered = function () {
         if (!this.initialized) {
-            $(node)
-                .on('resizeApp', function (evt, obj) {
-                    $(node).gritsMap({
-                        width: obj.width,
-                        height: obj.height
-                    })
-                    .gritsMap('resize');
-
-                });
+            $(window).on('resize', generateGeomap);
             this.initialized = true;
         }
-        $(node).gritsMap({
-            data: Session.get('locations')
-        });
+        generateGeomap();
     };
 
-    Deps.autorun(function () {
-        $(node).gritsMap({
-            data: Session.get('locations')
-        })
-        .gritsMap('update');
-    });
+    Deps.autorun(generateGeomap);
 
+    // Highlight selected features on the visulization
     Deps.autorun(function () {
         var features = Session.get('features') || [],
             locations = [],

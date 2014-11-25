@@ -3,9 +3,17 @@
   stroke-width 1
   fill none
   shape-rendering crispEdges
+
 #timeline
-  width 100%
-  height 100%
+  position absolute
+  // There is a bug that's causing the viz dimensions not
+  // to match those of the parent element somtimes.
+  // Adding a margin is done to prevent overflows
+  // from triggering scroll bars.
+  top 4px
+  height calc(100% - 8px)
+  left 4px
+  width calc(100% - 8px)
 
 .histogram .plot .boxes
   stroke: black

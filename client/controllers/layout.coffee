@@ -3,7 +3,3 @@ Template.layout.isDashboard = () ->
 
 Template.layout.signedIn = () ->
   Meteor.user()
-
-Template.layout.events
-  "click .reset-panels" : () ->
-    $('.pane-container').trigger('resetPanes')
