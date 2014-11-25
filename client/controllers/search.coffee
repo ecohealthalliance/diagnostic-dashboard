@@ -15,7 +15,7 @@ AnyKeywordsSelected = new Meteor.Collection(null)
 AllKeywordsSelected = new Meteor.Collection(null)
 CountriesSelected = new Meteor.Collection(null)
 
-isntEmptyObjectyOrArray = (x)->
+isntEmptyObjectOrArray = (x)->
   if _.isArray(x) or _.isObject(x)
     not _.isEmpty(x)
   else
@@ -27,14 +27,12 @@ isntEmptyObjectyOrArray = (x)->
 # are removed, and so on...
 removeEmptyValues = (obj)->
   if _.isArray(obj)
-    _.chain(obj).map((val)->
-      removeEmptyValues(val)
-    ).filter(isntEmptyObjectyOrArray).value()
+    _.chain(obj).map(removeEmptyValues).filter(isntEmptyObjectOrArray).value()
   else if _.isObject(obj)
     _.chain(obj).map((val, key)->
       [key, removeEmptyValues(val)]
     ).filter((pair)->
-      isntEmptyObjectyOrArray(pair[1])
+      isntEmptyObjectOrArray(pair[1])
     ).object().value()
   else
     obj
