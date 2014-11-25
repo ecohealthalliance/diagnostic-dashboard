@@ -25,7 +25,7 @@ Router.map () ->
     waitOn: () ->
       [
         Meteor.subscribe('users')
-        Meteor.subscribe('results')
+        Meteor.subscribe('results', {userId: (@params._id or Meteor.userId())})
       ]
     data: () ->
       userId = @params._id or Meteor.userId()
@@ -45,7 +45,7 @@ Router.map () ->
       [
         Meteor.subscribe('item')
         Meteor.subscribe('feedback')
-        Meteor.subscribe('results', @params._id)
+        Meteor.subscribe('results', {_id: @params._id})
       ]
     data: () ->
       data = Results.findOne(@params._id)
@@ -78,7 +78,7 @@ Router.map () ->
       [
         Meteor.subscribe('diseaseNames')
         Meteor.subscribe('keywords')
-        Meteor.subscribe('results', @params.diagnosisId)
+        Meteor.subscribe('results', {_id: @params.diagnosisId})
       ]
     onAfterAction: ()->
       # Remove any previous selections which could exist
