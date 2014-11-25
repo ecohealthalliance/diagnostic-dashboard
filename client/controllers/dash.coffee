@@ -46,10 +46,16 @@ Template.dash.formatDate = () ->
     return "Past reference"
   else if @value == "PRESENT_REF"
     return "Present reference"
+  else if @value == "FUTURE_REF"
+    return "Future reference"
   else
     date = new Date(@value)
     date.setDate(date.getDate() + 1)
-    return date.toLocaleDateString()
+    dateString = date.toLocaleDateString()
+    if dateString == 'Invalid Date'
+      return @value
+    else
+      return dateString
 
 Template.dash.color = () ->
   if @categories

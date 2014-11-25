@@ -160,7 +160,7 @@ Router.route("search",
     [
       Meteor.subscribe('diseaseNames')
       Meteor.subscribe('keywords')
-      Meteor.subscribe('results')
+      Meteor.subscribe('results', {_id: @params.diagnosisId})
     ]
   onAfterAction: ()->
     # Remove any previous selections which could exist

@@ -25,7 +25,7 @@ Router.map () ->
     waitOn: () ->
       [
         Meteor.subscribe('users')
-        Meteor.subscribe('results')
+        Meteor.subscribe('results', {userId: (@params._id or Meteor.userId())})
       ]
     data: () ->
       userId = @params._id or Meteor.userId()
@@ -43,9 +43,9 @@ Router.map () ->
       AccountsEntry.signInRequired(@)
     waitOn: () ->
       [
-        Meteor.subscribe('results')
         Meteor.subscribe('item')
         Meteor.subscribe('feedback')
+        Meteor.subscribe('results', {_id: @params._id})
       ]
     data: () ->
       data = Results.findOne(@params._id)
