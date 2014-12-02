@@ -13,9 +13,6 @@ template(name="dash")
       .btn-group.btn-group-justified(style="margin-top:5px;")
         a.btn.btn-default(href='/search?diagnosisId=#{_id}') Find Similar Articles
       h4 Diagnosis
-        span.btn-group.btn-group-xs(style="float:right;")
-          a.btn.btn-default(href='/symptomTable/#{_id}') Detailed diagnosis
-          a.btn.btn-default.open-feedback Feedback
       +reactiveTable collection=diseases settings=tableSettings
       .btn-group.btn-group-justified.btn-group-sm
         if prevDiagnosisId
@@ -25,6 +22,8 @@ template(name="dash")
           a.btn.btn-default.prev-diagnosis(href='/dash/#{updatedDiagnosisId}') Updated Diagnosis
         else
           a.btn.btn-default.rediagnose Rediagnose
+      .btn-group.btn-group-justified.btn-group-sm
+        a.btn.btn-default.open-feedback Feedback
       +feedback
       if showKeypoints
         .keypoints
@@ -153,5 +152,7 @@ template(name="dash")
           +geomapSimple
         else if eq useView "timeline"
           +timelineSimple
+        else if eq useView "symptomTable"
+          +symptomTable
         else
           +text
