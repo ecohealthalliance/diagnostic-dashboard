@@ -93,7 +93,7 @@ Template.dash.tableSettings = () ->
   fields: [
     {
       key: 'probability'
-      label: 'Probability'
+      label: 'Confidence'
       sort: -1
       fn: (prob) ->
         Math.round(prob * 1000) / 1000
@@ -134,6 +134,9 @@ Template.dash.viewTypes = [
   }, {
     name: "timeline"
     label: "Timeline"
+  }, {
+    name: "symptomTable"
+    label: "Detailed Diagnosis"
   }
 ]
 
