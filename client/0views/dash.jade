@@ -11,7 +11,10 @@ template(name="dash")
   .dashboard-container
     .left-panel.diagnosis
       .btn-group.btn-group-justified(style="margin-top:5px;")
-        a.btn.btn-default(href='/search?diagnosisId=#{_id}') Find Similar Articles
+        a.btn.btn-default(href='/searchGirder?diagnosisId=#{_id}') Find Similar Articles
+      .btn-group.btn-group-justified(style="margin-top:5px;")
+        a.btn.btn-default(href='/searchGrid?diagnosisId=#{_id}') Find Similar Historic Events
+
       h4 Diagnosis
         span.btn-group.btn-group-xs(style="float:right;")
           a.btn.btn-default(href='/symptomTable/#{_id}') Detailed diagnosis
@@ -32,7 +35,7 @@ template(name="dash")
           each keypoints
             .keypoint
               if count
-                b Cases: 
+                b Cases:
                 if count.approximate
                   | ~
                 if count.number
@@ -81,7 +84,7 @@ template(name="dash")
                 | #{location.name}, {{location/[country code]}}
                 br
               if occupation
-                b Occupation: 
+                b Occupation:
                 | #{occupation}
                 br
               if symptom
@@ -89,7 +92,7 @@ template(name="dash")
                 | #{symptom}
                 br
               if risk
-                b Risk factor: 
+                b Risk factor:
                 | #{risk}
                 br
               if host

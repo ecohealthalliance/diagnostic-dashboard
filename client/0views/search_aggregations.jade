@@ -1,0 +1,29 @@
+template(name="searchAggregations")
+
+  h4 In one of these countries:
+  +selector collection=countriesSelected
+  div
+    b Approximate Document Counts:
+  each aggregations.countries.buckets
+    .document-count
+      span.count-bar(style="width: {{percentage doc_count ../totalResults}}%;")
+      .count-text
+        a.add-country-filter(href="#" data-name="{{key}}") {{key}}
+        span : {{doc_count}} reports
+
+  h4 In the date range:
+  label
+    span.date-label Start
+    input.date-selector.from-date(type="date" value="{{fromDate}}")
+  br
+  label
+    span.date-label End
+    input.date-selector.to-date(type="date" value="{{toDate}}")
+  div
+    b Approximate Document Counts:
+  each aggregations.months.buckets
+    .document-count
+      span.count-bar(style="width: {{percentage doc_count ../totalResults}}%;")
+      .count-text
+        a.set-month(href="") {{timestampToMonthYear key}}
+        | : {{doc_count}} reports
