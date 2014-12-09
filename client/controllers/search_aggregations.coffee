@@ -37,13 +37,7 @@ wrapCreateQuery = (createQuery) ->
           'meta.date': dateRange
       }
 
-    return {
-      query:
-        filtered:
-          query: query
-          filter:
-            bool:
-              must: must_terms
+    fullQuery = {
       aggregations:
         countries:
           terms:
@@ -60,6 +54,16 @@ wrapCreateQuery = (createQuery) ->
         { "_score": { "order": "desc" }}
       ]
     }
+
+    unless _.isEmpty(query) and _.isEmpty(must_terms)
+      fullQuery['query'] =
+        filtered:
+          query: query
+          filter:
+            bool:
+              must: must_terms
+
+    fullQuery
 
 
 
