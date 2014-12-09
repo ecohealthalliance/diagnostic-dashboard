@@ -8,7 +8,6 @@ Template.dash.eq = (a, b) ->
 Template.dash.showCategory = (category, keywords) ->
   visibleCats = [
     'datetime'
-    'location'
     'caseCount'
     'deathCount'
     'hospitalizationCount'
@@ -17,6 +16,8 @@ Template.dash.showCategory = (category, keywords) ->
     _.any(@features, (feature) ->
       feature.type is category
     )
+  else if category is 'location'
+    @geonames.length > 0
   else
     _.any(@keywords or keywords, (keyword) ->
       _.any(keyword.categories, (keywordCategory) ->
@@ -37,8 +38,6 @@ Template.dash.formatLocation = () ->
   location = "#{@name}"
   admin1Code = @geoname['admin1 code'] # e.g., state
   location += ", #{admin1Code}" if admin1Code and /^[a-z]+$/i.test(admin1Code)
-  countryCode = @geoname['country code']
-  location += ", #{countryCode}" if countryCode
   location
 
 Template.dash.formatDate = () ->
