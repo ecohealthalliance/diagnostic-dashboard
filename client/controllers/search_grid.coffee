@@ -49,23 +49,23 @@ createQuery = (DiseasesSelected, AnyKeywordsSelected, AllKeywordsSelected) ->
     else
       "(#{terms.join(" OR ")})"
 
-  should_terms.concat(disease_terms)
+  should_terms = should_terms.concat(disease_terms)
   should_terms = _.without should_terms, null
 
   must_terms = ["eidVal:1"]
-  must_terms.concat AllKeywordsSelected.find().map (k)->
+  must_terms = must_terms.concat AllKeywordsSelected.find().map (k)->
     name = k.name.toLowerCase()
     categories = @grits.Girder.Keywords.findOne({_id: name})?.value?.categories
     gridFields = _.uniq categories.map (category) ->
       categoryMap[category]
     gridFields = _.without gridFields, undefined
-    terms = "#{gridField}:\"#{name}\"" for gridField in gridFields
+    terms = ("#{gridField}:\"#{name}\"" for gridField in gridFields)
     if _.isEmpty(terms)
       null
     else
       "(#{terms.join(" OR ")})"
   must_terms = _.without must_terms, null
-
+  
   query = ""
   if must_terms.length > 0
     query += "(#{must_terms.join(" AND ")})"
