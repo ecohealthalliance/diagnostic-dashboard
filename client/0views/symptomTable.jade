@@ -1,8 +1,6 @@
 template(name="symptomTable")
-  div(style="display:none") #{updatePanes}
-  .dashboard-container
-    .diagnosis(style="flex: 0 0 100%;")
-      h4 Detailed Diagnosis
-        span.btn-group.btn-group-xs(style="float:right;")
-          a.btn.btn-default(href='/dash/#{_id}') Less detailed diagnosis
-      +reactiveTable collection=symptomTableCollection settings=tableSettings
+  .symptom-table
+    +reactiveTable collection=symptomTableCollection settings=tableSettings
+    p.info
+      | The values in this table correspond to the relative weights the keywords
+      | in each column had in determining the disease classifications in each row.

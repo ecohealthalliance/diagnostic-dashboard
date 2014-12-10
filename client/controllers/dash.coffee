@@ -1,96 +1,6 @@
 DISABLE_MULTI_HIGHLIGHT = true
-setHeights = () ->
-
-  # width of the diagnostic side panal
-  diagnosisWidth = 375
-
-  # determine the layout
-  paneCount = $('.pane').length
-  columns = Math.round(Math.sqrt(paneCount))
-  rows = Math.ceil(paneCount / columns)
-
-  minPaneCount = paneCount - 1
-  minPaneCols = Math.round(1.5 * Math.sqrt(minPaneCount))
-  minPaneRows = Math.ceil(minPaneCount / minPaneCols)
-
-  # get the absolute position of the bottom of the header
-  top = $('.header').outerHeight(true)
-
-  # get the full size for vis panes
-  fullHeight = $(window).height() - top
-  fullWidth = $(window).width() - diagnosisWidth
-
-  defaultHeight = Math.floor(fullHeight / rows)
-  defaultWidth = Math.floor(fullWidth / columns)
-
-  maximizedHeight = Math.floor(fullHeight * 0.75)
-  maximizedWidth = fullWidth
-
-  minimizedHeight = Math.floor((fullHeight * 0.25) / minPaneRows)
-  minimizedWidth = Math.floor(fullWidth / minPaneCols)
-
-  $('.pane').height(defaultHeight)
-  $('.pane').width(defaultWidth)
-
-  $('.minimized').height(minimizedHeight)
-  $('.minimized').width(minimizedWidth)
-  $('.maximized').height(maximizedHeight)
-  $('.maximized').width(maximizedWidth)
-
-  $('.diagnosis').height(fullHeight)
-  $('.diagnosis').width(diagnosisWidth)
-
-  $('.pane').each (i, node) ->
-    n = $(node)
-    n.children().trigger('resizeApp', {
-      width: n.width()
-      height: n.height()
-    })
-
 color = (text) =>
   @grits.services.color text
-
-Template.dash.rendered = () ->
-
-  if !this.initialized
-    setHeights()
-    $(window).resize(setHeights)
-    $('.pane-container').on('resetPanes', () ->
-      $('.pane').removeClass('maximized').removeClass('minimized')
-      setHeights()
-    )
-    this.initialized = true
-
-Template.dash.updatePanes = () ->
-  # updating the panes as a side effect of a template call is temporary
-  dateFeatures = _.filter(@features, (feature) ->
-    feature.type is 'datetime'
-  )
-  dates = _.map(dateFeatures, (feature) ->
-    {
-      date: new Date(feature.value)
-      latitude: null
-      longitude: null
-      location: null
-    }
-  )
-
-  locationFeatures = _.filter(@features, (feature) ->
-    feature.type is 'location'
-  )
-
-  locations = []
-  _.each(locationFeatures, (location) ->
-      locations.push {
-        date: null
-        latitude: location.geoname.latitude
-        longitude: location.geoname.longitude
-        location: location.name
-      }
-    )
-
-  Session.set('dates', dates)
-  Session.set('locations', locations)
 
 Template.dash.eq = (a, b) ->
   a == b
@@ -184,7 +94,7 @@ Template.dash.tableSettings = () ->
   fields: [
     {
       key: 'probability'
-      label: 'Probability'
+      label: 'Confidence'
       sort: -1
       fn: (prob) ->
         Math.round(prob * 1000) / 1000
@@ -215,15 +125,26 @@ Template.dash.tableSettings = () ->
 Template.dash.keywordCategories = () =>
   @grits.KEYWORD_CATEGORIES
 
-Template.dash.events
-  "click .pane:not(.maximized)": (event) ->
-    selectedPane = $(event.currentTarget)
-    selectedPane.hide()
-    $('.pane').removeClass('maximized').addClass('minimized')
-    selectedPane.removeClass('minimized').addClass('maximized')
-    setHeights()
-    selectedPane.fadeIn()
+Template.dash.viewTypes = [
+  {
+    name: "text"
+    label: "Text"
+  }, {
+    name: "geomap"
+    label: "Map"
+  }, {
+    name: "timeline"
+    label: "Timeline"
+  }, {
+    name: "symptomTable"
+    label: "Detailed Diagnosis"
+  }
+]
 
+Template.dash.useView = ()->
+  Session.get("dashView")
+
+Template.dash.events
   "click .diagnosis .reactive-table tbody tr" : (event) ->
     if Session.get('disease') is @name
       Session.set('disease', null)
@@ -256,8 +177,8 @@ Template.dash.events
     this.color = 'goldenrod'
     Session.set('features', [this])
 
-  "click .reset-panels": (event) ->
-    setHeights()
+  "change #choose-view": (event) ->
+    Session.set('dashView', $(event.target).val())
 
   "click .open-feedback": (event) ->
     feedbackBaseData = {
@@ -301,8 +222,8 @@ Template.dash.events
 
   "click .features h4": (event, template) ->
 
-    Session.set('disease', null)
-    Session.set('features', [])
+    #Session.set('disease', null)
+    #Session.set('features', [])
 
     category = $(event.target).attr('class')
     if category in ['caseCount', 'hospitalizationCount', 'deathCount',
@@ -314,7 +235,7 @@ Template.dash.events
       source = template.data.features
       nameKey = 'name'
 
-   # Clicking a header can do one of two things:
+    # Clicking a header can do one of two things:
     # - if any of the features for that category are currently not highlighted,
     # turn highlighting on for all features in that category
     # - if all features for the category are highlighted, turn them all off.

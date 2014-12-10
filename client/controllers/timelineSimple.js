@@ -22,33 +22,37 @@
             .attr('dx', '0.5em')
             .attr('dy', '0.1em');
     }
+    function generateHist(evt) {
+        var dates = Session.get('dates');
+        if($(node).length === 0) return;
+        var width = $(node).width();
+        var height = $(node).height();
+        //Subsequent calls to histogram will not work if there is already
+        //a histogram and associated data in the timeline element.
+        $(node).empty().removeData();
+        $(node).histogram({
+            data: dates,
+            x: function (d) { return d.date.valueOf(); },
+            xScale: d3.time.scale(),
+            transition: 0,
+            width: width,
+            height: height,
+            nBins: nBins
+        });
+        applyAxisStyle();
+    }
     
     Template.timelineSimple.rendered = function () {
         if (!this.initialized) {
-            $(node).on('resizeApp', function (evt, obj) {
-                $(node).histogram({
-                    data: Session.get('dates'),
-                    x: function (d) { return d.date.valueOf(); },
-                    xScale: d3.time.scale(),
-                    transition: 0,
-                    margin: margin,
-                    width: obj.width,
-                    height: obj.height,
-                    nBins: nBins
-                });
-                applyAxisStyle();
-            });
+            $(window).on('resize', generateHist);
             this.initialized = true;
         }
+        generateHist();
     };
 
-    Deps.autorun(function () {
-        $(node).histogram({
-            data: Session.get('dates')
-        });
-        applyAxisStyle();
-    });
+    Deps.autorun(generateHist);
 
+    // Highlight selected features on the visulization
     Deps.autorun(function () {
         var features = Session.get('features') || [],
             dates = [];
