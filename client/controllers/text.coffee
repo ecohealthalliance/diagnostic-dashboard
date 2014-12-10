@@ -14,7 +14,6 @@ Template.text.highlight = (content) ->
   features = Session.get('features')
 
   if features and content and (features instanceof Array)
-    Template.dash.setActiveFeatureStyle()
     if features?.length > 0 and features[0].textOffsets
       # sort occurrences in descending order of start, so that we can add them
       # to the content string from end to beginning, so that offsets remain

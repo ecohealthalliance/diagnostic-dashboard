@@ -106,19 +106,29 @@ template(name="dash")
               h4(class=pattern) #{label}
               each ../features
                 if eq type ../pattern
-                  .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color) #{value}
+                  .label(id="{{getIdKey}}"
+                    style="background-color:{{color}};"
+                    pillColor=color
+                    class="{{featureSelected this}}") #{value}
         if showCategory 'datetime'
           .feature-section.dates
             h4.datetime Dates
             each features
               if eq type "datetime"
-                .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color) #{formatDate}
+                .label(id="{{getIdKey}}"
+                  style="background-color:{{color}};"
+                  pillColor=color
+                  class="{{featureSelected this}}") #{formatDate}
         if showCategory 'location'
           .feature-section.locations
             h4.location Locations
             each features
               if eq type "location"
-                .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color, value=name) #{formatLocation}
+                .label(id="{{getIdKey}}"
+                  style="background-color:{{color}};"
+                  pillColor=color
+                  value=name
+                  class="{{featureSelected this}}") #{formatLocation}
     .pane-container
       .vis-pane-bar
         span.view-select

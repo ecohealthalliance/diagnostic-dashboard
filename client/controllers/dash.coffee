@@ -73,20 +73,7 @@ Template.dash.getIdKey = () ->
 Template.dash.getIdKeyFromFeature = (feature) ->
   idKey = feature.name or feature.text or String(feature.value)
   idKey.replace(/[^A-Za-z0-9]/g, '_')
-
-Template.dash.setActiveFeatureStyle = () ->
-
-  # Reset all box shadows to original colors
-
-  $(".features .label").each () ->
-    $(this).css "box-shadow", "0px 0px 0px 2px " + $(this).attr "pillColor"
-
-  activeFeatures = Session.get('features')
-  for feature in activeFeatures
-    idKey = Template.dash.getIdKeyFromFeature feature
-
-    $("#" + idKey).css "box-shadow", "0px 0px 0px 2px #555"
-
+ 
 Template.dash.selected = () ->
   @name == Session.get('disease')
 
@@ -125,6 +112,14 @@ Template.dash.tableSettings = () ->
 Template.dash.keywordCategories = () =>
   @grits.KEYWORD_CATEGORIES
 
+Template.dash.featureSelected = (feature) ->
+  idKey = Template.dash.getIdKeyFromFeature(feature)
+  ids = _.map(Session.get('features') or [], Template.dash.getIdKeyFromFeature)
+  if _.contains(ids, idKey)
+    "selected"
+  else
+    ""
+
 Template.dash.viewTypes = [
   {
     name: "text"
@@ -154,10 +149,6 @@ Template.dash.events
       Session.set('features', @keywords)
 
   "click .diagnosis .label" : (event) ->
-
-    Session.set('disease', null)
-    Session.set('features', [])
-
     currentFeatures = Session.get('features') or []
 
     found = false
@@ -221,10 +212,6 @@ Template.dash.events
     )
 
   "click .features h4": (event, template) ->
-
-    #Session.set('disease', null)
-    #Session.set('features', [])
-
     category = $(event.target).attr('class')
     if category in ['caseCount', 'hospitalizationCount', 'deathCount',
                     'datetime', 'diseases', 'hosts', 'modes', 'pathogens',
