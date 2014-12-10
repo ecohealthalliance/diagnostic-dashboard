@@ -161,6 +161,9 @@
 
     function generateGeomap() {
         var locations = Session.get('locations');
+        var features = Session.get('features') || [],
+            selectedLocations = [],
+            data = [];
         if($(node).length === 0) return;
         var width = $(node).width();
         var height = $(node).height();
@@ -169,6 +172,23 @@
             height: height,
             data: locations
         }).gritsMap('update');
+        
+        // Highlight selected features on the visulization
+        features.forEach(function (feature) {
+            if (feature.type === 'location') {
+                selectedLocations.push(feature);
+            }
+        });
+        $(node).gritsMap('selection').each(function (d) {
+            var selected = false;
+            selectedLocations.forEach(function (location) {
+                selected |= Math.abs(d.latitude - location.geoname.latitude) < 10e-6 &&
+                            Math.abs(d.longitude - location.geoname.longitude) < 10e-6;
+            });
+            d.selected = selected;
+            data.push(d);
+        });
+        $(node).gritsMap({data: data}).gritsMap('update');
     }
 
     Template.geomapSimple.rendered = function () {
@@ -180,27 +200,5 @@
     };
 
     Deps.autorun(generateGeomap);
-
-    // Highlight selected features on the visulization
-    Deps.autorun(function () {
-        var features = Session.get('features') || [],
-            locations = [],
-            data = [];
-        features.forEach(function (feature) {
-            if (feature.type === 'location') {
-                locations.push(feature);
-            }
-        });
-        $(node).gritsMap('selection').each(function (d) {
-            var selected = false;
-            locations.forEach(function (location) {
-                selected |= Math.abs(d.latitude - location.geoname.latitude) < 10e-6 &&
-                            Math.abs(d.longitude - location.geoname.longitude) < 10e-6;
-            });
-            d.selected = selected;
-            data.push(d);
-        });
-        $(node).gritsMap({data: data}).gritsMap('update');
-    });
 
 }(window.jQuery, window.geo, window.d3));
