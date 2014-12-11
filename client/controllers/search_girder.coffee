@@ -75,7 +75,11 @@ createQuery = (DiseasesSelected, AnyKeywordsSelected, AllKeywordsSelected) ->
         minimum_should_match: 1
   query
 
-@grits.controllers.searchAggregations.createRoute('searchGirder', createQuery, doQuery)
+aggregationKeys = 
+  'country': 'meta.country'
+  'date': 'meta.date'
+
+@grits.controllers.search.createRoute('searchGirder', createQuery, doQuery, aggregationKeys)
 
 
 Template.searchGirder.viewTypes = [

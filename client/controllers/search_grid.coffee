@@ -1,6 +1,6 @@
 doQuery = (query, options, callback) ->
   Meteor.call('gridsearch', query, options, (e,r) ->
-    callback e, r.results, r.total
+    callback e, r.results, r.total, r.aggregations
   )
 
 createQuery = (DiseasesSelected, AnyKeywordsSelected, AllKeywordsSelected) ->
@@ -35,7 +35,9 @@ createQuery = (DiseasesSelected, AnyKeywordsSelected, AllKeywordsSelected) ->
   }
 
   disease_terms = DiseasesSelected.find().map (k)->
-    "diseaseVal:\"#{k.name.toLowerCase()}\""
+    fuzzy_like_this:
+      fields: ['diseaseVal']
+      like_text: k.name.toLowerCase()
 
   should_terms = AnyKeywordsSelected.find().map (k)->
     name = k.name.toLowerCase()
@@ -43,40 +45,49 @@ createQuery = (DiseasesSelected, AnyKeywordsSelected, AllKeywordsSelected) ->
     gridFields = _.uniq categories.map (category) ->
       categoryMap[category]
     gridFields = _.without gridFields, undefined
-    terms = ("#{gridField}:\"#{name}\"" for gridField in gridFields)
-    if _.isEmpty(terms)
+    if _.isEmpty(gridFields)
       null
     else
-      "(#{terms.join(" OR ")})"
+      fuzzy_like_this:
+        fields: gridFields
+        like_text: name
 
   should_terms = should_terms.concat(disease_terms)
   should_terms = _.without should_terms, null
 
-  must_terms = ["eidVal:1"]
+  must_terms = [
+    match_phrase:
+      eidVal: 1
+  ]
   must_terms = must_terms.concat AllKeywordsSelected.find().map (k)->
     name = k.name.toLowerCase()
     categories = @grits.Girder.Keywords.findOne({_id: name})?.value?.categories
     gridFields = _.uniq categories.map (category) ->
       categoryMap[category]
     gridFields = _.without gridFields, undefined
-    terms = ("#{gridField}:\"#{name}\"" for gridField in gridFields)
-    if _.isEmpty(terms)
+    if _.isEmpty(gridFields)
       null
     else
-      "(#{terms.join(" OR ")})"
+      fuzzy_like_this:
+        fields: gridFields
+        like_text: name
   must_terms = _.without must_terms, null
   
-  query = ""
-  if must_terms.length > 0
-    query += "(#{must_terms.join(" AND ")})"
-  if should_terms.length > 0
-    if query.length > 0
-      query += " AND "
-    query += "(#{should_terms.join(" OR ")})"
-  return query
+  query = {}
+  if [].concat(should_terms, must_terms).length > 0
+    query =
+      bool:
+        must: must_terms
+        should: should_terms
+        minimum_should_match: 1
+  query
+
+aggregationKeys = 
+  'country': 'locationNation'
+  'date': 'startDateISO'
 
 
-@grits.controllers.search.createRoute('searchGrid', createQuery, doQuery)
+@grits.controllers.search.createRoute('searchGrid', createQuery, doQuery, aggregationKeys)
 
 Template.searchGrid.viewTypes = [
   {

@@ -20,6 +20,37 @@ template(name="searchPill")
   span(class="sp-categories")
     each value.categories
       span(class="sp-category") [{{this}}]
+
+template(name="searchAggregations")
+
+  h4 In one of these countries:
+  +selector collection=countriesSelected
+  div
+    b Approximate Document Counts:
+  each aggregations.countries.buckets
+    .document-count
+      span.count-bar(style="width: {{percentage doc_count ../totalResults}}%;")
+      .count-text
+        a.add-country-filter(href="#" data-name="{{key}}") {{key}}
+        span : {{doc_count}} reports
+
+  h4 In the date range:
+  label
+    span.date-label Start
+    input.date-selector.from-date(type="date" value="{{fromDate}}")
+  br
+  label
+    span.date-label End
+    input.date-selector.to-date(type="date" value="{{toDate}}")
+  div
+    b Approximate Document Counts:
+  each aggregations.months.buckets
+    .document-count
+      span.count-bar(style="width: {{percentage doc_count ../totalResults}}%;")
+      .count-text
+        a.set-month(href="") {{timestampToMonthYear key_as_string}}
+        | : {{doc_count}} reports
+
       
 template(name="search")
   .dashboard-container
@@ -35,8 +66,7 @@ template(name="search")
       h4 All of these keywords:
       +searchInput type="all-keyword" selected=allKeywordsSelected autocompleteCollection=keywords autocompleteId="new-all-keyword"
 
-      unless eq type "grid"
-        +searchAggregations totalResults=totalResults
+      +searchAggregations totalResults=totalResults
 
     .pane-container
       .vis-pane-bar
