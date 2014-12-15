@@ -31,7 +31,7 @@ createDoQueryFunction = (doQuery) ->
     doQuery(query, options, callback)
   ), 1000)
 
-createSearchAutorunFunction = (createQuery, doQuery, aggregationKeys) ->
+createSearchAutorunFunction = (createQuery, doQuery, aggregationKeys, dateAggregationRanges) ->
   lastPage = null
   Session.set('searchPage', 0)
   return () ->
@@ -75,10 +75,12 @@ createSearchAutorunFunction = (createQuery, doQuery, aggregationKeys) ->
         countries:
           terms:
             field: aggregationKeys.country
-        months:
-          date_histogram:
+        dates:
+          date_range:
             field: aggregationKeys.date
-            interval: '1M'
+            format: 'MM-yyyy'
+            ranges: dateAggregationRanges
+
       sort: [
         sort
         # Relevance score is used as a secondary criteria so it is always
@@ -106,7 +108,7 @@ createSearchAutorunFunction = (createQuery, doQuery, aggregationKeys) ->
 @grits ?= {}
 @grits.controllers ?= {}
 @grits.controllers.search ?= {}
-@grits.controllers.search.createRoute = (name, createQuery, doQuery, aggregationKeys) ->
+@grits.controllers.search.createRoute = (name, createQuery, doQuery, aggregationKeys, dateAggregationRanges) ->
   Router.route(name,
     path: "/#{name}"
     where: "client"
@@ -145,7 +147,8 @@ createSearchAutorunFunction = (createQuery, doQuery, aggregationKeys) ->
       this.searchAutorun = Deps.autorun(
         createSearchAutorunFunction(createQuery, 
           createDoQueryFunction(doQuery),
-          aggregationKeys))
+          aggregationKeys,
+          dateAggregationRanges))
     onStop: () ->
       $('.popover').remove()
       this.searchAutorun.stop()
@@ -245,10 +248,14 @@ Template.search.events
     Session.set('searchView', $(event.target).val())
 
 
-Template.searchAggregations.timestampToMonthYear = (t) ->
-  date = new Date(t)
-  monthNames = "January,February,March,April,May,June,July,August,September,October,November,December".split(",")
-  monthNames[date.getMonth()] + ' ' + date.getFullYear()
+Template.searchAggregations.timestampToMonthYear = (from, to) ->
+  fromDate = new Date(from)
+  toDate = new Date(to)
+  if toDate.getTime() - fromDate.getTime() < 5000000000
+    monthNames = "January,February,March,April,May,June,July,August,September,October,November,December".split(",")
+    return monthNames[toDate.getMonth()] + ' ' + toDate.getFullYear()
+  else
+    return fromDate.getFullYear() + 1 + "-" + toDate.getFullYear()
 
 Template.searchAggregations.percentage = (a,b) ->
   100 * a / b
@@ -270,9 +277,8 @@ Template.searchAggregations.events
     CountriesSelected.remove({name : $(event.currentTarget).data('name')})
 
   "click .set-month" : (event) ->
-    fromDate = new Date(this.key)
-    toDate = new Date(fromDate)
-    toDate.setMonth(fromDate.getMonth() + 1)
+    fromDate = new Date(this.from)
+    toDate = new Date(this.to)
     Session.set('searchFromDate', fromDate)
     Session.set('searchToDate', toDate)
 

@@ -44,12 +44,13 @@ template(name="searchAggregations")
     input.date-selector.to-date(type="date" value="{{toDate}}")
   div
     b Approximate Document Counts:
-  each aggregations.months.buckets
-    .document-count
-      span.count-bar(style="width: {{percentage doc_count ../totalResults}}%;")
-      .count-text
-        a.set-month(href="") {{timestampToMonthYear key_as_string}}
-        | : {{doc_count}} reports
+  each aggregations.dates.buckets
+    if doc_count
+      .document-count
+        span.count-bar(style="width: {{percentage doc_count ../totalResults}}%;")
+        .count-text
+          a.set-month(href="") {{timestampToMonthYear from to}}
+          | : {{doc_count}} reports
 
       
 template(name="search")

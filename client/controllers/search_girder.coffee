@@ -79,7 +79,21 @@ aggregationKeys =
   'country': 'meta.country'
   'date': 'meta.date'
 
-@grits.controllers.search.createRoute('searchGirder', createQuery, doQuery, aggregationKeys)
+dateAggregationRanges = []
+_.each(_.range(2010, 2016), (year) ->
+  _.each(_.range(1, 13), (month) ->
+    monthString = ("0" + month).substr(-2)
+    prevYear = if month > 1 then year else year - 1
+    prevMonth = if month > 1 then month - 1 else 12
+    prevMonthString = ("0" + prevMonth).substr(-2)
+    dateAggregationRanges.push {
+      to: "#{monthString}-#{year}"
+      from: "#{prevMonthString}-#{prevYear}"
+    }
+  )
+)
+
+@grits.controllers.search.createRoute('searchGirder', createQuery, doQuery, aggregationKeys, dateAggregationRanges)
 
 
 Template.searchGirder.viewTypes = [

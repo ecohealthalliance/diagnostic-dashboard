@@ -86,8 +86,17 @@ aggregationKeys =
   'country': 'locationNation'
   'date': 'startDateISO'
 
+dateAggregationRanges = []
+_.each(_.range(1930, 2030, 10), (year) ->
+  date = new Date(year, 11, 31)
+  prevDate = new Date(year - 10, 11, 31)
+  dateAggregationRanges.push {
+    to: date.getTime()
+    from: prevDate.getTime()
+  }
+)
 
-@grits.controllers.search.createRoute('searchGrid', createQuery, doQuery, aggregationKeys)
+@grits.controllers.search.createRoute('searchGrid', createQuery, doQuery, aggregationKeys, dateAggregationRanges)
 
 Template.searchGrid.viewTypes = [
   {
