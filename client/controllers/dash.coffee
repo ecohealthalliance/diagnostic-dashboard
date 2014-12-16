@@ -71,6 +71,10 @@ Template.dash.getIdKey = () ->
   Template.dash.getIdKeyFromFeature @
 
 Template.dash.getIdKeyFromFeature = (feature) ->
+  if feature.textOffsets
+    # ids are generated from offsets so that features with content that appears
+    # in mutiple places (e.g. counts) can be individually highlighted.
+    return 'o-' + feature.textOffsets.map((o)-> o[0] + '_' + o[1]).join('-')
   idKey = feature.name or feature.text or String(feature.value)
   idKey.replace(/[^A-Za-z0-9]/g, '_')
  
@@ -212,39 +216,40 @@ Template.dash.events
     )
 
   "click .features h4": (event, template) ->
+    # Clicking a header can do one of two things:
+    # - if any of the features for that category are currently not highlighted,
+    # turn highlighting on for all features in that category
+    # - if all features for the category are highlighted, turn them all off.
+    # We assume that each name is unique per category  
     category = $(event.target).attr('class')
     if category in ['caseCount', 'hospitalizationCount', 'deathCount',
                     'datetime', 'diseases', 'hosts', 'modes', 'pathogens',
                     'symptoms']
       source = template.data.features
-      nameKey = 'value'
     else if category is 'location'
       source = template.data.features
-      nameKey = 'name'
-
-    # Clicking a header can do one of two things:
-    # - if any of the features for that category are currently not highlighted,
-    # turn highlighting on for all features in that category
-    # - if all features for the category are highlighted, turn them all off.
-    # We assume that each name is unique per category
 
     categoryFeatures = _.filter source, (feature) -> feature.type is category
 
     categoryFeaturesActive = _.filter Session.get('features') or [], (feature) ->
       feature.type is category
 
-    if categoryFeatures.length is categoryFeaturesActive.length
+    if categoryFeatures.length <= categoryFeaturesActive.length
       featuresWithoutCategory = _.filter Session.get('features') or [], (feature) ->
         feature.type isnt category
       Session.set('features', featuresWithoutCategory)
+      if categoryFeaturesActive.length > categoryFeatures.length
+        console.log("Error: Number of active features greater than features available.")
     else
-      currentFeatures = _.filter Session.get('features') or [], (feature) ->
-        feature.textOffsets
-
+      currentFeatures = Session.get('features') or []
+      currentFeatureIdMap = _.chain(currentFeatures)
+        .map(Template.dash.getIdKeyFromFeature)
+        .zip()
+        .object()
+        .value()
       for feature in categoryFeatures
-        alreadyActive = _.any Session.get('features') or [], (activeFeature) ->
-          (feature['type'] == activeFeature['type']) and (feature[nameKey] == activeFeature[nameKey])
-        if not alreadyActive
+        if not currentFeatureIdMap.hasOwnProperty(Template.dash.getIdKeyFromFeature(feature))
+          console.log feature, Template.dash.getIdKeyFromFeature(feature)
           currentFeatures.push(feature)
       Session.set('features', currentFeatures)
 
