@@ -9,12 +9,6 @@ Keywords = () =>
 
 RESULTS_PER_PAGE = 10
 
-# Temporary collections
-DiseasesSelected = new Meteor.Collection(null)
-AnyKeywordsSelected = new Meteor.Collection(null)
-AllKeywordsSelected = new Meteor.Collection(null)
-CountriesSelected = new Meteor.Collection(null)
-
 
 createDoQueryFunction = (doQuery) ->
   _.debounce(((query, options) ->
@@ -31,7 +25,7 @@ createDoQueryFunction = (doQuery) ->
     doQuery(query, options, callback)
   ), 1000)
 
-createSearchAutorunFunction = (createQuery, doQuery, aggregationKeys, dateAggregationRanges) ->
+createSearchAutorunFunction = (selections, createQuery, doQuery, aggregationKeys, dateAggregationRanges) ->
   lastPage = null
   Session.set('searchPage', 0)
   return () ->
@@ -42,7 +36,7 @@ createSearchAutorunFunction = (createQuery, doQuery, aggregationKeys, dateAggreg
     else
       lastPage = Session.get('searchPage')
 
-    query = createQuery(DiseasesSelected, AnyKeywordsSelected, AllKeywordsSelected)
+    query = createQuery(selections.DiseasesSelected, selections.AnyKeywordsSelected, selections.AllKeywordsSelected)
 
     sort = {}
     if Session.get('searchSortBy') == 'dateDesc'
@@ -55,7 +49,7 @@ createSearchAutorunFunction = (createQuery, doQuery, aggregationKeys, dateAggreg
     if Session.get('searchToDate')
       dateRange.to = Session.get('searchToDate').toISOString()
     
-    countries = CountriesSelected.find().map( (k)-> k.name )
+    countries = selections.CountriesSelected.find().map( (k)-> k.name )
     must_terms = []
     if countries.length > 0
       terms = {}
@@ -113,7 +107,23 @@ createSearchAutorunFunction = (createQuery, doQuery, aggregationKeys, dateAggreg
     path: "/#{name}"
     where: "client"
     onBeforeAction: () ->
+      # Temporary collections
+      DiseasesSelected = new Meteor.Collection(null)
+      AnyKeywordsSelected = new Meteor.Collection(null)
+      AllKeywordsSelected = new Meteor.Collection(null)
+      CountriesSelected = new Meteor.Collection(null)
+
+      @selections = {
+        DiseasesSelected: DiseasesSelected
+        AnyKeywordsSelected: AnyKeywordsSelected
+        AllKeywordsSelected: AllKeywordsSelected
+        CountriesSelected: CountriesSelected
+      }
       AccountsEntry.signInRequired(@)
+    data: () ->
+      { 
+        selections: @selections
+      }
     waitOn: () ->
       [
         Meteor.subscribe('diseaseNames')
@@ -130,28 +140,27 @@ createSearchAutorunFunction = (createQuery, doQuery, aggregationKeys, dateAggreg
       Session.set('searchResults', [])
       Session.set('totalResults', 0)
       Session.set('aggregations', [])
-
-      DiseasesSelected.find({}, {reactive:false}).forEach (d)->
-        DiseasesSelected.remove(d._id)
-      AnyKeywordsSelected.find({}, {reactive:false}).forEach (k)->
-        AnyKeywordsSelected.remove(k._id)
+    
+      selections = @selections
       if @params.diagnosisId
         diagnosis = DiagnosisResults().findOne(@params.diagnosisId)
         if diagnosis
           diagnosis.diseases.forEach (d)->
-            DiseasesSelected.insert(d)
+            selections.DiseasesSelected.insert(d)
           if diagnosis.keywords
             diagnosis.keywords.forEach (k)->
-              AnyKeywordsSelected.insert(k)
-
-      this.searchAutorun = Deps.autorun(
-        createSearchAutorunFunction(createQuery, 
+              selections.AnyKeywordsSelected.insert(k)
+      
+      @searchAutorun = Deps.autorun(
+        createSearchAutorunFunction(
+          @selections,
+          createQuery, 
           createDoQueryFunction(doQuery),
           aggregationKeys,
           dateAggregationRanges))
     onStop: () ->
       $('.popover').remove()
-      this.searchAutorun.stop()
+      @searchAutorun.stop()
   )
 
 
@@ -166,6 +175,9 @@ Template.searchInput.autocompleteSettings = () ->
     }
   ]
 
+Template.searchInput.itemsSelected = () ->
+  @selected.find()
+
 Template.search.eq = (a, b) ->
   a == b
 
@@ -174,10 +186,6 @@ Template.search.diseaseNames = () ->
 
 Template.search.keywords = () ->
   Keywords()
-
-Template.search.diseasesSelected = ()-> DiseasesSelected.find()
-Template.search.anyKeywordsSelected = ()-> AnyKeywordsSelected.find()
-Template.search.allKeywordsSelected = ()-> AllKeywordsSelected.find()
 
 Template.search.useView = (viewTypes) ->
   Session.get('searchView')
@@ -199,36 +207,20 @@ Template.search.pageNum = () ->
 Template.search.results = () ->
   Session.get('searchResults')
 
+
 Template.searchInput.events
-  "click #add-disease" : (event) ->
-    kwName = $("#new-disease").val()
-    if DiseaseNames().findOne({_id : kwName})
-      DiseasesSelected.insert({name : kwName})
-      $("#new-disease").val('')
+  "click .add-selection" : (event, template) ->
+    input = $(event.target).siblings('.add-selection-input')
+    kwName = $(input).val()
+    
+    if (not template.data.restrictToAutocomplete) or template.data.autocompleteCollection.findOne({_id : kwName})
+      template.data.selected.insert({name : kwName})
+      $(input).val('')
     else
       alert("You can only search for terms in the auto-complete menu.")
 
-  "click .remove-disease" : (event) ->
-    DiseasesSelected.remove({name : $(event.currentTarget).data('name')})
-
-  "click #add-any-keyword" : (event) ->
-    kwName = $("#new-any-keyword").val()
-    AnyKeywordsSelected.insert({name : kwName})
-    $("#new-any-keyword").val('')
-
-  "click .remove-any-keyword" : (event) ->
-    AnyKeywordsSelected.remove({name : $(event.currentTarget).data('name')})
-
-  "click #add-all-keyword" : (event) ->
-    kwName = $("#new-all-keyword").val()
-    AllKeywordsSelected.insert({name : kwName})
-    $("#new-all-keyword").val('')
-
-  "click .remove-all-keyword" : (event) ->
-    AllKeywordsSelected.remove({name : $(event.currentTarget).data('name')})
-
-  "click .add-keyword-link" : (event) ->
-    AllKeywordsSelected.insert({name : $(event.currentTarget).text()})
+  "click .remove-selection" : (event, template) ->
+    template.data.selected.remove({name : $(event.currentTarget).data('name')})
 
 Template.search.events
   "click .prev-page": (event) ->
@@ -260,9 +252,6 @@ Template.searchAggregations.timestampToMonthYear = (from, to) ->
 Template.searchAggregations.percentage = (a,b) ->
   100 * a / b
 
-Template.searchAggregations.countriesSelected = CountriesSelected
-
-
 Template.searchAggregations.toDate = ()-> Session.get('searchToDate')?.toISOString().split('T')[0]
 Template.searchAggregations.fromDate = ()-> Session.get('searchFromDate')?.toISOString().split('T')[0]
 
@@ -270,11 +259,11 @@ Template.searchAggregations.aggregations = () ->
   Session.get('aggregations')
 
 Template.searchAggregations.events
-  "click .add-country-filter" : (event) ->
-    CountriesSelected.insert({name : $(event.currentTarget).data('name')})
+  "click .add-country-filter" : (event, template) ->
+    template.data.selections.CountriesSelected.insert({name : $(event.currentTarget).data('name')})
 
-  "click .remove-country-filter" : (event) ->
-    CountriesSelected.remove({name : $(event.currentTarget).data('name')})
+  "click .remove-country-filter" : (event, template) ->
+    template.data.selections.CountriesSelected.remove({name : $(event.currentTarget).data('name')})
 
   "click .set-month" : (event) ->
     fromDate = new Date(this.from)

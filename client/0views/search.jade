@@ -1,10 +1,11 @@
 template(name="searchInput")
-  each selected
-    div
-      i.fa.fa-times-circle(data-name="{{name}}" class="remove-{{../type}}" style="color:crimson;")
-      span {{name}}
-  +inputAutocomplete settings=autocompleteSettings id=autocompleteId class="input-xlarge"
-  button(id="add-#{type}") Add
+  div
+    each itemsSelected
+      div
+        i.fa.fa-times-circle(data-name="{{name}}" class="remove-selection" style="color:crimson;")
+        span {{name}}
+    +inputAutocomplete settings=autocompleteSettings class="input-xlarge add-selection-input"
+    button(class="add-selection") Add
 
 template(name="selector")
   each itemsInCollection
@@ -24,7 +25,7 @@ template(name="searchPill")
 template(name="searchAggregations")
 
   h4 In one of these countries:
-  +selector collection=countriesSelected
+  +selector collection=selections.CountriesSelected
   div
     b Approximate Document Counts:
   each aggregations.countries.buckets
@@ -59,15 +60,15 @@ template(name="search")
       h3 Find #{label} with...
 
       h4 Any of these diseases:
-      +searchInput type="disease" selected=diseasesSelected autocompleteCollection=diseaseNames autocompleteId="new-disease"
+      +searchInput selected=selections.DiseasesSelected autocompleteCollection=diseaseNames restrictToAutocomplete="true"
 
       h4 Any of these keywords:
-      +searchInput type="any-keyword" selected=anyKeywordsSelected autocompleteCollection=keywords autocompleteId="new-any-keyword"
+      +searchInput selected=selections.AnyKeywordsSelected autocompleteCollection=keywords 
 
       h4 All of these keywords:
-      +searchInput type="all-keyword" selected=allKeywordsSelected autocompleteCollection=keywords autocompleteId="new-all-keyword"
+      +searchInput selected=selections.AllKeywordsSelected autocompleteCollection=keywords 
 
-      +searchAggregations totalResults=totalResults
+      +searchAggregations totalResults=totalResults selections=selections
 
     .pane-container
       .vis-pane-bar
