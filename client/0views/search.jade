@@ -112,7 +112,7 @@ template(name="search")
           +Template.dynamic template=resultListTemplate data=resultListData
         else if eq useView "mapView"
           +geomapSimple
-        else if eq useView "dataGroupView"
+        else if eq useView "dateGroupView"
           +dateGroups
         else if eq useView "locationGroupView"
           +locationGroups
