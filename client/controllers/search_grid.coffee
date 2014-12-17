@@ -1,6 +1,9 @@
+DiagnosisResults = () =>
+  @grits.Results
+
 doQuery = (query, options, callback) ->
   Meteor.call('gridsearch', query, options, (e,r) ->
-    callback e, r.results, r.total, r.aggregations
+    callback e, r?.results, r?.total, r?.aggregations
   )
 
 createQuery = (DiseasesSelected, AnyKeywordsSelected, AllKeywordsSelected) ->
@@ -96,24 +99,46 @@ _.each(_.range(1930, 2030, 10), (year) ->
   }
 )
 
-@grits.controllers.search.createRoute('searchGrid', createQuery, doQuery, aggregationKeys, dateAggregationRanges)
-
-Template.searchGrid.createQuery = () -> createQuery
-Template.searchGrid.doQuery = () -> doQuery
-Template.searchGrid.aggregationKeys = () -> aggregationKeys
-Template.searchGrid.dateAggregationRanges = () -> dateAggregationRanges
-
-Template.searchGrid.viewTypes = [
+viewTypes = [
   {
     name: "listView"
     label: "List View"
   }
 ]
 
-Template.searchGrid.sortMethods = [
+sortMethods = [
   {
     name: "relevance"
     label: "Relevance"
   }
 ]
+
+Router.route("searchGrid", 
+  where: "client"
+  path: "/searchGrid"
+  template: "search"
+  onBeforeAction: () ->
+    AccountsEntry.signInRequired(@)
+  waitOn: () ->
+    [
+      Meteor.subscribe('diseaseNames')
+      Meteor.subscribe('keywords')
+      Meteor.subscribe('results', {_id: @params.query.diagnosisId})
+    ]
+  data: () ->
+    diagnosis = DiagnosisResults().findOne(@params.query.diagnosisId)
+    { 
+      type: "grid"
+      label: "historic events"
+      diagnosis: diagnosis
+      createQuery: createQuery
+      doQuery: doQuery
+      aggregationKeys: aggregationKeys
+      dateAggregationRanges: dateAggregationRanges
+      viewTypes: viewTypes
+      sortMethods: sortMethods
+    }
+  onStop: () ->
+    $('.popover').remove()
+)
 

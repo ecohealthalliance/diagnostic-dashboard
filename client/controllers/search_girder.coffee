@@ -1,3 +1,6 @@
+DiagnosisResults = () =>
+  @grits.Results
+
 isntEmptyObjectOrArray = (x)->
   if _.isArray(x) or _.isObject(x)
     not _.isEmpty(x)
@@ -93,14 +96,7 @@ _.each(_.range(2010, 2016), (year) ->
   )
 )
 
-@grits.controllers.search.createRoute('searchGirder', createQuery, doQuery, aggregationKeys, dateAggregationRanges)
-
-Template.searchGirder.createQuery = () -> createQuery
-Template.searchGirder.doQuery = () -> doQuery
-Template.searchGirder.aggregationKeys = () -> aggregationKeys
-Template.searchGirder.dateAggregationRanges = () -> dateAggregationRanges
-
-Template.searchGirder.viewTypes = [
+viewTypes = [
   {
     name: "listView"
     label: "List View"
@@ -110,7 +106,7 @@ Template.searchGirder.viewTypes = [
   }
 ]
 
-Template.searchGirder.sortMethods = [
+sortMethods = [
   {
     name: "relevance"
     label: "Relevance"
@@ -122,3 +118,31 @@ Template.searchGirder.sortMethods = [
     label: "Newest First"
   }
 ]
+
+Router.route("searchGirder", 
+  where: "client"
+  path: "/searchGirder"
+  template: "search"
+  onBeforeAction: () ->
+    AccountsEntry.signInRequired(@)
+  waitOn: () ->
+    [
+      Meteor.subscribe('diseaseNames')
+      Meteor.subscribe('keywords')
+      Meteor.subscribe('results', {_id: @params.query.diagnosisId})
+    ]
+  data: () ->
+    diagnosis = DiagnosisResults().findOne(@params.query.diagnosisId)
+    { 
+      label: "articles"
+      diagnosis: diagnosis
+      createQuery: createQuery
+      doQuery: doQuery
+      aggregationKeys: aggregationKeys
+      dateAggregationRanges: dateAggregationRanges
+      viewTypes: viewTypes
+      sortMethods: sortMethods
+    }
+  onStop: () ->
+    $('.popover').remove()
+)

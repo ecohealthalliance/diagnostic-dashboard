@@ -1,6 +1,3 @@
-DiagnosisResults = () =>
-  @grits.Results
-
 DiseaseNames = () =>
   @grits.Girder.DiseaseNames
 
@@ -103,30 +100,6 @@ createSearchAutorunFunction = (template, doQuery) ->
       size: RESULTS_PER_PAGE
       from: template.searchPage.get() * RESULTS_PER_PAGE
     })
-
-@grits ?= {}
-@grits.controllers ?= {}
-@grits.controllers.search ?= {}
-@grits.controllers.search.createRoute = (name, createQuery, doQuery, aggregationKeys, dateAggregationRanges) ->
-  Router.route(name,
-    path: "/#{name}"
-    where: "client"
-    onBeforeAction: () ->
-      AccountsEntry.signInRequired(@)
-    data: () ->
-      diagnosis = DiagnosisResults().findOne(@params.query.diagnosisId)
-      { 
-        diagnosis: diagnosis
-      }
-    waitOn: () ->
-      [
-        Meteor.subscribe('diseaseNames')
-        Meteor.subscribe('keywords')
-        Meteor.subscribe('results', {_id: @params.query.diagnosisId})
-      ]
-    onStop: () ->
-      $('.popover').remove()
-  )
 
 
 Template.search.created = () ->
@@ -252,7 +225,7 @@ Template.search.events
   "click .next-page": (event, template) ->
     template.searchPage.set(
       Math.min(template.searchPage.get() + 1,
-        Math.floor(Session.get('totalResults') / RESULTS_PER_PAGE)
+        Math.floor(template.totalResults.get() / RESULTS_PER_PAGE)
       )
     )
 

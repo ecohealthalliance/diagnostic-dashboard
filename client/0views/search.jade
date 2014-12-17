@@ -112,7 +112,7 @@ template(name="search")
           if eq type "grid"
             +gridResultList results=results
           else
-            +resultList
+            +resultList results=results
         else if eq useView "mapView"
           +geomapSimple
         else if eq useView "dataGroupView"
