@@ -10,14 +10,15 @@ http
 email
 tangelo
 geojs
-iron:router
 mquandalle:jade
 twbs:bootstrap
 aslagle:reactive-table
 d3js:d3
 fortawesome:fontawesome
-joshowens:accounts-entry
 sacha:spin
 mrt:dbproxy
 mizzao:autocomplete
 chuangbo:marked
+iron:router
+joshowens:accounts-entry
+

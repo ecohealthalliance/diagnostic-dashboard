@@ -107,28 +107,17 @@ createSearchAutorunFunction = (selections, createQuery, doQuery, aggregationKeys
     path: "/#{name}"
     where: "client"
     onBeforeAction: () ->
-      # Temporary collections
-      DiseasesSelected = new Meteor.Collection(null)
-      AnyKeywordsSelected = new Meteor.Collection(null)
-      AllKeywordsSelected = new Meteor.Collection(null)
-      CountriesSelected = new Meteor.Collection(null)
-
-      @selections = {
-        DiseasesSelected: DiseasesSelected
-        AnyKeywordsSelected: AnyKeywordsSelected
-        AllKeywordsSelected: AllKeywordsSelected
-        CountriesSelected: CountriesSelected
-      }
       AccountsEntry.signInRequired(@)
     data: () ->
+      diagnosis = DiagnosisResults().findOne(@params.query.diagnosisId)
       { 
-        selections: @selections
+        diagnosis: diagnosis
       }
     waitOn: () ->
       [
         Meteor.subscribe('diseaseNames')
         Meteor.subscribe('keywords')
-        Meteor.subscribe('results', {_id: @params.diagnosisId})
+        Meteor.subscribe('results', {_id: @params.query.diagnosisId})
       ]
     onAfterAction: () ->
       # Remove any previous selections which could exist
@@ -140,29 +129,51 @@ createSearchAutorunFunction = (selections, createQuery, doQuery, aggregationKeys
       Session.set('searchResults', [])
       Session.set('totalResults', 0)
       Session.set('aggregations', [])
-    
-      selections = @selections
-      if @params.diagnosisId
-        diagnosis = DiagnosisResults().findOne(@params.diagnosisId)
-        if diagnosis
-          diagnosis.diseases.forEach (d)->
-            selections.DiseasesSelected.insert(d)
-          if diagnosis.keywords
-            diagnosis.keywords.forEach (k)->
-              selections.AnyKeywordsSelected.insert(k)
-      
-      @searchAutorun = Deps.autorun(
-        createSearchAutorunFunction(
-          @selections,
-          createQuery, 
-          createDoQueryFunction(doQuery),
-          aggregationKeys,
-          dateAggregationRanges))
     onStop: () ->
       $('.popover').remove()
-      @searchAutorun.stop()
   )
 
+
+Template.search.created = () ->
+  # Temporary collections
+  DiseasesSelected = new Meteor.Collection(null)
+  AnyKeywordsSelected = new Meteor.Collection(null)
+  AllKeywordsSelected = new Meteor.Collection(null)
+  CountriesSelected = new Meteor.Collection(null)
+
+  @selections = {
+    DiseasesSelected: DiseasesSelected
+    AnyKeywordsSelected: AnyKeywordsSelected
+    AllKeywordsSelected: AllKeywordsSelected
+    CountriesSelected: CountriesSelected
+  }
+  
+  selections = @selections
+  diagnosis = @data.diagnosis
+
+  if diagnosis
+    diagnosis.diseases.forEach (d)->
+      selections.DiseasesSelected.insert(d)
+    if diagnosis.keywords
+      diagnosis.keywords.forEach (k)->
+        selections.AnyKeywordsSelected.insert(k)
+
+  searchAutorun = createSearchAutorunFunction(
+    selections,
+    @data.createQuery, 
+    createDoQueryFunction(@data.doQuery),
+    @data.aggregationKeys,
+    @data.dateAggregationRanges
+  )
+
+  @searchAutorun = Deps.autorun(searchAutorun)
+
+
+Template.search.destroyed = () ->
+  @searchAutorun.stop()
+
+Template.search.selections = () ->
+  Template.instance().selections
 
 Template.searchInput.autocompleteSettings = () ->
   position: "top"

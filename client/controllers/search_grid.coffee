@@ -98,6 +98,11 @@ _.each(_.range(1930, 2030, 10), (year) ->
 
 @grits.controllers.search.createRoute('searchGrid', createQuery, doQuery, aggregationKeys, dateAggregationRanges)
 
+Template.searchGrid.createQuery = () -> createQuery
+Template.searchGrid.doQuery = () -> doQuery
+Template.searchGrid.aggregationKeys = () -> aggregationKeys
+Template.searchGrid.dateAggregationRanges = () -> dateAggregationRanges
+
 Template.searchGrid.viewTypes = [
   {
     name: "listView"

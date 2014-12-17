@@ -95,6 +95,10 @@ _.each(_.range(2010, 2016), (year) ->
 
 @grits.controllers.search.createRoute('searchGirder', createQuery, doQuery, aggregationKeys, dateAggregationRanges)
 
+Template.searchGirder.createQuery = () -> createQuery
+Template.searchGirder.doQuery = () -> doQuery
+Template.searchGirder.aggregationKeys = () -> aggregationKeys
+Template.searchGirder.dateAggregationRanges = () -> dateAggregationRanges
 
 Template.searchGirder.viewTypes = [
   {
