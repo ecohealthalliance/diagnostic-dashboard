@@ -109,10 +109,7 @@ template(name="search")
         if searching
           p Searching...
         else if eq useView "listView"
-          if eq type "grid"
-            +gridResultList results=results
-          else
-            +resultList results=results
+          +Template.dynamic template=resultListTemplate data=resultListData
         else if eq useView "mapView"
           +geomapSimple
         else if eq useView "dataGroupView"

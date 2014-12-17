@@ -142,6 +142,7 @@ Router.route("searchGirder",
       dateAggregationRanges: dateAggregationRanges
       viewTypes: viewTypes
       sortMethods: sortMethods
+      resultListTemplate: "resultList"
     }
   onStop: () ->
     $('.popover').remove()

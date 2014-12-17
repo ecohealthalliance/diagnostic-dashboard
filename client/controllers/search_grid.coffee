@@ -128,7 +128,6 @@ Router.route("searchGrid",
   data: () ->
     diagnosis = DiagnosisResults().findOne(@params.query.diagnosisId)
     { 
-      type: "grid"
       label: "historic events"
       diagnosis: diagnosis
       createQuery: createQuery
@@ -137,6 +136,7 @@ Router.route("searchGrid",
       dateAggregationRanges: dateAggregationRanges
       viewTypes: viewTypes
       sortMethods: sortMethods
+      resultListTemplate: "gridResultList"
     }
   onStop: () ->
     $('.popover').remove()

@@ -197,8 +197,8 @@ Template.search.toDate = () ->
 Template.search.pageNum = () ->
   Template.instance().searchPage.get() or 0
 
-Template.search.results = () ->
-  Template.instance().searchResults.get()
+Template.search.resultListData = () ->
+  results: Template.instance().searchResults.get()
 
 Template.search.aggregations = () ->
   Template.instance().aggregations.get()
