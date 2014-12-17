@@ -5,23 +5,23 @@ color = (text) =>
 Template.dash.eq = (a, b) ->
   a == b
 
-Template.dash.showCategory = (category, keywords) ->
+Template.dash.showCategory = (category, features) ->
+
   visibleCats = [
     'datetime'
     'location'
     'caseCount'
     'deathCount'
     'hospitalizationCount'
+    'diseases'
+    'hosts'
+    'modes'
+    'pathogens'
+    'symptoms'
   ]
   if category in visibleCats
-    _.any(@features, (feature) ->
+    _.any(@features or features, (feature) ->
       feature.type is category
-    )
-  else
-    _.any(@keywords or keywords, (keyword) ->
-      _.any(keyword.categories, (keywordCategory) ->
-        keywordCategory.indexOf(category) >= 0
-      )
     )
 
 Template.dash.showKeypoints = ()->
@@ -60,7 +60,7 @@ Template.dash.formatDate = () ->
 Template.dash.color = () ->
   if @categories
     color @categories[0] + @name
-  else if @type in ['caseCount', 'hospitalizationCount', 'deathCount', 'datetime']
+  else if @type in ['caseCount', 'hospitalizationCount', 'deathCount', 'datetime', 'adding', 'diseases', 'hosts', 'modes', 'pathogens', 'symptoms']
     color @type + @value
   else if @type in ['location']
     color @type + @name
@@ -71,21 +71,13 @@ Template.dash.getIdKey = () ->
   Template.dash.getIdKeyFromFeature @
 
 Template.dash.getIdKeyFromFeature = (feature) ->
-  return '_' + _.indexOf(Session.get('features'), feature)
-
-Template.dash.setActiveFeatureStyle = () ->
-
-  # Reset all box shadows to original colors
-
-  $(".features .label").each () ->
-    $(this).css "box-shadow", "0px 0px 0px 2px " + $(this).attr "pillColor"
-
-  activeFeatures = Session.get('features')
-  for feature in activeFeatures
-    idKey = Template.dash.getIdKeyFromFeature feature
-
-    $("#" + idKey).css "box-shadow", "0px 0px 0px 2px #555"
-
+  if feature.textOffsets
+    # ids are generated from offsets so that features with content that appears
+    # in mutiple places (e.g. counts) can be individually highlighted.
+    return 'o-' + feature.textOffsets.map((o)-> o[0] + '_' + o[1]).join('-')
+  idKey = feature.name or feature.text or String(feature.value)
+  idKey.replace(/[^A-Za-z0-9]/g, '_')
+ 
 Template.dash.selected = () ->
   @name == Session.get('disease')
 
@@ -124,6 +116,14 @@ Template.dash.tableSettings = () ->
 Template.dash.keywordCategories = () =>
   @grits.KEYWORD_CATEGORIES
 
+Template.dash.featureSelected = (feature) ->
+  idKey = Template.dash.getIdKeyFromFeature(feature)
+  ids = _.map(Session.get('features') or [], Template.dash.getIdKeyFromFeature)
+  if _.contains(ids, idKey)
+    "selected"
+  else
+    ""
+
 Template.dash.viewTypes = [
   {
     name: "text"
@@ -145,31 +145,26 @@ Template.dash.useView = ()->
 
 Template.dash.events
   "click .diagnosis .reactive-table tbody tr" : (event) ->
-    Session.set('disease', @name)
-    Session.set('features', keyword for keyword in @keywords)
+    if Session.get('disease') is @name
+      Session.set('disease', null)
+      Session.set('features', [])
+    else
+      Session.set('disease', @name)
+      Session.set('features', @keywords)
 
   "click .diagnosis .label" : (event) ->
-    if not DISABLE_MULTI_HIGHLIGHT and @textOffsets
+    currentFeatures = Session.get('features') or []
 
-      # We need to filter out any non-offset-based features. We can't handle
-      # highlighting both kinds at the same time.
-
-      currentFeatures = _.filter Session.get('features') or [], (feature) ->
-        feature.textOffsets
-
-      found = false
-      for item, index in currentFeatures
-        if _.isEqual(item, this)
-          found = true
-          currentFeatures.splice(index, 1)
-          Session.set('features', currentFeatures)
-
-      if not found
-        currentFeatures.push(this)
+    found = false
+    for item, index in currentFeatures
+      if _.isEqual(item, this)
+        found = true
+        currentFeatures.splice(index, 1)
         Session.set('features', currentFeatures)
 
-    else
-      Session.set('features', [this])
+    if not found
+      currentFeatures.push(this)
+      Session.set('features', currentFeatures)
 
   "click .diagnosis .keypoint" : (event) ->
     $('.keypoint.selected').removeClass('selected')
@@ -219,44 +214,42 @@ Template.dash.events
       else
         Router.go 'dash', {_id: resultId}
     )
-  "click .features h4": (event, template) =>
-    if DISABLE_MULTI_HIGHLIGHT then return false
-    category = $(event.target).attr('class')
-    if category in ['symptom', 'host', 'pathogen', 'transmi']
-      source = template.data.keywords
-      nameKey = 'name'
-      # These are not offset-based at the moment, so punt
-      return false
-    else if category in ['caseCount', 'hospitalizationCount', 'deathCount', 'datetime']
-      source = template.data.features
-      nameKey = 'value'
-    else if category is 'location'
-      source = template.data.features
-      nameKey = 'name'
 
-   # Clicking a header can do one of two things:
+  "click .features h4": (event, template) ->
+    # Clicking a header can do one of two things:
     # - if any of the features for that category are currently not highlighted,
     # turn highlighting on for all features in that category
     # - if all features for the category are highlighted, turn them all off.
-    # We assume that each name is unique per category
+    # We assume that each name is unique per category  
+    category = $(event.target).attr('class')
+    if category in ['caseCount', 'hospitalizationCount', 'deathCount',
+                    'datetime', 'diseases', 'hosts', 'modes', 'pathogens',
+                    'symptoms']
+      source = template.data.features
+    else if category is 'location'
+      source = template.data.features
 
     categoryFeatures = _.filter source, (feature) -> feature.type is category
 
     categoryFeaturesActive = _.filter Session.get('features') or [], (feature) ->
       feature.type is category
 
-    if categoryFeatures.length is categoryFeaturesActive.length
+    if categoryFeatures.length <= categoryFeaturesActive.length
       featuresWithoutCategory = _.filter Session.get('features') or [], (feature) ->
         feature.type isnt category
       Session.set('features', featuresWithoutCategory)
+      if categoryFeaturesActive.length > categoryFeatures.length
+        console.log("Error: Number of active features greater than features available.")
     else
-      currentFeatures = _.filter Session.get('features') or [], (feature) ->
-        feature.textOffsets
-
+      currentFeatures = Session.get('features') or []
+      currentFeatureIdMap = _.chain(currentFeatures)
+        .map(Template.dash.getIdKeyFromFeature)
+        .zip()
+        .object()
+        .value()
       for feature in categoryFeatures
-        alreadyActive = _.any Session.get('features') or [], (activeFeature) ->
-          (feature['type'] == activeFeature['type']) and (feature[nameKey] == activeFeature[nameKey])
-        if not alreadyActive
+        if not currentFeatureIdMap.hasOwnProperty(Template.dash.getIdKeyFromFeature(feature))
+          console.log feature, Template.dash.getIdKeyFromFeature(feature)
           currentFeatures.push(feature)
       Session.set('features', currentFeatures)
 

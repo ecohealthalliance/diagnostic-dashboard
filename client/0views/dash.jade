@@ -31,7 +31,7 @@ template(name="dash")
           each keypoints
             .keypoint
               if count
-                b Cases: 
+                b Cases:
                 if count.approximate
                   | ~
                 if count.number
@@ -80,7 +80,7 @@ template(name="dash")
                 | #{location.name}, {{location/[country code]}}
                 br
               if occupation
-                b Occupation: 
+                b Occupation:
                 | #{occupation}
                 br
               if symptom
@@ -88,7 +88,7 @@ template(name="dash")
                 | #{symptom}
                 br
               if risk
-                b Risk factor: 
+                b Risk factor:
                 | #{risk}
                 br
               if host
@@ -101,42 +101,34 @@ template(name="dash")
                 br
       .features
         each keywordCategories
-          if showCategory pattern ../keywords
+          if showCategory pattern ../features
             .feature-section
-              h4 #{label}
-              each ../keywords
-                if hasCategory categories ../pattern
-                  .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color) #{name}
+              h4(class=pattern) #{label}
+              each ../features
+                if eq type ../pattern
+                  .label(id="{{getIdKey}}"
+                    style="background-color:{{color}};"
+                    pillColor=color
+                    class="{{featureSelected this}}") #{value}
         if showCategory 'datetime'
           .feature-section.dates
             h4.datetime Dates
             each features
               if eq type "datetime"
-                .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color) #{formatDate}
-        if showCategory 'caseCount'
-          .feature-section.case-counts
-            h4.caseCount Case Counts
-            each features
-              if eq type "caseCount"
-                .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color) #{value}
-        if showCategory 'deathCount'
-          .feature-section.death-counts
-            h4.deathCount Death Counts
-            each features
-              if eq type "deathCount"
-                .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color) #{value}
-        if showCategory 'hospitalizationCount'
-          .feature-section.hospitalization-counts
-            h4.hospitalizationCount Hospitalization Counts
-            each features
-              if eq type "hospitalizationCount"
-                .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color) #{value}
+                .label(id="{{getIdKey}}"
+                  style="background-color:{{color}};"
+                  pillColor=color
+                  class="{{featureSelected this}}") #{formatDate}
         if showCategory 'location'
           .feature-section.locations
             h4.location Locations
             each features
               if eq type "location"
-                .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color, value=name) #{formatLocation}
+                .label(id="{{getIdKey}}"
+                  style="background-color:{{color}};"
+                  pillColor=color
+                  value=name
+                  class="{{featureSelected this}}") #{formatLocation}
     .pane-container
       .vis-pane-bar
         span.view-select

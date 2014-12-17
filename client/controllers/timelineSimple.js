@@ -24,6 +24,8 @@
     }
     function generateHist(evt) {
         var dates = Session.get('dates');
+        var features = Session.get('features') || [],
+            datesSelected = [];
         if($(node).length === 0) return;
         var width = $(node).width();
         var height = $(node).height();
@@ -40,6 +42,23 @@
             nBins: nBins
         });
         applyAxisStyle();
+        
+        // Highlight selected features on the visulization
+        features.forEach(function (feature) {
+            if (feature.type === 'datetime') {
+                datesSelected.push( (new Date(feature.value)).valueOf() );
+            }
+        });
+        d3.selectAll('.histogram .boxes').each(function (d) {
+            var selected = false;
+            datesSelected.forEach(function (date) {
+                selected |= d.min <= date && d.max >= date;
+            });
+            d3.select(this).classed(
+                'selected',
+                selected
+            );
+        });
     }
     
     Template.timelineSimple.rendered = function () {
@@ -51,27 +70,5 @@
     };
 
     Deps.autorun(generateHist);
-
-    // Highlight selected features on the visulization
-    Deps.autorun(function () {
-        var features = Session.get('features') || [],
-            dates = [];
-
-        features.forEach(function (feature) {
-            if (feature.type === 'datetime') {
-                dates.push( (new Date(feature.value)).valueOf() );
-            }
-        });
-        d3.selectAll('.histogram .boxes').each(function (d) {
-            var selected = false;
-            dates.forEach(function (date) {
-                selected |= d.min <= date && d.max >= date;
-            });
-            d3.select(this).classed(
-                'selected',
-                selected
-            );
-        });
-    });
 
 }(window.$, window.d3));
