@@ -10,18 +10,18 @@ Keywords = () =>
 RESULTS_PER_PAGE = 10
 
 
-createDoQueryFunction = (doQuery) ->
+createDoQueryFunction = (template, doQuery) ->
   _.debounce(((query, options) ->
-    Session.set('searching', true)
+    template.searching.set(true)
     callback = (error, results, total, aggregations) ->
       if error
         console.error error
-        Session.set('searching', false)
+        template.searching.set(false)
         return
-      Session.set('searching', false)
-      Session.set('searchResults', results)
-      Session.set('totalResults', total)
-      Session.set('aggregations', aggregations)
+      template.searching.set(false)
+      template.searchResults.set(results)
+      template.totalResults.set(total)
+      template.aggregations.set(aggregations)
     doQuery(query, options, callback)
   ), 1000)
 
@@ -124,12 +124,6 @@ createSearchAutorunFunction = (template, doQuery) ->
         Meteor.subscribe('keywords')
         Meteor.subscribe('results', {_id: @params.query.diagnosisId})
       ]
-    onAfterAction: () ->
-      # Remove any previous selections which could exist
-      # if the user navigates away from the search page and comes back.
-      Session.set('searchResults', [])
-      Session.set('totalResults', 0)
-      Session.set('aggregations', [])
     onStop: () ->
       $('.popover').remove()
   )
@@ -164,10 +158,14 @@ Template.search.created = () ->
   @fromDate = new ReactiveVar()
   @toDate = new ReactiveVar()
   @searchPage = new ReactiveVar(0)
+  @searching = new ReactiveVar(false)
+  @searchResults = new ReactiveVar([])
+  @totalResults = new ReactiveVar(0)
+  @aggregations = new ReactiveVar([])
 
   searchAutorun = createSearchAutorunFunction(
     this,
-    createDoQueryFunction(@data.doQuery)
+    createDoQueryFunction(this, @data.doQuery)
   )
 
   @searchAutorun = Deps.autorun(searchAutorun)
@@ -205,13 +203,14 @@ Template.search.keywords = () ->
 Template.search.useView = () ->
   Template.instance().useView.get()
 
-Template.search.searching = () -> Session.get('searching')
+Template.search.searching = () ->
+  Template.instance().searching.get()
 
 Template.search.numResults = () -> 
-  Session.get('searchResults')?.length or 0
+  Template.instance().searchResults.get()?.length or 0
 
 Template.search.totalResults = () ->
-  Session.get('totalResults') or 0
+  Template.instance().totalResults.get() or 0
 
 Template.search.sortBy = () ->
   Template.instance().sortBy.get()
@@ -226,7 +225,10 @@ Template.search.pageNum = () ->
   Template.instance().searchPage.get() or 0
 
 Template.search.results = () ->
-  Session.get('searchResults')
+  Template.instance().searchResults.get()
+
+Template.search.aggregations = () ->
+  Template.instance().aggregations.get()
 
 
 Template.searchInput.events
@@ -275,9 +277,6 @@ Template.searchAggregations.percentage = (a,b) ->
 
 Template.searchAggregations.toDate = ()-> @toDate.get()?.toISOString().split('T')[0]
 Template.searchAggregations.fromDate = ()-> @fromDate.get()?.toISOString().split('T')[0]
-
-Template.searchAggregations.aggregations = () ->
-  Session.get('aggregations')
 
 Template.searchAggregations.events
   "click .add-country-filter" : (event, template) ->
