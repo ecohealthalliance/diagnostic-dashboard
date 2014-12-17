@@ -100,17 +100,6 @@ Router.map () ->
       $('.popover').remove()
   )
 
-  @route("symptomTable",
-    path: '/symptomTable/:_id'
-    where: 'client'
-    onBeforeAction: () ->
-      AccountsEntry.signInRequired(@)
-    waitOn: () ->
-      Meteor.subscribe('results')
-    data: () ->
-      Results.findOne(@params._id)
-  )
-
   @route("new",
     where: 'client'
     onBeforeAction: () ->

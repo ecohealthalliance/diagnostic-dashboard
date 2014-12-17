@@ -16,9 +16,6 @@ template(name="dash")
         a.btn.btn-default(href='/searchGrid?diagnosisId=#{_id}') Find Similar Disease Emergence Events
 
       h4 Diagnosis
-        span.btn-group.btn-group-xs(style="float:right;")
-          a.btn.btn-default(href='/symptomTable/#{_id}') Detailed diagnosis
-          a.btn.btn-default.open-feedback Feedback
       +reactiveTable collection=diseases settings=tableSettings
       .btn-group.btn-group-justified.btn-group-sm
         if prevDiagnosisId
@@ -28,6 +25,8 @@ template(name="dash")
           a.btn.btn-default.prev-diagnosis(href='/dash/#{updatedDiagnosisId}') Updated Diagnosis
         else
           a.btn.btn-default.rediagnose Rediagnose
+      .btn-group.btn-group-justified.btn-group-sm
+        a.btn.btn-default.open-feedback Feedback
       +feedback
       if showKeypoints
         .keypoints
@@ -105,42 +104,34 @@ template(name="dash")
                 br
       .features
         each keywordCategories
-          if showCategory pattern ../keywords
+          if showCategory pattern ../features
             .feature-section
-              h4 #{label}
-              each ../keywords
-                if hasCategory categories ../pattern
-                  .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color) #{name}
+              h4(class=pattern) #{label}
+              each ../features
+                if eq type ../pattern
+                  .label(id="{{getIdKey}}"
+                    style="background-color:{{color}};"
+                    pillColor=color
+                    class="{{featureSelected this}}") #{value}
         if showCategory 'datetime'
           .feature-section.dates
             h4.datetime Dates
             each features
               if eq type "datetime"
-                .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color) #{formatDate}
-        if showCategory 'caseCount'
-          .feature-section.case-counts
-            h4.caseCount Case Counts
-            each features
-              if eq type "caseCount"
-                .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color) #{value}
-        if showCategory 'deathCount'
-          .feature-section.death-counts
-            h4.deathCount Death Counts
-            each features
-              if eq type "deathCount"
-                .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color) #{value}
-        if showCategory 'hospitalizationCount'
-          .feature-section.hospitalization-counts
-            h4.hospitalizationCount Hospitalization Counts
-            each features
-              if eq type "hospitalizationCount"
-                .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color) #{value}
+                .label(id="{{getIdKey}}"
+                  style="background-color:{{color}};"
+                  pillColor=color
+                  class="{{featureSelected this}}") #{formatDate}
         if showCategory 'location'
           .feature-section.locations
             h4.location Locations
             each features
               if eq type "location"
-                .label(id="{{getIdKey}}", style="background-color:{{color}}; box-shadow: 0px 0px 0px 2px {{color}}", pillColor=color, value=name) #{formatLocation}
+                .label(id="{{getIdKey}}"
+                  style="background-color:{{color}};"
+                  pillColor=color
+                  value=name
+                  class="{{featureSelected this}}") #{formatLocation}
     .pane-container
       .vis-pane-bar
         span.view-select
@@ -156,5 +147,7 @@ template(name="dash")
           +geomapSimple
         else if eq useView "timeline"
           +timelineSimple
+        else if eq useView "symptomTable"
+          +symptomTable
         else
           +text

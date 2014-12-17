@@ -1,8 +1,10 @@
 @grits ?= {}
 @grits.KEYWORD_CATEGORIES = [
-  { pattern: 'symptom', label: 'Symptoms' }
-  { pattern: 'host', label: 'Hosts' }
-  { pattern: 'pathogen', label: 'Pathogens' }
-  { pattern: 'transmi', label: 'Modes of Transmission' }
+  { pattern: 'diseases', label: 'Diseases' }
+  { pattern: 'pathogens', label: 'Pathogens' }
+  { pattern: 'symptoms', label: 'Symptoms' }
+  { pattern: 'hosts', label: 'Hosts' }
+  { pattern: 'modes', label: 'Modes of Transmission' }
+  { pattern: 'caseCount', label: 'Case Counts' }
   { pattern: 'risk|occupation|environmental', label: 'Risk Factors' }
 ]

@@ -1,7 +1,7 @@
 color = (feature) =>
   if feature.categories
     colorKey = feature.categories[0] + feature.name
-  else if feature.type in ['caseCount', 'hospitalizationCount', 'deathCount', 'datetime']
+  else if feature.type in ['caseCount', 'hospitalizationCount', 'deathCount', 'datetime', 'diseases', 'hosts', 'modes', 'pathogens', 'symptoms']
     colorKey =  feature.type + feature.value
   else if feature.type in ['location']
     colorKey = feature.type + feature.name
@@ -12,10 +12,9 @@ color = (feature) =>
 
 Template.text.highlight = (content) ->
   features = Session.get('features')
-  # offset-based information for locations
+
   if features and content and (features instanceof Array)
-    Template.dash.setActiveFeatureStyle()
-    if features.length > 0 and features[0].textOffsets
+    if features?.length > 0 and features[0].textOffsets
       # sort occurrences in descending order of start, so that we can add them
       # to the content string from end to beginning, so that offsets remain
       # valid.
