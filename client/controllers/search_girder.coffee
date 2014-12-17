@@ -112,13 +112,13 @@ Template.searchGirder.viewTypes = [
 
 Template.searchGirder.sortMethods = [
   {
+    name: "relevance"
+    label: "Relevance"
+  }, {
     name: "dateAsc"
     label: "Oldest First"
   }, {
     name: "dateDesc"
     label: "Newest First"
-  }, {
-    name: "relevance"
-    label: "Relevance"
   }
 ]
