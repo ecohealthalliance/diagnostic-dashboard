@@ -97,8 +97,9 @@ _.each(_.range(2010, 2016), (year) ->
 )
 
 formatDateRange = (from, to) ->
+  date = new Date(to)
   monthNames = "January,February,March,April,May,June,July,August,September,October,November,December".split(",")
-  monthNames[to.getMonth()] + ' ' + to.getFullYear()
+  monthNames[date.getMonth()] + ' ' + date.getFullYear()
 
 viewTypes = [
   {

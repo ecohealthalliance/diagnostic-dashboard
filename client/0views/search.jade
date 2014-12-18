@@ -50,7 +50,7 @@ template(name="searchAggregations")
       .document-count
         span.count-bar(style="width: {{percentage doc_count ../totalResults}}%;")
         .count-text
-          a.set-month(href="") {{timestampToDateRange from to}}
+          a.set-month(href="") {{../formatDateRange from to}}
           | : {{doc_count}} reports
 
       

@@ -100,7 +100,7 @@ _.each(_.range(1930, 2030, 10), (year) ->
 )
 
 formatDateRange = (from, to) ->
-  from.getFullYear() + 1 + "-" + to.getFullYear()
+  (new Date(from)).getFullYear() + 1 + "-" + (new Date(to)).getFullYear()
 
 viewTypes = [
   {

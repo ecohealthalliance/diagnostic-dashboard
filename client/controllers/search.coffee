@@ -239,11 +239,6 @@ Template.search.events
     template.useView.set($(event.target).val())
 
 
-Template.searchAggregations.timestampToDateRange = (from, to) ->
-  fromDate = new Date(from)
-  toDate = new Date(to)
-  Template.parentData(1).formatDateRange(fromDate, toDate)
-
 Template.searchAggregations.percentage = (a,b) ->
   100 * a / b
 
