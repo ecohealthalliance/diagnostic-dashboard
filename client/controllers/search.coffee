@@ -252,7 +252,7 @@ Template.searchAggregations.events
   "click .remove-country-filter" : (event, template) ->
     template.data.selections.CountriesSelected.remove({name : $(event.currentTarget).data('name')})
 
-  "click .set-month" : (event, template) ->
+  "click .set-date" : (event, template) ->
     fromDate = new Date(this.from)
     toDate = new Date(this.to)
     template.data.fromDate.set(fromDate)
