@@ -249,7 +249,6 @@ Template.dash.events
         .value()
       for feature in categoryFeatures
         if not currentFeatureIdMap.hasOwnProperty(Template.dash.getIdKeyFromFeature(feature))
-          console.log feature, Template.dash.getIdKeyFromFeature(feature)
           currentFeatures.push(feature)
       Session.set('features', currentFeatures)
 
