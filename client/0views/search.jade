@@ -50,7 +50,7 @@ template(name="searchAggregations")
       .document-count
         span.count-bar(style="width: {{percentage doc_count ../totalResults}}%;")
         .count-text
-          a.set-month(href="") {{timestampToMonthYear from to}}
+          a.set-month(href="") {{timestampToDateRange from to}}
           | : {{doc_count}} reports
 
       
@@ -68,7 +68,7 @@ template(name="search")
       h4 All of these keywords:
       +searchInput selected=selections.AllKeywordsSelected autocompleteCollection=keywords 
 
-      +searchAggregations totalResults=totalResults selections=selections fromDate=fromDate toDate=toDate aggregations=aggregations
+      +searchAggregations totalResults=totalResults selections=selections fromDate=fromDate toDate=toDate formatDateRange=formatDateRange aggregations=aggregations
 
     .pane-container
       .vis-pane-bar

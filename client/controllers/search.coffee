@@ -203,6 +203,9 @@ Template.search.resultListData = () ->
 Template.search.aggregations = () ->
   Template.instance().aggregations.get()
 
+Template.search.formatDateRange = () ->
+  @formatDateRange
+
 
 Template.searchInput.events
   "click .add-selection" : (event, template) ->
@@ -236,14 +239,10 @@ Template.search.events
     template.useView.set($(event.target).val())
 
 
-Template.searchAggregations.timestampToMonthYear = (from, to) ->
+Template.searchAggregations.timestampToDateRange = (from, to) ->
   fromDate = new Date(from)
   toDate = new Date(to)
-  if toDate.getTime() - fromDate.getTime() < 5000000000
-    monthNames = "January,February,March,April,May,June,July,August,September,October,November,December".split(",")
-    return monthNames[toDate.getMonth()] + ' ' + toDate.getFullYear()
-  else
-    return fromDate.getFullYear() + 1 + "-" + toDate.getFullYear()
+  Template.parentData(1).formatDateRange(fromDate, toDate)
 
 Template.searchAggregations.percentage = (a,b) ->
   100 * a / b

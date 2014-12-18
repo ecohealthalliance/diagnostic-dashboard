@@ -96,6 +96,10 @@ _.each(_.range(2010, 2016), (year) ->
   )
 )
 
+formatDateRange = (from, to) ->
+  monthNames = "January,February,March,April,May,June,July,August,September,October,November,December".split(",")
+  monthNames[to.getMonth()] + ' ' + to.getFullYear()
+
 viewTypes = [
   {
     name: "listView"
@@ -143,6 +147,7 @@ Router.route("searchGirder",
       viewTypes: viewTypes
       sortMethods: sortMethods
       resultListTemplate: "resultList"
+      formatDateRange: formatDateRange
     }
   onStop: () ->
     $('.popover').remove()
