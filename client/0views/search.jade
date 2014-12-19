@@ -2,8 +2,8 @@ template(name="searchInput")
   div
     each itemsSelected
       div
-        i.fa.fa-times-circle(data-name="{{name}}" class="remove-selection" style="color:crimson;")
-        span {{name}}
+        i.fa.fa-times-circle(data-name="{{value}}" class="remove-selection" style="color:crimson;")
+        span {{value}}
     +inputAutocomplete settings=autocompleteSettings class="input-xlarge add-selection-input"
     button(class="add-selection") Add
 

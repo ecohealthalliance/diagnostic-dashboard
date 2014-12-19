@@ -54,15 +54,15 @@ doQuery = (query, options, callback) ->
 createQuery = (DiseasesSelected, AnyKeywordsSelected, AllKeywordsSelected) ->
   disease_terms = DiseasesSelected.find().map (k)->
     match_phrase :
-      'meta.disease' : k.name.toLowerCase()
+      'meta.disease' : k.value.toLowerCase()
   
   should_terms = AnyKeywordsSelected.find().map (k)->
     match_phrase :
-      'private.scrapedData.content'  : k.name.toLowerCase()
+      'private.scrapedData.content'  : k.value.toLowerCase()
   
   must_terms = AllKeywordsSelected.find().map (k)->
     match_phrase : 
-      'private.scrapedData.content' : k.name.toLowerCase()
+      'private.scrapedData.content' : k.value.toLowerCase()
   
   query = {}
   if [].concat(disease_terms, should_terms, must_terms).length > 0

@@ -40,10 +40,10 @@ createQuery = (DiseasesSelected, AnyKeywordsSelected, AllKeywordsSelected) ->
   disease_terms = DiseasesSelected.find().map (k)->
     fuzzy_like_this:
       fields: ['diseaseVal']
-      like_text: k.name.toLowerCase()
+      like_text: k.value.toLowerCase()
 
   should_terms = AnyKeywordsSelected.find().map (k)->
-    name = k.name.toLowerCase()
+    name = k.value.toLowerCase()
     categories = @grits.Girder.Keywords.findOne({_id: name})?.value?.categories or []
     gridFields = _.uniq categories.map (category) ->
       categoryMap[category]
@@ -63,7 +63,7 @@ createQuery = (DiseasesSelected, AnyKeywordsSelected, AllKeywordsSelected) ->
       eidVal: 1
   ]
   must_terms = must_terms.concat AllKeywordsSelected.find().map (k)->
-    name = k.name.toLowerCase()
+    name = k.value.toLowerCase()
     categories = @grits.Girder.Keywords.findOne({_id: name})?.value?.categories
     gridFields = _.uniq categories.map (category) ->
       categoryMap[category]

@@ -121,10 +121,11 @@ Template.search.created = () ->
 
   if diagnosis
     diagnosis.diseases.forEach (d)->
-      selections.DiseasesSelected.insert(d)
-    if diagnosis.keywords
-      diagnosis.keywords.forEach (k)->
-        selections.AnyKeywordsSelected.insert(k)
+      selections.DiseasesSelected.insert({value: d.name})
+    if diagnosis.features
+      diagnosis.features.forEach (k)->
+        if k.type in ['symptoms', 'pathogens', 'diseases', 'hosts', 'modes']
+          selections.AnyKeywordsSelected.insert(k)
 
   @useView = new ReactiveVar(@data.viewTypes?[0].name or 'listView')
   @sortBy = new ReactiveVar(@data.sortMethods?[0].name or 'relevance')
@@ -213,13 +214,13 @@ Template.searchInput.events
     kwName = $(input).val()
     
     if (not template.data.restrictToAutocomplete) or template.data.autocompleteCollection.findOne({_id : kwName})
-      template.data.selected.insert({name : kwName})
+      template.data.selected.insert({value : kwName})
       $(input).val('')
     else
       alert("You can only search for terms in the auto-complete menu.")
 
   "click .remove-selection" : (event, template) ->
-    template.data.selected.remove({name : $(event.currentTarget).data('name')})
+    template.data.selected.remove({value : $(event.currentTarget).data('name')})
 
 Template.search.events
   "click .prev-page": (event, template) ->
