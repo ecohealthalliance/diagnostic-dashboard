@@ -124,6 +124,21 @@ Template.dash.featureSelected = (feature) ->
   else
     ""
 
+Template.dash.mailtoPromedLink = () ->
+  encodeURI("""
+  mailto:promedmail.org?subject=#{(d.name for d in @.diseases).join('/')} Report
+  &body=***Include your name and affiliation***
+  
+  Dashboard url:
+  #{window.location.toString()}
+  
+  Possible diagnoses:
+  #{(d.name + ', confidence=' + d.probability for d in @.diseases).join('\n')}
+
+  Article:
+  #{@.content}
+  """)
+
 Template.dash.viewTypes = [
   {
     name: "text"
