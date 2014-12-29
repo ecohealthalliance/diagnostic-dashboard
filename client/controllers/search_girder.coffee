@@ -29,7 +29,7 @@ doQuery = (query, options, callback) ->
     if e
       callback e
       return
-    # It would be cool if we could highligh all the points for a given article 
+    # It would be cool if we could highligh all the points for a given article
     # when someone clicks one.
     Session.set('locations', _.chain(r.hits.hits).map((result) ->
       d = result._source
@@ -55,15 +55,15 @@ createQuery = (DiseasesSelected, AnyKeywordsSelected, AllKeywordsSelected) ->
   disease_terms = DiseasesSelected.find().map (k)->
     match_phrase :
       'meta.disease' : k.value.toLowerCase()
-  
+
   should_terms = AnyKeywordsSelected.find().map (k)->
     match_phrase :
       'private.scrapedData.content'  : k.value.toLowerCase()
-  
+
   must_terms = AllKeywordsSelected.find().map (k)->
-    match_phrase : 
+    match_phrase :
       'private.scrapedData.content' : k.value.toLowerCase()
-  
+
   query = {}
   if [].concat(disease_terms, should_terms, must_terms).length > 0
     query =
@@ -78,7 +78,7 @@ createQuery = (DiseasesSelected, AnyKeywordsSelected, AllKeywordsSelected) ->
         minimum_should_match: 1
   query
 
-aggregationKeys = 
+aggregationKeys =
   'country': 'meta.country'
   'date': 'meta.date'
 
@@ -124,21 +124,22 @@ sortMethods = [
   }
 ]
 
-Router.route("searchGirder", 
+Router.route("searchGirder",
   where: "client"
   path: "/searchGirder"
   template: "search"
   onBeforeAction: () ->
     AccountsEntry.signInRequired(@)
   waitOn: () ->
-    [
-      Meteor.subscribe('diseaseNames')
-      Meteor.subscribe('keywords')
-      Meteor.subscribe('results', {_id: @params.query.diagnosisId})
-    ]
+    if Meteor.userId()
+      [
+        Meteor.subscribe('diseaseNames')
+        Meteor.subscribe('keywords')
+        Meteor.subscribe('results', {_id: @params.query.diagnosisId})
+      ]
   data: () ->
     diagnosis = DiagnosisResults().findOne(@params.query.diagnosisId)
-    { 
+    {
       label: "articles"
       diagnosis: diagnosis
       createQuery: createQuery

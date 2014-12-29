@@ -21,17 +21,17 @@ createQuery = (DiseasesSelected, AnyKeywordsSelected, AllKeywordsSelected) ->
     "pm_mode of transmission": "eventTransmissionVal"
     "pm/mode of transmission": "eventTransmissionVal"
     "eha/mode of transmission": "eventTransmissionVal"
-    
+
     # probably not useful
     #"eha/description of infected": "occupationVal"
     #"wordnet/season": "startDateDescription"
     #"doid/located_in": "locationName"
-    
+
     # lots of similar symptoms gives this too much weight
     #"eha/symptom": "reportedSymptomsVal"
-    #"biocaster/symptoms": "reportedSymptomsVal" 
+    #"biocaster/symptoms": "reportedSymptomsVal"
     #"doid/has_symptom": "reportedSymptomsVal"
-    #"pm_symptom": "reportedSymptomsVal" 
+    #"pm_symptom": "reportedSymptomsVal"
     #"biocaster_symptoms": "reportedSymptomsVal"
     #"doid_has_symptom": "reportedSymptomsVal"
     #"pm/symptom": "reportedSymptomsVal"
@@ -75,7 +75,7 @@ createQuery = (DiseasesSelected, AnyKeywordsSelected, AllKeywordsSelected) ->
         fields: gridFields
         like_text: name
   must_terms = _.without must_terms, null
-  
+
   query = {}
   if [].concat(should_terms, must_terms).length > 0
     query =
@@ -85,7 +85,7 @@ createQuery = (DiseasesSelected, AnyKeywordsSelected, AllKeywordsSelected) ->
         minimum_should_match: 1
   query
 
-aggregationKeys = 
+aggregationKeys =
   'country': 'locationNation'
   'date': 'startDateISO'
 
@@ -116,21 +116,22 @@ sortMethods = [
   }
 ]
 
-Router.route("searchGrid", 
+Router.route("searchGrid",
   where: "client"
   path: "/searchGrid"
   template: "search"
   onBeforeAction: () ->
     AccountsEntry.signInRequired(@)
   waitOn: () ->
-    [
-      Meteor.subscribe('diseaseNames')
-      Meteor.subscribe('keywords')
-      Meteor.subscribe('results', {_id: @params.query.diagnosisId})
-    ]
+    if Meteor.userId()
+      [
+        Meteor.subscribe('diseaseNames')
+        Meteor.subscribe('keywords')
+        Meteor.subscribe('results', {_id: @params.query.diagnosisId})
+      ]
   data: () ->
     diagnosis = DiagnosisResults().findOne(@params.query.diagnosisId)
-    { 
+    {
       label: "historic events"
       diagnosis: diagnosis
       createQuery: createQuery
@@ -145,4 +146,3 @@ Router.route("searchGrid",
   onStop: () ->
     $('.popover').remove()
 )
-
