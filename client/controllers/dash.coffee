@@ -58,14 +58,7 @@ Template.dash.formatDate = () ->
       return dateString
 
 Template.dash.color = () ->
-  if @categories
-    color @categories[0] + @name
-  else if @type in ['caseCount', 'hospitalizationCount', 'deathCount', 'datetime', 'adding', 'diseases', 'hosts', 'modes', 'pathogens', 'symptoms']
-    color @type + @value
-  else if @type in ['location']
-    color @type + @name
-  else if @text
-    color @text
+  color Template.dash.getIdKeyFromFeature(@)
 
 Template.dash.getIdKey = () ->
   Template.dash.getIdKeyFromFeature @
@@ -74,10 +67,10 @@ Template.dash.getIdKeyFromFeature = (feature) ->
   if feature.textOffsets
     # ids are generated from offsets so that features with content that appears
     # in mutiple places (e.g. counts) can be individually highlighted.
-    return 'o-' + feature.textOffsets.map((o)-> o[0] + '_' + o[1]).join('-')
+    return feature.type + '-o-' + feature.textOffsets.map((o)-> o[0] + '_' + o[1]).join('-')
   idKey = feature.name or feature.text or String(feature.value)
   idKey.replace(/[^A-Za-z0-9]/g, '_')
- 
+
 Template.dash.selected = () ->
   @name == Session.get('disease')
 
@@ -220,7 +213,7 @@ Template.dash.events
     # - if any of the features for that category are currently not highlighted,
     # turn highlighting on for all features in that category
     # - if all features for the category are highlighted, turn them all off.
-    # We assume that each name is unique per category  
+    # We assume that each name is unique per category
     category = $(event.target).attr('class')
     if category in ['caseCount', 'hospitalizationCount', 'deathCount',
                     'datetime', 'diseases', 'hosts', 'modes', 'pathogens',
