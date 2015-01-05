@@ -214,6 +214,12 @@ Template.dash.events
     # turn highlighting on for all features in that category
     # - if all features for the category are highlighted, turn them all off.
     # We assume that each name is unique per category
+    
+    # If a disease is selected, clicking a header unselects it
+    if Session.get('disease')
+      Session.set('disease', null)
+      Session.set('features', [])
+
     category = $(event.target).attr('class')
     if category in ['caseCount', 'hospitalizationCount', 'deathCount',
                     'datetime', 'diseases', 'hosts', 'modes', 'pathogens',
