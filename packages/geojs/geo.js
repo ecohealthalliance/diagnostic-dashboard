@@ -14305,7 +14305,14 @@ geo.mapInteractor = function (args) {
       x: evt.pageX - offset.left,
       y: evt.pageY - offset.top
     };
-    m_mouse.geo = m_this.map().displayToGcs(m_mouse.map);
+    try {
+      m_mouse.geo = m_this.map().displayToGcs(m_mouse.map);
+    } catch (e) {
+      // catch georeferencing problems and move on
+      // needed for handling the map before the base layer
+      // is attached
+      m_mouse.geo = null;
+    }
   };
 
   ////////////////////////////////////////////////////////////////////////////
@@ -14399,6 +14406,27 @@ geo.mapInteractor = function (args) {
       mouse: mouse,
       origin: $.extend({}, m_state.origin)
     };
+  };
+
+  ////////////////////////////////////////////////////////////////////////////
+  /**
+   * Immediately cancel an ongoing action.
+   *
+   * @param {string?} action The action type, if null cancel any action
+   * @returns {bool} If an action was canceled
+   */
+  ////////////////////////////////////////////////////////////////////////////
+  this.cancel = function (action) {
+    var out;
+    if (!action) {
+      out = !!m_state.action;
+    } else {
+      out = m_state.action === action;
+    }
+    if (out) {
+      m_state = {};
+    }
+    return out;
   };
 
   ////////////////////////////////////////////////////////////////////////////
@@ -14597,9 +14625,13 @@ geo.mapInteractor = function (args) {
           y: m_mouse.velocity.y * m_mouse.deltaTime
         });
 
-        window.requestAnimationFrame(m_state.handler);
+        if (m_state.handler) {
+          window.requestAnimationFrame(m_state.handler);
+        }
       };
-      window.requestAnimationFrame(m_state.handler);
+      if (m_state.handler) {
+        window.requestAnimationFrame(m_state.handler);
+      }
     }
   };
 
@@ -15415,7 +15447,8 @@ geo.map = function (arg) {
       m_interactor = null,
       m_validZoomRange = { min: 0, max: 16 },
       m_transition = null,
-      m_clock = null;
+      m_clock = null,
+      m_bounds = {};
 
 
   arg.center = geo.util.normalizeCoordinates(arg.center);
@@ -15502,10 +15535,13 @@ geo.map = function (arg) {
       x: m_center.x - previousCenter.x,
       y: m_center.y - previousCenter.y
     };
+    m_this._updateBounds();
 
     m_this.children().forEach(function (child) {
       child.geoTrigger(geo.event.zoom, evt, true);
     });
+
+    m_this.modified();
     return m_this;
   };
 
@@ -15514,12 +15550,43 @@ geo.map = function (arg) {
    * Pan the map by (x: dx, y: dy) pixels.
    *
    * @param {Object} delta
+   * @param {bool?} force Disable bounds clamping
    * @returns {geo.map}
    */
   ////////////////////////////////////////////////////////////////////////////
-  this.pan = function (delta) {
+  this.pan = function (delta, force) {
     var base = m_this.baseLayer(),
-        evt;
+        evt,
+        pt, corner1, corner2;
+
+    if (!force) {
+      // clamp to the visible screen:
+      pt = m_this.displayToGcs({
+        x: delta.x,
+        y: delta.y
+      });
+
+      // TODO: This needs to be abstracted somehow with the projection
+      corner1 = m_this.gcsToDisplay({
+        x: -180,
+        y: 82
+      });
+      corner2 = m_this.gcsToDisplay({
+        x: 180,
+        y: -82
+      });
+
+      if ((delta.x > 0 && delta.x > -corner1.x) ||
+          (delta.x < 0 && delta.x < m_width - corner2.x)) {
+        delta.x = 0;
+        m_this.interactor().cancel("momentum");
+      }
+      if ((delta.y > 0 && delta.y > -corner1.y) ||
+          (delta.y < 0 && delta.y < m_height - corner2.y)) {
+        delta.y = 0;
+        m_this.interactor().cancel("momentum");
+      }
+    }
 
     evt = {
       geo: {},
@@ -15540,6 +15607,8 @@ geo.map = function (arg) {
       x: m_width / 2,
       y: m_height / 2
     });
+    m_this._updateBounds();
+
     m_this.children().forEach(function (child) {
       child.geoTrigger(geo.event.pan, evt, true);
     });
@@ -15573,7 +15642,7 @@ geo.map = function (arg) {
     m_this.pan({
       x: currentCenter.x - newCenter.x,
       y: currentCenter.y - newCenter.y
-    });
+    }, true);
 
     return m_this;
   };
@@ -15703,6 +15772,7 @@ geo.map = function (arg) {
       height: h
     });
 
+    m_this._updateBounds();
     m_this.modified();
     return m_this;
   };
@@ -15793,6 +15863,7 @@ geo.map = function (arg) {
       m_zoom = null;
       m_this.zoom(save);
 
+      m_this._updateBounds();
       return m_this;
     }
     return m_baseLayer;
@@ -16130,6 +16201,54 @@ geo.map = function (arg) {
 
     window.requestAnimationFrame(anim);
     return m_this;
+  };
+
+  ////////////////////////////////////////////////////////////////////////////
+  /**
+   * Update the internally cached map bounds.
+   * @private
+   */
+  ////////////////////////////////////////////////////////////////////////////
+  this._updateBounds = function () {
+    if (!m_this.baseLayer()) {
+      m_bounds = {};
+      return;
+    }
+    m_bounds.lowerLeft = m_this.displayToGcs({
+      x: 0,
+      y: m_height
+    });
+    m_bounds.lowerRight = m_this.displayToGcs({
+      x: m_width,
+      y: m_height
+    });
+    m_bounds.upperLeft = m_this.displayToGcs({
+      x: 0,
+      y: 0
+    });
+    m_bounds.upperRight = m_this.displayToGcs({
+      x: m_width,
+      y: 0
+    });
+  };
+
+  ////////////////////////////////////////////////////////////////////////////
+  /**
+   * Get the locations of the current map corners as latitudes/longitudes.
+   * The return value of this function is an object as follows: ::
+   *
+   *    {
+   *        lowerLeft: {x: ..., y: ...},
+   *        upperLeft: {x: ..., y: ...},
+   *        lowerRight: {x: ..., y: ...},
+   *        upperRight: {x: ..., y: ...}
+   *    }
+   *
+   * @todo Provide a setter
+   */
+  ////////////////////////////////////////////////////////////////////////////
+  this.bounds = function () {
+    return m_bounds;
   };
 
   this.interactor(arg.interactor || geo.mapInteractor());
@@ -18656,19 +18775,19 @@ geo.osmLayer = function (arg) {
 
     /// Get rid of tiles if we have reached our threshold. However,
     /// If the tile is required for current zoom, then do nothing.
-    /// Also don"t delete the tile if its from the previous zoom
+    /// Also do not delete the tile if it is from the previous zoom
     while (m_numberOfCachedTiles > m_tileCacheSize &&
       i < m_pendingInactiveTiles.length) {
       tile = m_pendingInactiveTiles[i];
 
       if (isTileVisible(tile)) {
         i += 1;
-        continue;
+      } else {
+        m_this.deleteFeature(tile.feature);
+        delete m_tiles[tile.zoom][tile.index_x][tile.index_y];
+        m_pendingInactiveTiles.splice(i, 1);
+        m_numberOfCachedTiles -= 1;
       }
-      m_this.deleteFeature(tile.feature);
-      delete m_tiles[tile.zoom][tile.index_x][tile.index_y];
-      m_pendingInactiveTiles.splice(i, 1);
-      m_numberOfCachedTiles -= 1;
     }
 
     for (i = 0; i < m_pendingInactiveTiles.length; i += 1) {
@@ -19210,19 +19329,16 @@ geo.gl.lineFeature = function (arg) {
     start = buffers.alloc(numPts * 6);
     currIndex = start;
 
-    for (i = 0; i < numPts; i += 1) {
-      //buffers.write('indices', [i], start + i, 1);
-      buffers.repeat('strokeWidth', [strkWidthArr[i]], start + i * 6, 6);
-      buffers.repeat('strokeColor', strkColorArr[i], start + i * 6, 6);
-      buffers.repeat('strokeOpacity', [strkOpacityArr[i]], start + i * 6, 6);
-    }
-
-    var addVert = function (p, c, n, offset) {
-      buffers.write('prev', p, currIndex, 1);
-      buffers.write('pos', c, currIndex, 1);
-      buffers.write('next', n, currIndex, 1);
+    var addVert = function (prevPos, currPos, nextPos, offset,
+                            width, color, opacity) {
+      buffers.write('prev', prevPos, currIndex, 1);
+      buffers.write('pos', currPos, currIndex, 1);
+      buffers.write('next', nextPos, currIndex, 1);
       buffers.write('offset', [offset], currIndex, 1);
       buffers.write('indices', [currIndex], currIndex, 1);
+      buffers.write('strokeWidth', [width], currIndex, 1);
+      buffers.write('strokeColor', color, currIndex, 1);
+      buffers.write('strokeOpacity', [opacity], currIndex, 1);
       currIndex += 1;
     };
 
@@ -19231,13 +19347,19 @@ geo.gl.lineFeature = function (arg) {
     for (j = 0; j < lineSegments.length; j += 1) {
       i += 1;
       for (k = 0; k < lineSegments[j] - 1; k += 1) {
-        addVert(prev[i - 1], position[i - 1], next[i - 1], 1);
-        addVert(prev[i], position[i], next[i], -1);
-        addVert(prev[i - 1], position[i - 1], next[i - 1], -1);
+        addVert(prev[i - 1], position[i - 1], next[i - 1], 1,
+                strkWidthArr[i - 1], strkColorArr[i - 1], strkOpacityArr[i - 1]);
+        addVert(prev[i], position[i], next[i], -1,
+                strkWidthArr[i], strkColorArr[i], strkOpacityArr[i]);
+        addVert(prev[i - 1], position[i - 1], next[i - 1], -1,
+                strkWidthArr[i - 1], strkColorArr[i - 1], strkOpacityArr[i - 1]);
 
-        addVert(prev[i - 1], position[i - 1], next[i - 1], 1);
-        addVert(prev[i], position[i], next[i], 1);
-        addVert(prev[i], position[i], next[i], -1);
+        addVert(prev[i - 1], position[i - 1], next[i - 1], 1,
+                strkWidthArr[i - 1], strkColorArr[i - 1], strkOpacityArr[i - 1]);
+        addVert(prev[i], position[i], next[i], 1,
+                strkWidthArr[i], strkColorArr[i], strkOpacityArr[i]);
+        addVert(prev[i], position[i], next[i], -1,
+                strkWidthArr[i], strkColorArr[i], strkOpacityArr[i]);
         i += 1;
       }
     }
@@ -19289,12 +19411,6 @@ geo.gl.lineFeature = function (arg) {
         // Shader uniforms
         mviUnif = new vgl.modelViewUniform('modelViewMatrix'),
         prjUnif = new vgl.projectionUniform('projectionMatrix');
-        // Accessors
-        /*
-        swiFunc = m_this.style.get('strokeWidth'),
-        scoFunc = m_this.style.get('strokeColor'),
-        sopFunc = m_this.style.get('strokeOpacity');
-        */
 
     m_pixelWidthUnif =  new vgl.floatUniform('pixelWidth',
                           1.0 / m_this.renderer().width());
@@ -21799,11 +21915,6 @@ geo.gui.widget = function (arg) {
     return m_this;
   };
 
-  ////////////////////////////////////////////////////////////////////////////
-  /**
-   * Return the layer associated with this widget.
-   */
-  ////////////////////////////////////////////////////////////////////////////
   this.layer = function () {
     return m_layer;
   };
@@ -22139,224 +22250,3 @@ geo.gui.sliderWidget = function (arg) {
 inherit(geo.gui.sliderWidget, geo.gui.widget);
 
 geo.registerWidget('d3', 'slider', geo.gui.sliderWidget);
-
-//////////////////////////////////////////////////////////////////////////////
-/**
- * Create a new instance of class legendWidget
- *
- * @class
- * @returns {geo.gui.legendWidget}
- */
-//////////////////////////////////////////////////////////////////////////////
-geo.gui.legendWidget = function (arg) {
-  'use strict';
-  if (!(this instanceof geo.gui.legendWidget)) {
-    return new geo.gui.legendWidget(arg);
-  }
-  geo.gui.widget.call(this, arg);
-
-  /** @private */
-  var m_this = this,
-      m_categories = [],
-      m_group = null,
-      m_border = null,
-      m_spacing = 16, // distance in pixels between lines
-      m_padding = 12; // padding in pixels inside the border
-
-  //////////////////////////////////////////////////////////////////////////////
-  /**
-   * Get or set the category array associated with
-   * the legend.  Each element of this array is
-   * an object: ::
-   *     {
-   *         name: string,
-   *         style: object,
-   *         type: 'point' | 'line' | ...
-   *     }
-   *
-   * The style property can contain the following feature styles:
-   *     * fill: bool
-   *     * fillColor: object | string
-   *     * fillOpacity: number
-   *     * stroke: bool
-   *     * strokeColor: object | string
-   *     * strokeWidth: number
-   *     * strokeOpacity: number
-   *
-   * The type controls how the element is displayed, point as a circle,
-   * line as a line segment.  Any other value will display as a rounded
-   * rectangle.
-   *
-   * @param {object[]?} categories The categories to display
-   */
-  //////////////////////////////////////////////////////////////////////////////
-  this.categories = function (arg) {
-    if (arg === undefined) {
-      return m_categories.slice();
-    }
-    m_categories = arg.slice();
-    m_this.draw();
-    return m_this;
-  };
-
-  //////////////////////////////////////////////////////////////////////////////
-  /**
-   * Get or set the widget's size
-   * @param {{width: number, height: number}} size The size in pixels
-   */
-  //////////////////////////////////////////////////////////////////////////////
-  this.size = function (arg) {
-    var width, height;
-    if (arg === undefined) {
-      width = 100;
-      height = m_spacing * (m_categories.length + 1);
-      return {
-        width: width,
-        height: height
-      };
-    }
-    return m_this;
-  };
-
-  //////////////////////////////////////////////////////////////////////////////
-  /**
-   * Redraw the legend
-   */
-  //////////////////////////////////////////////////////////////////////////////
-  this.draw = function () {
-
-    function applyColor(selection) {
-      selection.style('fill', function (d) {
-          if (d.fill || d.fill === undefined) {
-            return d.fillColor;
-          } else {
-            return 'none';
-          }
-        })
-        .style('fill-opacity', function (d) {
-          if (d.fillOpacity === undefined) {
-            return 1;
-          }
-          return d.fillOpacity;
-        })
-        .style('stroke', function (d) {
-          if (d.stroke || d.stroke === undefined) {
-            return d.strokeColor;
-          } else {
-            return 'none';
-          }
-        })
-        .style('stroke-opacity', function (d) {
-          if (d.strokeOpacity === undefined) {
-            return 1;
-          }
-          return d.strokeOpacity;
-        });
-    }
-
-    m_border.attr('height', m_this.size().height + 2 * m_padding)
-      .style('display', null);
-
-    var scale = m_this._scale();
-
-    var labels = m_group.selectAll('g.label')
-      .data(m_categories, function (d) { return d.name; });
-
-    labels.exit().remove();
-    var g = labels.enter().append('g')
-      .attr('class', 'label')
-      .attr('transform', function (d, i) {
-        return 'translate(0,' + scale.y(i) + ')';
-      });
-
-    applyColor(g.filter(function (d) {
-        return d.type !== 'point' && d.type !== 'line';
-      }).append('rect')
-        .attr('x', 0)
-        .attr('y', -6)
-        .attr('rx', 5)
-        .attr('ry', 5)
-        .attr('width', 40)
-        .attr('height', 12)
-    );
-
-    applyColor(g.filter(function (d) {
-        return d.type === 'point';
-      }).append('circle')
-        .attr('cx', 20)
-        .attr('cy', 0)
-        .attr('r', 6)
-    );
-
-    applyColor(g.filter(function (d) {
-        return d.type === 'line';
-      }).append('line')
-        .attr('x1', 0)
-        .attr('y1', 0)
-        .attr('x2', 40)
-        .attr('y2', 0)
-    );
-
-    g.append('text')
-      .attr('x', '50px')
-      .attr('y', 0)
-      .attr('dy', '0.3em')
-      .text(function (d) {
-        return d.name;
-      });
-
-    return m_this;
-  };
-
-  //////////////////////////////////////////////////////////////////////////////
-  /**
-   * Get scales for the x and y axis for the current size.
-   * @private
-   */
-  //////////////////////////////////////////////////////////////////////////////
-  this._scale = function () {
-    return {
-      x: d3.scale.linear()
-        .domain([0, 1])
-        .range([0, m_this.size().width]),
-      y: d3.scale.linear()
-        .domain([0, m_categories.length - 1])
-        .range([m_padding / 2, m_this.size().height - m_padding / 2])
-    };
-  };
-
-  //////////////////////////////////////////////////////////////////////////////
-  /**
-   * Private initialization.  Creates the widget's DOM container and internal
-   * variables.
-   * @private
-   */
-  //////////////////////////////////////////////////////////////////////////////
-  this._init = function () {
-    var w = m_this.size().width + 2 * m_padding,
-        h = m_this.size().height + 2 * m_padding,
-        nw = m_this.layer().map().node().width(),
-        margin = 20;
-    m_group = m_this.layer().renderer().canvas().append('g')
-        .attr('transform', 'translate(' + (nw - w - margin) + ',' + margin + ')')
-      .append('g')
-        .attr('transform', 'translate(' + [m_padding - 1.5, m_padding] + ')');
-    m_border = m_group.append('rect')
-      .attr('x', -m_padding)
-      .attr('y', -m_padding)
-      .attr('width', w)
-      .attr('height', h)
-      .attr('rx', 2)
-      .attr('ry', 2)
-      .style({
-        'stroke': 'black',
-        'stroke-width': '1.5px',
-        'fill': 'none',
-        'display': 'none'
-      });
-  };
-};
-
-inherit(geo.gui.legendWidget, geo.gui.widget);
-
-geo.registerWidget('d3', 'legend', geo.gui.legendWidget);

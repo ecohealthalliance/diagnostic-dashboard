@@ -27,35 +27,30 @@
             var that = this;
 
             this._map = geo.map({node: this.element.get(0), zoom: 0});
-            this.resize();
-
-            this.element.on('rescale', function () {
-                that.resize();
-            });
 
             this._osm = this._map.createLayer('osm', {'baseUrl': 'http://otile1.mqcdn.com/tiles/1.0.0/osm/'});
+            /* If we want to restrict the zoom range:
             this._map.zoomRange({
                 min: 0,
                 max: 6
             });
+            */
 
             this._layer = this._map.createLayer('feature', {'renderer': 'd3Renderer'});
             this._feature = this._layer.createFeature('point');
 
+
+            this._slider = this._map.createLayer('ui')
+                .createWidget('slider');
+
+            this.resize();
+            this.element.on('rescale', function () {
+                that.resize();
+            });
+
             this._geomapCreated = true;
             this._data = [];
             this.update();
-            var slider = $('<input id="zoom-slider" min="0" max="6" value="0" step="0.1" type="range">').appendTo(this.element.get(0))
-                .on('change mousemove', function () {
-                    var map = $(node).gritsMap('map');
-                    map.zoom(Number($(this).val()));
-                })
-                .on('mousedown', function (evt) {
-                    evt.stopPropagation();
-                });
-            this._layer.geoOn(geo.event.zoom, function () {
-                slider.val(that._map.zoom());
-            });
         },
         _destroy: function () {
             this._map.interactor().destroy();
