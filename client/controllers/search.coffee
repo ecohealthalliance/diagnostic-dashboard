@@ -199,7 +199,10 @@ Template.search.pageNum = () ->
   Template.instance().searchPage.get() or 0
 
 Template.search.resultListData = () ->
-  results: Template.instance().searchResults.get()
+  {
+    results: Template.instance().searchResults.get()
+    AllKeywordsSelected: Template.instance().selections.AllKeywordsSelected
+  }
 
 Template.search.aggregations = () ->
   Template.instance().aggregations.get()
