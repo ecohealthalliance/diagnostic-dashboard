@@ -39,3 +39,15 @@ Router.map () ->
         @response.writeHead(303)
         @response.end()
   })
+
+Router.map () ->
+  # these go to apache on the server, so we need to make sure
+  # the client doesn't handle them
+  @route('api', {
+      path: '/api(.*)'
+      where: 'server'
+  })
+  @route('gritsdb', {
+      path: '/gritsdb(.*)'
+      where: 'server'
+  })

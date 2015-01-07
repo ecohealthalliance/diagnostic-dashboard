@@ -23,10 +23,11 @@ Router.map () ->
     onBeforeAction: () ->
       AccountsEntry.signInRequired(@)
     waitOn: () ->
-      [
-        Meteor.subscribe('users')
-        Meteor.subscribe('results', {userId: (@params._id or Meteor.userId())})
-      ]
+      if Meteor.userId()
+        [
+          Meteor.subscribe('users')
+          Meteor.subscribe('results', {userId: (@params._id or Meteor.userId())})
+        ]
     data: () ->
       userId = @params._id or Meteor.userId()
       {
@@ -42,21 +43,22 @@ Router.map () ->
     onBeforeAction: () ->
       AccountsEntry.signInRequired(@)
     waitOn: () ->
-      [
-        Meteor.subscribe('item')
-        Meteor.subscribe('feedback')
-        Meteor.subscribe('results', {_id: @params._id})
-      ]
+      if Meteor.userId()
+        [
+          Meteor.subscribe('item')
+          Meteor.subscribe('feedback')
+          Meteor.subscribe('results', {_id: @params._id})
+        ]
     data: () ->
       data = Results.findOne(@params._id)
       if data?.prevDiagnosisId
         prevDiagnosis = Results.findOne(data.prevDiagnosisId)
         if prevDiagnosis?.error
           data.prevDiagnosisError = true
-      
+
       # Set dates/locations session variables for visualizations
       features = data?.features or []
-      Session.set('dates', 
+      Session.set('dates',
         _.chain(features)
           .where({type : 'datetime'})
           .map((feature) ->
@@ -70,8 +72,8 @@ Router.map () ->
               }
           ).filter(_.identity).value()
       )
-    
-      Session.set('locations', 
+
+      Session.set('locations',
         _.chain(features)
           .where({type : 'location'})
           .map((location) ->
@@ -83,7 +85,7 @@ Router.map () ->
             }
           ).value()
       )
-    
+
       return data
     onAfterAction: () ->
       try
