@@ -39,6 +39,7 @@ submit = (content, userId, prevDiagnosis) ->
             keywords: result.keywords_found
             keypoints: result.keypoints
             diagnoserVersion: result.diagnoserVersion
+            processedContent: result?source?englishTranslation?content or result?source?cleanContent?content
             ready: true
             createDate: new Date()
           }}
