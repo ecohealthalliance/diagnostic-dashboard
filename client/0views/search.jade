@@ -1,101 +1,12 @@
-template(name="search")
-  .dashboard-container
-    .left-panel.search-sidebar
-      h3 Find articles with...
-      h4 Any of these diseases:
-      each diseasesSelected
-        div
-          i.fa.fa-times-circle(data-name="{{name}}" class="remove-disease" style="color:crimson;")
-          span {{name}}
-      +inputAutocomplete settings=diseaseCompleteSettings id="new-disease" class="input-xlarge"
-      button(id="add-disease") Add
-      h4 Any of these keywords:
-      each anyKeywordsSelected
-        div
-          i.fa.fa-times-circle(data-name="{{name}}" class="remove-any-keyword" style="color:crimson;")
-          span {{name}}
-      +inputAutocomplete settings=keywordCompleteSettings id="new-any-keyword" class="input-xlarge"
-      button(id="add-any-keyword") Add
-      h4 All of these keywords:
-      each allKeywordsSelected
-        div
-          i.fa.fa-times-circle(data-name="{{name}}" class="remove-all-keyword" style="color:crimson;")
-          span {{name}}
-      +inputAutocomplete settings=keywordCompleteSettings id="new-all-keyword" class="input-xlarge"
-      button(id="add-all-keyword") Add
-      h4 In one of these countries:
-      +selector collection=countriesSelected
+template(name="searchInput")
+  div
+    each itemsSelected
       div
-        b Approximate Document Counts:
-      each aggregations.countries.buckets
-        .document-count
-          span.count-bar(style="width: {{percentage doc_count totalResults}}%;") 
-          .count-text
-            a.add-country-filter(href="#" data-name="{{key}}") {{key}}
-            span : {{doc_count}} reports
-      h4 In the date range:
-      label
-        span.date-label Start
-        input.date-selector.from-date(type="date" value="{{fromDate}}")
-      br
-      label
-        span.date-label End
-        input.date-selector.to-date(type="date" value="{{toDate}}")
-      div
-        b Approximate Document Counts:
-      each aggregations.months.buckets
-        .document-count
-          span.count-bar(style="width: {{percentage doc_count totalResults}}%;") 
-          .count-text
-            a.set-month(href="") {{timestampToMonthYear key}}
-            | : {{doc_count}} reports
-    .pane-container
-      .vis-pane-bar
-        if numResults
-          span
-            | Page {{pageNum}} 
-            a(href="").prev-page Previous
-            | -
-            a(href="#").next-page Next
-          span | {{numResults}} of {{totalResults}} Results
-        else
-          span No Results
-        span.view-select
-          | | Sorted By:
-          select#sort-by
-            each sortMethods
-              if eq sortBy name
-                option(selected value=name) {{label}}
-              else
-                option(value=name) {{label}}
-        span.view-select
-          | | Choose View:
-          select#choose-view
-            each viewTypes
-              if eq useView name
-                option(selected value=name) {{label}}
-              else
-                option(value=name) {{label}}
-      .vis-pane
-        if searching
-          p Searching...
-        else if eq useView "mapView"
-          +geomapSimple
-        else if eq useView "listView"
-          +resultList
-        else if eq useView "dateGroupView"
-          +dateGroups
-        else if eq useView "locationGroupView"
-          +locationGroups
-        else if eq useView "diseaseGroupView"
-          +diseaseGroups
+        i.fa.fa-times-circle(data-name="{{value}}" class="remove-selection" style="color:crimson;")
+        span {{value}}
+    +inputAutocomplete settings=autocompleteSettings class="input-xlarge add-selection-input"
+    button(class="add-selection") Add
 
-template(name="searchPill")
-  span(class="sp-label") {{_id}}
-  span(class="sp-categories")
-    each value.categories
-      span(class="sp-category") [{{this}}]
-      
 template(name="selector")
   each itemsInCollection
     div
@@ -104,3 +15,106 @@ template(name="selector")
   div
     input.input-xlarge
     button.add-item Add
+
+template(name="searchPill")
+  span(class="sp-label") {{_id}}
+  span(class="sp-categories")
+    each value.categories
+      span(class="sp-category") [{{this}}]
+
+template(name="searchAggregations")
+
+  h4 In one of these countries:
+  +selector collection=selections.CountriesSelected
+  div
+    b Approximate Document Counts:
+  each aggregations.countries.buckets
+    .document-count
+      span.count-bar(style="width: {{percentage doc_count ../totalResults}}%;")
+      .count-text
+        a.add-country-filter(href="#" data-name="{{key}}") {{key}}
+        span : {{doc_count}} reports
+
+  h4 In the date range:
+  label
+    span.date-label Start
+    input.date-selector.from-date(type="date" value="{{fromDate}}")
+  br
+  label
+    span.date-label End
+    input.date-selector.to-date(type="date" value="{{toDate}}")
+  div
+    b Approximate Document Counts:
+  each aggregations.dates.buckets
+    if doc_count
+      .document-count
+        span.count-bar(style="width: {{percentage doc_count ../totalResults}}%;")
+        .count-text
+          a.set-date(href="") {{../formatDateRange from to}}
+          | : {{doc_count}} reports
+
+      
+template(name="search")
+  .dashboard-container
+    .left-panel.search-sidebar
+      h3 Find #{label} with...
+
+      h4 Any of these diseases:
+      +searchInput selected=selections.DiseasesSelected autocompleteCollection=diseaseNames restrictToAutocomplete="true"
+
+      h4 Any of these keywords:
+      +searchInput selected=selections.AnyKeywordsSelected autocompleteCollection=keywords 
+
+      h4 All of these keywords:
+      +searchInput selected=selections.AllKeywordsSelected autocompleteCollection=keywords 
+
+      +searchAggregations totalResults=totalResults selections=selections fromDate=fromDate toDate=toDate formatDateRange=formatDateRange aggregations=aggregations
+
+    .pane-container
+      .vis-pane-bar
+        if numResults
+          span
+            | Page {{pageNum}}
+            a(href="").prev-page Previous
+            | -
+            a(href="").next-page Next
+          span | {{numResults}} of {{totalResults}} Results
+        else
+          span No Results
+        span.view-select
+          | | Sorted By:
+          if eq sortMethods.length 1
+            each sortMethods
+              span {{label}}
+          else
+            select#sort-by
+              each sortMethods
+                if eq sortBy name
+                  option(selected value=name) {{label}}
+                else
+                  option(value=name) {{label}}
+        span.view-select
+          | | View:
+          if eq viewTypes.length 1
+            each viewTypes
+              span {{label}}
+          else
+            select#choose-view
+              each viewTypes
+                if eq useView name
+                  option(selected value=name) {{label}}
+                else
+                  option(value=name) {{label}}
+      .vis-pane
+        if searching
+          p Searching...
+        else if eq useView "listView"
+          +Template.dynamic template=resultListTemplate data=resultListData
+        else if eq useView "mapView"
+          +geomapSimple
+        else if eq useView "dateGroupView"
+          +dateGroups
+        else if eq useView "locationGroupView"
+          +locationGroups
+        else if eq useView "diseaseGroupView"
+          +diseaseGroups

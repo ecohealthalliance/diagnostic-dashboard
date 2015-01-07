@@ -10,7 +10,7 @@ rangeString = (arr)->
 
 Template.resultList.results = () ->
   keywordCounts = {}
-  searchResults = Session.get('searchResults') or []
+  searchResults = @results or []
   searchResults.forEach((result)->
     item = result._source
     if not item.meta.diagnosis?.keywords_found
