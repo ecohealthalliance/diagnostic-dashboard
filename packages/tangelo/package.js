@@ -4,7 +4,7 @@ Package.describe({
 
 Package.on_use(function (api) {
   api.use('jquery', 'client');
-  api.use('d3', 'client');
+  api.use('d3js:d3', 'client');
   api.use('geojs', 'client');
 
   api.add_files('pre.js', 'client');

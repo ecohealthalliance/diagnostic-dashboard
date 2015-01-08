@@ -1,0 +1,9 @@
+template(name="gridResultList")
+  div(class="search-results")
+    h4 Search Results:
+    each results
+      div(class="search-result")
+        div
+          a(href="{{gridUrl}}/event/#{id}", target="_blank") #{name}
+    else
+      p No Results Found
