@@ -49,7 +49,6 @@ Template.dash.formatDate = () ->
   else if @value == "FUTURE_REF"
     return "Future reference"
   else
-    return @value
     # We don't want to display dates with more specificity than they possess.
     # But if we take a date like '2014-11' and create a JS Date with it, it will
     # be created with a specific day and time, and displayed as 11/1/2014.
@@ -64,7 +63,7 @@ Template.dash.formatDate = () ->
     if @value.match yearPat
       return @value
     else if @value.match monthPat
-      return @value.substring(5,2) + '-' + @value.substring(0,4)
+      return @value.substring(5,7) + '/' + @value.substring(0,4)
     else
       date = new Date(@value)
       date.setDate(date.getDate() + 1)
