@@ -79,7 +79,7 @@
 
             // georeference the data
             this._data = [];
-            this.options.data.forEach(function (d) {
+            (this.options.data || []).forEach(function (d) {
                 if (Number.isFinite(d.latitude) && Number.isFinite(d.longitude)) {
                     that._data.push(d);
                 }
@@ -150,12 +150,12 @@
                     radius: function () { return that.options.pointSize; }
                 })
                 .draw();
-            this._feature.geoOff(geo.event.feature.mouseover)
-                .geoOn(geo.event.feature.mouseover, function (evt) {
+            this._feature.geoOff(geo.event.feature.mouseon)
+                .geoOn(geo.event.feature.mouseon, function (evt) {
                     $(this.select()[0][evt.index]).popover('show');
                 })
-                .geoOff(geo.event.feature.mouseout)
-                .geoOn(geo.event.feature.mouseout, function (evt) {
+                .geoOff(geo.event.feature.mouseoff)
+                .geoOn(geo.event.feature.mouseoff, function (evt) {
                     $(this.select()[0][evt.index]).popover('hide');
                 });
             this._feature.select().each(function (d) {

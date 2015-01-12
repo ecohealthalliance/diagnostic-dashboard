@@ -13939,57 +13939,223 @@ geo.registerLayer("feature", geo.featureLayer);
 
 //////////////////////////////////////////////////////////////////////////////
 /**
- * Create a new instance of class event
+ * Common object containing all event types that are provided by the GeoJS
+ * API.  Each property contained here is a valid target for event handling
+ * via {@link geo.object#geoOn}.  The event object provided to handlers is
+ * different for each event type.  Each handler will generally be called
+ * with a the <code>this</code> context being the class that caused the event.<br>
+ * <br>
+ * The following properties are common to all event objects:
  *
- * @class
- * @returns {geo.event}
+ * @namespace
+ * @property type {string} The event type that was triggered
+ * @property geo {object} A universal event object for controlling propagation
+ *
+ * @example
+ * map.geoOn(geo.event.layerAdd, function (event) {
+ *   // event is an object with type: {@link geo.event.layerAdd}
+ * });
+ *
  */
- //////////////////////////////////////////////////////////////////////////////
-geo.event = function () {
-  "use strict";
-  if (!(this instanceof geo.event)) {
-    return new geo.event();
-  }
-  vgl.event.call(this);
-
-  return this;
-};
-
-inherit(geo.event, vgl.event);
+//////////////////////////////////////////////////////////////////////////////
+geo.event = {};
 
 //////////////////////////////////////////////////////////////////////////////
-/**
+/*
  * Event types
  */
 //////////////////////////////////////////////////////////////////////////////
 
-// TODO Add documentation
-geo.event.update = "geo_update";
-geo.event.opacityUpdate = "geo_opacityUpdate";
-geo.event.layerAdd = "geo_layerAdd";
-geo.event.layerRemove = "geo_layerRemove";
-geo.event.layerToggle = "geo_layerToggle";
-geo.event.layerSelect = "geo_layerSelect";
-geo.event.layerUnselect = "geo_layerUnselect";
-geo.event.zoom = "geo_zoom";
-geo.event.pan = "geo_pan";
-geo.event.rotate = "geo_rotate";
-geo.event.resize = "geo_resize";
-geo.event.animate = "geo_animate";
-geo.event.query = "geo_query";
-geo.event.draw = "geo_draw";
-geo.event.drawEnd = "geo_drawEnd";
-geo.event.mousemove = "geo_mousemove";
-geo.event.mouseclick = "geo_mouseclick";
-geo.event.brush = "geo_brush"; // mousemove during a selection
-geo.event.brushend = "geo_brushend"; // mouseup after a selection has been made
-geo.event.brushstart = "geo_brushstart"; // mousedown starting a selection
+// The following were not triggered nor used anywhere.  Removing until their
+// purpose is defined more clearly.
+//
+// geo.event.update = "geo_update";
+// geo.event.opacityUpdate = "geo_opacityUpdate";
+// geo.event.layerToggle = "geo_layerToggle";
+// geo.event.layerSelect = "geo_layerSelect";
+// geo.event.layerUnselect = "geo_layerUnselect";
+// geo.event.rotate = "geo_rotate";
+// geo.event.query = "geo_query";
 
+//////////////////////////////////////////////////////////////////////////////
+/**
+ * Triggered when a layer is added to the map.
+ *
+ * @property target {geo.map} The current map
+ * @property layer {geo.layer} The new layer
+ */
+//////////////////////////////////////////////////////////////////////////////
+geo.event.layerAdd = "geo_layerAdd";
+
+//////////////////////////////////////////////////////////////////////////////
+/**
+ * Triggered when a layer is removed from the map.
+ *
+ * @property target {geo.map} The current map
+ * @property layer {geo.layer} The old layer
+ */
+//////////////////////////////////////////////////////////////////////////////
+geo.event.layerRemove = "geo_layerRemove";
+
+//////////////////////////////////////////////////////////////////////////////
+/**
+ * Triggered when the map's zoom level is changed.  Note that zoom is never
+ * triggered on the map itself.  Instead it is triggered individually on
+ * layers, starting with the base layer.
+ *
+ * @property zoomLevel {Number} New zoom level
+ * @property screenPosition {object} The screen position of mouse pointer
+ */
+//////////////////////////////////////////////////////////////////////////////
+geo.event.zoom = "geo_zoom";
+
+//////////////////////////////////////////////////////////////////////////////
+/**
+ * Triggered when the map is panned either by user interaction or map
+ * transition.
+ *
+ * @property screenDelta {object} The number of pixels to pan the map by
+ * @property center {object} The new map center
+ */
+//////////////////////////////////////////////////////////////////////////////
+geo.event.pan = "geo_pan";
+
+//////////////////////////////////////////////////////////////////////////////
+/**
+ * Triggered when the map's canvas is resized.
+ *
+ * @property width {Number} The new width in pixels
+ * @property height {Number} The new height in pixels
+ */
+//////////////////////////////////////////////////////////////////////////////
+geo.event.resize = "geo_resize";
+
+//////////////////////////////////////////////////////////////////////////////
+/**
+ * Triggered on every call to {@link geo.map#draw} before the map is rendered.
+ *
+ * @property target {geo.map} The current map
+ */
+//////////////////////////////////////////////////////////////////////////////
+geo.event.draw = "geo_draw";
+
+//////////////////////////////////////////////////////////////////////////////
+/**
+ * Triggered on every call to {@link geo.map#draw} after the map is rendered.
+ *
+ * @property target {geo.map} The current map
+ */
+//////////////////////////////////////////////////////////////////////////////
+geo.event.drawEnd = "geo_drawEnd";
+
+//////////////////////////////////////////////////////////////////////////////
+/**
+ * Triggered on every "mousemove" over the map's DOM element.  The event
+ * object extends {@link geo.mouseState}.
+ * @mixes geo.mouseState
+ */
+//////////////////////////////////////////////////////////////////////////////
+geo.event.mousemove = "geo_mousemove";
+
+//////////////////////////////////////////////////////////////////////////////
+/**
+ * Triggered on every "mousedown" over the map's DOM element.  The event
+ * object extends {@link geo.mouseState}.
+ * @mixes geo.mouseState
+ */
+//////////////////////////////////////////////////////////////////////////////
+geo.event.mouseclick = "geo_mouseclick";
+
+//////////////////////////////////////////////////////////////////////////////
+/**
+ * Triggered on every "mousemove" during a brushing selection.
+ * The event object extends {@link geo.brushSelection}.
+ * @mixes geo.brushSelection
+ */
+//////////////////////////////////////////////////////////////////////////////
+geo.event.brush = "geo_brush";
+
+//////////////////////////////////////////////////////////////////////////////
+/**
+ * Triggered after a brush selection ends.
+ * The event object extends {@link geo.brushSelection}.
+ * @mixes geo.brushSelection
+ */
+//////////////////////////////////////////////////////////////////////////////
+geo.event.brushend = "geo_brushend";
+
+//////////////////////////////////////////////////////////////////////////////
+/**
+ * Triggered when a brush selection starts.
+ * The event object extends {@link geo.brushSelection}.
+ * @mixes geo.brushSelection
+ */
+//////////////////////////////////////////////////////////////////////////////
+geo.event.brushstart = "geo_brushstart";
+
+
+//////////////////////////////////////////////////////////////////////////////
+/**
+ * Triggered before a map navigation animation begins.  Set
+ * <code>event.geo.cancelAnimation</code> to cancel the animation
+ * of the navigation.  This will cause the map to navigate to the
+ * target location immediately.  Set <code>event.geo.cancelNavigation</code>
+ * to cancel the navigation completely.  The transition options can
+ * be modified in place.
+ *
+ * @property {geo.geoPosition} center The target center
+ * @property {Number} zoom The target zoom level
+ * @property {Number} duration The duration of the transition in milliseconds
+ * @property {function} ease The easing function
+ */
+//////////////////////////////////////////////////////////////////////////////
+geo.event.transitionstart = "geo_transitionstart";
+
+//////////////////////////////////////////////////////////////////////////////
+/**
+ * Triggered after a map navigation animation ends.
+ *
+ * @property {geo.geoPosition} center The target center
+ * @property {Number} zoom The target zoom level
+ * @property {Number} duration The duration of the transition in milliseconds
+ * @property {function} ease The easing function
+ */
+//////////////////////////////////////////////////////////////////////////////
+geo.event.transitionend = "geo_transitionend";
+
+////////////////////////////////////////////////////////////////////////////
+/**
+ * @namespace
+ */
+////////////////////////////////////////////////////////////////////////////
 geo.event.clock = {
   play: "geo_clock_play",
   stop: "geo_clock_stop",
   pause: "geo_clock_pause",
   change: "geo_clock_change"
+};
+
+////////////////////////////////////////////////////////////////////////////
+/**
+ * This event object provides mouse/keyboard events that can be handled
+ * by the features.  This provides a similar interface as core events,
+ * but with different names so the events don't interfere.  Subclasses
+ * can override this to provide custom events.
+ *
+ * These events will only be triggered on features which were instantiated
+ * with the option "selectionAPI".
+ * @namespace
+ */
+////////////////////////////////////////////////////////////////////////////
+geo.event.feature = {
+  mousemove:  "geo_feature_mousemove",
+  mouseover:  "geo_feature_mouseover",
+  mouseout:   "geo_feature_mouseout",
+  mouseon:    "geo_feature_mouseon",
+  mouseoff:   "geo_feature_mouseoff",
+  mouseclick: "geo_feature_mouseclick",
+  brushend:   "geo_feature_brushend",
+  brush:      "geo_feature_brush"
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -14082,9 +14248,13 @@ geo.mapInteractor = function (args) {
       selectionModifiers: {'shift': true},
       momentum: {
         enabled: true,
-        maxSpeed: 10,
+        maxSpeed: 2.5,
         minSpeed: 0.01,
-        drag: 0.005
+        drag: 0.01
+      },
+      spring: {
+        enabled: true,
+        springConstant: 0.00005
       }
     },
     m_options
@@ -14136,7 +14306,95 @@ geo.mapInteractor = function (args) {
   //     maxSpeed: number, // don't allow animation to pan faster than this
   //     minSpeed: number  // stop animations if the speed is less than this
   //   }
+  //
+  //   // enable spring clamping to screen edges to enforce clamping
+  //   spring: {
+  //     enabled: true | false,
+  //     springConstant: number,
+  //   }
   // }
+
+  // A bunch of type definitions for api documentation:
+  /**
+   * General representation of rectangular bounds in world coordinates
+   * @typedef geo.geoBounds
+   * @type {object}
+   * @property {geo.geoPosition} upperLeft Upper left corner
+   * @property {geo.geoPosition} upperRight Upper right corner
+   * @property {geo.geoPosition} lowerLeft Lower left corner
+   * @property {geo.geoPosition} lowerRight Lower right corner
+   */
+
+  /**
+   * General representation of rectangular bounds in pixel coordinates
+   * @typedef geo.screenBounds
+   * @type {object}
+   * @property {geo.screenPosition} upperLeft Upper left corner
+   * @property {geo.screenPosition} upperRight Upper right corner
+   * @property {geo.screenPosition} lowerLeft Lower left corner
+   * @property {geo.screenPosition} lowerRight Lower right corner
+   */
+
+  /**
+   * General representation of a point on the screen.
+   * @typedef geo.screenPosition
+   * @type {object}
+   * @property {Number} x Horizontal coordinate in pixels
+   * @property {Number} y Vertical coordinate in pixels
+   */
+
+  /**
+   * General represention of a point on the earth.
+   * @typedef geo.geoPosition
+   * @type {object}
+   * @property {Number} x Horizontal coordinate in degrees longitude
+   * @property {Number} y Vertical coordinate in degrees latitude
+   */
+
+  /**
+   * The status of all mouse buttons.
+   * @typedef geo.mouseButtons
+   * @type {object}
+   * @property {true|false} left The left mouse button
+   * @property {true|false} right The right mouse button
+   * @property {true|false} middle The middle mouse button
+   */
+
+  /**
+   * The status of all modifier keys these are copied from the
+   * standard DOM events.
+   * @typedef geo.modifierKeys
+   * @type {object}
+   * @property {true|false} alt <code>Event.alt</code>
+   * @property {true|false} ctrl <code>Event.ctrl</code>
+   * @property {true|false} shift <code>Event.shift</code>
+   * @property {true|false} meta <code>Event.meta</code>
+   */
+
+  /**
+   * Provides information about the state of the mouse
+   * @typedef geo.mouseState
+   * @type {object}
+   * @property {geo.screenPosition} page Mouse location in pixel space
+   * @property {geo.geoPosition} map Mouse location in world space
+   * @property {geo.mouseButtons} buttons The current state of the mouse buttons
+   * @property {geo.modifierKeys} modifiers The current state of all modifier keys
+   * @property {Date} time The timestamp the event took place
+   * @property {Number} deltaTime The time in milliseconds since the last mouse event
+   * @property {geo.screenPosition} velocity The velocity of the mouse pointer
+   * in pixels per second
+   */
+
+  /**
+   * @typedef geo.brushSelection
+   * @type {object}
+   * @property {geo.screenBounds} display The selection bounds in pixel space
+   * @property {geo.geoBounds} gcs The selection bounds in world space
+   * @property {geo.mouseState} mouse The current mouse state
+   * @property {geo.mouseState} origin The mouse state at the start of the
+   * brush action
+   */
+
 
   // default mouse object
   m_mouse = {
@@ -14166,7 +14424,10 @@ geo.mapInteractor = function (args) {
     // time elapsed since the last mouse event
     deltaTime: 1,
     // pixels/ms
-    velocity: 0
+    velocity: {
+      x: 0,
+      y: 0
+    }
   };
 
   // default keyboard object
@@ -14231,8 +14492,14 @@ geo.mapInteractor = function (args) {
         m_options.zoomMoveButton === 'right') {
       $node.on('contextmenu.geojs', function () { return false; });
     }
+    m_options.map.geoOn(geo.event.transitionend, mapHandler);
+    m_options.map._zoomCallback(mapHandler);
     return m_this;
   };
+
+  function mapHandler() {
+    m_this.springBack(false);
+  }
 
   ////////////////////////////////////////////////////////////////////////////
   /**
@@ -14244,6 +14511,10 @@ geo.mapInteractor = function (args) {
     if ($node) {
       $node.off('.geojs');
       $node = null;
+    }
+    if (m_options.map) {
+      m_options.map.geoOff(geo.event.transitionend, mapHandler);
+      m_options.map._zoomCallback(null);
     }
     return m_this;
   };
@@ -14454,6 +14725,11 @@ geo.mapInteractor = function (args) {
       action = 'select';
     }
 
+    m_mouse.velocity = {
+      x: 0,
+      y: 0
+    };
+
     if (action) {
       // store the state object
       m_state = {
@@ -14548,6 +14824,81 @@ geo.mapInteractor = function (args) {
     evt.preventDefault();
   };
 
+  /**
+   * Use interactor options to modify the mouse velocity by momentum
+   * or spring equations depending on the current map state.
+   * @private
+   * @param {object} v Current velocity in pixels / ms
+   * @param {number} deltaT The time delta
+   * @returns {object} New velocity
+   */
+  function modifyVelocity(v, deltaT) {
+    deltaT = deltaT <= 0 ? 30 : deltaT;
+    var sf = springForce();
+    var speed = calcSpeed(v);
+    var vx = v.x / speed;
+    var vy = v.y / speed;
+
+    speed = speed * Math.exp(-m_options.momentum.drag * deltaT);
+
+    // |force| + |velocity| < c <- stopping condition
+    if (calcSpeed(sf) * deltaT + speed < m_options.momentum.minSpeed) {
+      return null;
+    }
+
+    if (speed > 0) {
+      vx = vx * speed;
+      vy = vy * speed;
+    } else {
+      vx = 0;
+      vy = 0;
+    }
+
+    return {
+      x: vx - sf.x * deltaT,
+      y: vy - sf.y * deltaT
+    };
+  }
+
+  /**
+   * Get the spring force for the current map bounds
+   * (This method might need to move elsewhere to deal
+   * with different projections)
+   * @private
+   * @returns {object} The spring force
+   */
+  function springForce() {
+    var xplus,  // force to the right
+        xminus, // force to the left
+        yplus,  // force to the top
+        yminus; // force to the bottom
+
+    // get screen coordinates of corners
+    var ul = m_this.map().gcsToDisplay({
+      x: -180,
+      y: 82
+    });
+    var lr = m_this.map().gcsToDisplay({
+      x: 180,
+      y: -82
+    });
+
+    var c = m_options.spring.springConstant;
+    // Arg... map needs to expose the canvas size
+    var width = m_this.map().node().width();
+    var height = m_this.map().node().height();
+
+    xplus = c * Math.max(0, ul.x);
+    xminus = c * Math.max(0, width - lr.x);
+    yplus = c * Math.max(0, ul.y) / 2;
+    yminus = c * Math.max(0, height - lr.y) / 2;
+
+    return {
+      x: xplus - xminus,
+      y: yplus - yminus
+    };
+  }
+
   ////////////////////////////////////////////////////////////////////////////
   /**
    * Handle event when a mouse button is unpressed on the document.
@@ -14584,54 +14935,7 @@ geo.mapInteractor = function (args) {
 
     // if momentum is enabled, start the action here
     if (m_options.momentum.enabled && oldAction === 'pan') {
-      m_state.action = 'momentum';
-      m_state.origin = m_this.mouse();
-      m_state.handler = function () {
-        var vx, vy, speed, s;
-
-        if (m_state.action !== 'momentum' || !m_this.map()) {
-          // cancel if a new action was performed
-          return;
-        }
-
-        vx = m_mouse.velocity.x;
-        vy = m_mouse.velocity.y;
-
-        // get the current speed
-        speed = calcSpeed(m_mouse.velocity);
-        s = speed;
-
-        // normalize the velocity components
-        vx = vx / speed;
-        vy = vy / speed;
-
-        // modify current speed by constraints
-        speed = Math.min(speed, m_options.momentum.maxSpeed);
-
-        // calculate the new speed
-        speed = speed * Math.exp(-m_options.momentum.drag * m_mouse.deltaTime);
-
-        // stop panning when the speed is below the threshold
-        if (speed < m_options.momentum.minSpeed) {
-          m_state = {};
-          return;
-        }
-
-        m_mouse.velocity.x = speed * vx;
-        m_mouse.velocity.y = speed * vy;
-
-        m_this.map().pan({
-          x: m_mouse.velocity.x * m_mouse.deltaTime,
-          y: m_mouse.velocity.y * m_mouse.deltaTime
-        });
-
-        if (m_state.handler) {
-          window.requestAnimationFrame(m_state.handler);
-        }
-      };
-      if (m_state.handler) {
-        window.requestAnimationFrame(m_state.handler);
-      }
+      m_this.springBack(true);
     }
   };
 
@@ -14696,6 +15000,82 @@ geo.mapInteractor = function (args) {
         m_this.map().zoom() + zoomFactor,
         direction
       );
+    }
+  };
+
+
+  ////////////////////////////////////////////////////////////////////////////
+  /**
+   * Start up a spring back action when the map bounds are out of range.
+   * Not to be user callable.
+   * @todo Move this and momentum handling to the map class
+   * @protected
+   *
+   */
+  ////////////////////////////////////////////////////////////////////////////
+  this.springBack = function (initialVelocity) {
+    if (m_state.action === 'momentum') {
+      return;
+    }
+    if (!initialVelocity) {
+      m_mouse.velocity = {
+        x: 0,
+        y: 0
+      };
+    }
+    m_state.action = 'momentum';
+    m_state.origin = m_this.mouse();
+    m_state.start = new Date();
+    m_state.handler = function () {
+      var v, s, last, dt;
+
+      // Not sure the correct way to do this.  We need the delta t for the
+      // next time step...  Maybe use a better interpolator and the time
+      // parameter from requestAnimationFrame.
+      dt = Math.min(m_mouse.deltaTime, 30);
+      if (m_state.action !== 'momentum' ||
+          !m_this.map() ||
+          m_this.map().transition()) {
+        // cancel if a new action was performed
+        return;
+      }
+
+      last = m_state.start.valueOf();
+      m_state.start = new Date();
+
+      v = modifyVelocity(m_mouse.velocity, m_state.start - last);
+
+      // stop panning when the speed is below the threshold
+      if (!v) {
+        m_state = {};
+        return;
+      }
+
+      s = calcSpeed(v);
+      if (s > m_options.momentum.maxSpeed) {
+        s = m_options.momentum.maxSpeed / s;
+        v.x = v.x * s;
+        v.y = v.y * s;
+      }
+
+      if (!isFinite(v.x) || !isFinite(v.y)) {
+        v.x = 0;
+        v.y = 0;
+      }
+      m_mouse.velocity.x = v.x;
+      m_mouse.velocity.y = v.y;
+
+      m_this.map().pan({
+        x: m_mouse.velocity.x * dt,
+        y: m_mouse.velocity.y * dt
+      });
+
+      if (m_state.handler) {
+        window.requestAnimationFrame(m_state.handler);
+      }
+    };
+    if (m_state.handler) {
+      window.requestAnimationFrame(m_state.handler);
     }
   };
 
@@ -15447,8 +15827,10 @@ geo.map = function (arg) {
       m_interactor = null,
       m_validZoomRange = { min: 0, max: 16 },
       m_transition = null,
+      m_queuedTransition = null,
       m_clock = null,
-      m_bounds = {};
+      m_bounds = {},
+      m_zoomCallback = null;
 
 
   arg.center = geo.util.normalizeCoordinates(arg.center);
@@ -15542,6 +15924,9 @@ geo.map = function (arg) {
     });
 
     m_this.modified();
+    if (m_zoomCallback) {
+      m_zoomCallback();
+    }
     return m_this;
   };
 
@@ -15554,39 +15939,9 @@ geo.map = function (arg) {
    * @returns {geo.map}
    */
   ////////////////////////////////////////////////////////////////////////////
-  this.pan = function (delta, force) {
+  this.pan = function (delta) {
     var base = m_this.baseLayer(),
-        evt,
-        pt, corner1, corner2;
-
-    if (!force) {
-      // clamp to the visible screen:
-      pt = m_this.displayToGcs({
-        x: delta.x,
-        y: delta.y
-      });
-
-      // TODO: This needs to be abstracted somehow with the projection
-      corner1 = m_this.gcsToDisplay({
-        x: -180,
-        y: 82
-      });
-      corner2 = m_this.gcsToDisplay({
-        x: 180,
-        y: -82
-      });
-
-      if ((delta.x > 0 && delta.x > -corner1.x) ||
-          (delta.x < 0 && delta.x < m_width - corner2.x)) {
-        delta.x = 0;
-        m_this.interactor().cancel("momentum");
-      }
-      if ((delta.y > 0 && delta.y > -corner1.y) ||
-          (delta.y < 0 && delta.y < m_height - corner2.y)) {
-        delta.y = 0;
-        m_this.interactor().cancel("momentum");
-      }
-    }
+        evt;
 
     evt = {
       geo: {},
@@ -15774,6 +16129,11 @@ geo.map = function (arg) {
 
     m_this._updateBounds();
     m_this.modified();
+
+    if (m_zoomCallback) {
+      m_zoomCallback();
+    }
+
     return m_this;
   };
 
@@ -16066,23 +16426,30 @@ geo.map = function (arg) {
   /**
    * Start an animated zoom/pan.
    *
-   * Options: ::
-   *
+   * Options:
+   * <pre>
    *   opts = {
    *     center: { x: ... , y: ... } // the new center
    *     zoom: ... // the new zoom level
    *     duration: ... // the duration (in ms) of the transition
    *     ease: ... // an easing function [0, 1] -> [0, 1]
    *   }
+   * </pre>
    *
-   * @param {Object} opts
+   * Call with no arguments to return the current transition information.
+   *
+   * @param {object?} opts
    * @returns {geo.map}
    */
   ////////////////////////////////////////////////////////////////////////////
   this.transition = function (opts) {
+
+    if (opts === undefined) {
+      return m_transition;
+    }
+
     if (m_transition) {
-      console.log("Cannot start a transition until the" +
-                  " current transition is finished");
+      m_queuedTransition = opts;
       return m_this;
     }
 
@@ -16135,7 +16502,8 @@ geo.map = function (arg) {
       },
       ease: defaultOpts.ease,
       zCoord: defaultOpts.zCoord,
-      done: defaultOpts.done
+      done: defaultOpts.done,
+      duration: defaultOpts.duration
     };
 
     if (defaultOpts.zCoord) {
@@ -16167,18 +16535,34 @@ geo.map = function (arg) {
     }
 
     function anim(time) {
-      var done = m_transition.done;
+      var done = m_transition.done, next;
+      next = m_queuedTransition;
+
       if (!m_transition.start.time) {
         m_transition.start.time = time;
         m_transition.end.time = time + defaultOpts.duration;
       }
-      if (time >= m_transition.end.time) {
-        m_this.center(m_transition.end.center);
-        m_this.zoom(m_transition.end.zoom);
+      m_transition.time = time - m_transition.start.time;
+      if (time >= m_transition.end.time || next) {
+        if (!next) {
+          m_this.center(m_transition.end.center);
+          m_this.zoom(m_transition.end.zoom);
+        }
+
         m_transition = null;
+
+        m_this.geoTrigger(geo.event.transitionend, defaultOpts);
+
         if (done) {
           done();
         }
+
+        if (next) {
+          console.log(next);
+          m_queuedTransition = null;
+          m_this.transition(next);
+        }
+
         return;
       }
 
@@ -16199,7 +16583,18 @@ geo.map = function (arg) {
       window.requestAnimationFrame(anim);
     }
 
-    window.requestAnimationFrame(anim);
+    m_this.geoTrigger(geo.event.transitionstart, defaultOpts);
+
+    if (defaultOpts.cancelNavigation) {
+      m_this.geoTrigger(geo.event.transitionend, defaultOpts);
+      return m_this;
+    } else if (defaultOpts.cancelAnimation) {
+      // run the navigation synchronously
+      defaultOpts.duration = 0;
+      anim(0);
+    } else {
+      window.requestAnimationFrame(anim);
+    }
     return m_this;
   };
 
@@ -16250,6 +16645,18 @@ geo.map = function (arg) {
   this.bounds = function () {
     return m_bounds;
   };
+
+
+  ////////////////////////////////////////////////////////////////////////////
+  /**
+   * @todo Move spring and momentum to map and avoid this abomination
+   * @private
+   */
+  ////////////////////////////////////////////////////////////////////////////
+  this._zoomCallback = function (callback) {
+    m_zoomCallback = callback;
+  };
+
 
   this.interactor(arg.interactor || geo.mapInteractor());
   this.clock(arg.clock || geo.clock());
@@ -16380,7 +16787,12 @@ geo.feature = function (arg) {
     var mouse = m_this.layer().map().interactor().mouse(),
         data = m_this.data(),
         over = m_this.pointSearch(mouse.geo),
-        newFeatures = [], oldFeatures = [];
+        newFeatures = [], oldFeatures = [], lastTop = -1, top = -1;
+
+    // Get the index of the element that was previously on top
+    if (m_selectedFeatures.length) {
+      lastTop = m_selectedFeatures[m_selectedFeatures.length - 1];
+    }
 
     // There are probably faster ways of doing this:
     newFeatures = over.index.filter(function (i) {
@@ -16428,6 +16840,30 @@ geo.feature = function (arg) {
 
     // Replace the selected features array
     m_selectedFeatures = over.index;
+
+    // Get the index of the element that is now on top
+    if (m_selectedFeatures.length) {
+      top = m_selectedFeatures[m_selectedFeatures.length - 1];
+    }
+
+    if (lastTop !== top) {
+      // The element on top changed so we need to fire mouseon/mouseoff
+      if (lastTop !== -1) {
+        m_this.geoTrigger(geo.event.feature.mouseoff, {
+          data: data[lastTop],
+          index: lastTop,
+          mouse: mouse
+        }, true);
+      }
+
+      if (top !== -1) {
+        m_this.geoTrigger(geo.event.feature.mouseon, {
+          data: data[top],
+          index: top,
+          mouse: mouse
+        }, true);
+      }
+    }
   };
 
   ////////////////////////////////////////////////////////////////////////////
@@ -16747,26 +17183,7 @@ geo.feature = function (arg) {
   return this;
 };
 
-
-////////////////////////////////////////////////////////////////////////////
-/**
- * This event object provides mouse/keyboard events that can be handled
- * by the features.  This provides a similar interface as core events,
- * but with different names so the events don't interfere.  Subclasses
- * can override this to provide custom events.
- */
-////////////////////////////////////////////////////////////////////////////
-geo.event.feature = {
-  mousemove:  "geo_feature_mousemove",
-  mouseover:  "geo_feature_mouseover",
-  mouseout:   "geo_feature_mouseout",
-  mouseclick: "geo_feature_mouseclick",
-  brushend:   "geo_feature_brushend",
-  brush:      "geo_feature_brush"
-};
-
 geo.feature.eventID = 0;
-
 inherit(geo.feature, geo.sceneObject);
 
 //////////////////////////////////////////////////////////////////////////////
