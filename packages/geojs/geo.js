@@ -14498,6 +14498,7 @@ geo.mapInteractor = function (args) {
   };
 
   function mapHandler() {
+    m_state.action = {};
     m_this.springBack(false);
   }
 
