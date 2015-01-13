@@ -27,6 +27,8 @@ template(name="dash")
           a.btn.btn-default.rediagnose Rediagnose
       .btn-group.btn-group-justified.btn-group-sm
         a.btn.btn-default.open-feedback Feedback
+      .btn-group.btn-group-justified.btn-group-sm
+        a.btn.btn-default(href='#{mailtoPromedLink}') Report to ProMED-mail
       +feedback
       if showKeypoints
         .keypoints

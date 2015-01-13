@@ -117,6 +117,25 @@ Template.dash.featureSelected = (feature) ->
   else
     ""
 
+Template.dash.mailtoPromedLink = () ->
+  "mailto:promed@promedmail.org?subject=[GRITS] " +
+  encodeURIComponent((d.name for d in @.diseases).join('/') + " Report") +
+  "&body=" + 
+  encodeURIComponent("""
+  This is a GRITS generated report.
+  
+  ***Include your name and affiliation***
+  
+  Dashboard url:
+  #{window.location.toString()}
+  
+  Possible diagnoses:
+  #{(d.name + ', confidence=' + Math.round(d.probability * 100) + '%' for d in @.diseases).join('\n')}
+
+  Article:
+  #{@.content}
+  """)
+
 Template.dash.viewTypes = [
   {
     name: "text"
