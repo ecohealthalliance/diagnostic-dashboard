@@ -12,7 +12,8 @@ The dashboard relies on a Python backend whose code is available in the [grits-a
 
 ## As part of total GRITS deployment
 
-You may elect to install all GRITS components at once by following the instructions in the [grits-deploy-scripts](https://github.com/ecohealthalliance/grits-deploy-scripts) project.
+You may elect to install all GRITS components at once by following the instructions in the ~~[grits-deploy-scripts](https://github.com/ecohealthalliance/grits-deploy-scripts)~~
+[grits-deploy-ansible](https://github.com/ecohealthalliance/grits-deploy-ansible) project.
 
 ## Config for quick deploy and quick install
 
@@ -42,7 +43,7 @@ or
 
       $ export APACHE_URL=http://my-server.com
 
-This will install meteor, [meteorite](https://github.com/oortcloud/meteorite/) and [forever])(https://github.com/nodejitsu/forever). It then will run [deploy.sh](deploy.sh) which will update the Meteor package dependencies, create a bundle of the app, and begin running the server.
+This will install meteor, [meteorite](https://github.com/oortcloud/meteorite/) and [forever](https://github.com/nodejitsu/forever). It then will run [deploy.sh](deploy.sh) which will update the Meteor package dependencies, create a bundle of the app, and begin running the server.
 
 The service will start on port 3001: [http://localhost:3001/profile](http://localhost:3001/)
 
