@@ -52,18 +52,21 @@ createSearchAutorunFunction = (template, doQuery) ->
       dateRange.to = template.toDate.get().toISOString()
     
     countries = selections.CountriesSelected.find().map( (k)-> k.name )
-    must_terms = []
-    if countries.length > 0
-      terms = {}
-      terms[aggregationKeys.country] = countries
-      must_terms.push {
-        terms: terms
+    dateRangeQuery = {}
+    should_terms = countries.map((country) ->
+      term = {
+        fuzzy: {}
       }
+      term.fuzzy[aggregationKeys.country] = {
+        value: country
+      }
+      return term
+    )
     if dateRange.from or dateRange.to
-      terms = {}
-      terms[aggregationKeys.date] = dateRange
-      must_terms.push {
-        range: terms
+      range = {}
+      range[aggregationKeys.date] = dateRange
+      dateRangeQuery = {
+        range: range
       }
 
     fullQuery = {
@@ -86,16 +89,21 @@ createSearchAutorunFunction = (template, doQuery) ->
       ]
     }
 
-    unless _.isEmpty(query) and _.isEmpty(must_terms)
+    unless _.isEmpty(query) and _.isEmpty(dateRangeQuery) and _.isEmpty(should_terms)
       fullQuery['query'] =
         filtered:
           query: query
           filter:
-            bool:
-              must: must_terms
-
-    fullQuery
-
+            "and": [
+              dateRangeQuery,
+              {
+                fquery:
+                  query:
+                    bool:
+                      should: should_terms
+                      minimum_should_match: 1
+              }
+            ]
     doQuery(fullQuery, {
       size: RESULTS_PER_PAGE
       from: template.searchPage.get() * RESULTS_PER_PAGE

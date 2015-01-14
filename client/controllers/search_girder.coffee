@@ -24,11 +24,14 @@ removeEmptyValues = (obj)->
     obj
 
 doQuery = (query, options, callback) ->
-  removeEmptyValues(query)
+  query = removeEmptyValues(query)
+  # Only return these fields in the _source property
+  query["_source"] = [ "meta.*", "description" ]
   Meteor.call('elasticsearch', query, options, (e,r) ->
     if e
       callback e
       return
+    console.log(r)
     # It would be cool if we could highligh all the points for a given article
     # when someone clicks one.
     Session.set('locations', _.chain(r.hits.hits).map((result) ->
@@ -57,12 +60,29 @@ createQuery = (DiseasesSelected, AnyKeywordsSelected, AllKeywordsSelected) ->
       'meta.disease' : k.value.toLowerCase()
 
   should_terms = AnyKeywordsSelected.find().map (k)->
-    match_phrase :
-      'private.scrapedData.content'  : k.value.toLowerCase()
-
+    dis_max:
+      queries: [
+        {
+          match_phrase :
+            'private.englishTranslation.content'  : k.value.toLowerCase()
+        }
+        {
+          match_phrase :
+            'private.cleanContent.content'  : k.value.toLowerCase()
+        }
+      ]
   must_terms = AllKeywordsSelected.find().map (k)->
-    match_phrase :
-      'private.scrapedData.content' : k.value.toLowerCase()
+    dis_max:
+      queries: [
+        {
+          match_phrase :
+            'private.englishTranslation.content'  : k.value.toLowerCase()
+        }
+        {
+          match_phrase :
+            'private.cleanContent.content'  : k.value.toLowerCase()
+        }
+      ]
 
   query = {}
   if [].concat(disease_terms, should_terms, must_terms).length > 0
