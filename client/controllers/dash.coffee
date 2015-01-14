@@ -49,13 +49,29 @@ Template.dash.formatDate = () ->
   else if @value == "FUTURE_REF"
     return "Future reference"
   else
-    date = new Date(@value)
-    date.setDate(date.getDate() + 1)
-    dateString = date.toLocaleDateString()
-    if dateString == 'Invalid Date'
+    # We don't want to display dates with more specificity than they possess.
+    # But if we take a date like '2014-11' and create a JS Date with it, it will
+    # be created with a specific day and time, and displayed as 11/1/2014.
+    # Perhaps this could all be handled in a more elegant way by using some
+    # library can that format arbitrary ISO date strings according to the local
+    # date format, but for now, sniff our year-only and month-year-only strings
+    # and turn them into slash-based dates in the month/year format.
+
+    yearPat = /^\d{4}$/
+    monthPat = /^\d{4}\-\d{2}$/
+
+    if @value.match yearPat
       return @value
+    else if @value.match monthPat
+      return @value.substring(5,7) + '/' + @value.substring(0,4)
     else
-      return dateString
+      date = new Date(@value)
+      date.setDate(date.getDate() + 1)
+      dateString = date.toLocaleDateString()
+      if dateString == 'Invalid Date'
+        return @value
+      else
+        return dateString
 
 Template.dash.color = () ->
   color Template.dash.getIdKeyFromFeature(@)
