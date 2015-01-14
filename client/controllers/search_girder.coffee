@@ -117,7 +117,7 @@ _.each(_.range(2010, 2016), (year) ->
 )
 
 formatDateRange = (from, to) ->
-  date = new Date(to)
+  date = new Date((Number(from) + Number(to))/2)
   monthNames = "January,February,March,April,May,June,July,August,September,October,November,December".split(",")
   monthNames[date.getMonth()] + ' ' + date.getFullYear()
 
