@@ -2,28 +2,5 @@ head
   title GRITS Diagnostic Dashboard
 
 template(name="layout")
-  h2.header
-    .logo-container
-      a(href="/")
-        .main GRITS
-        .subheading Global Rapid Identification Tool System
-  h4.controls
-    a.nav-btn(href="/gritsdb")
-      i.fa.fa-database
-      p Database
-    if signedIn
-      a.nav-btn(href="/new")
-        i.fa.fa-file-text-o.fa-file-text-o-large
-        p New Diagnosis
-    a.nav-btn(href="/help")
-      i.fa.fa-question
-      p Help
-    if signedIn
-      a.nav-btn.sign-out(href="/sign-out")
-        i.fa.fa-sign-out.sign-out
-        p Sign Out
-    else
-      a.nav-btn(href="/sign-in")
-        i.fa.fa-sign-in.sign-in
-        p Sign In / Register
+  +header
   +yield

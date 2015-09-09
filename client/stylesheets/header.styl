@@ -1,0 +1,73 @@
+bg($path, $w, $h, $vertical, $horizontal, $type)
+  width $w
+  height $h
+  background-image url($path + '.' + $type)
+  background-repeat no-repeat
+  background-position $vertical $horizontal
+  background-size $w $h
+  text-indent -9999px
+  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi)
+    background-image: url($path + '-2x.' + $type)
+
+muteColor($color)
+  lighten(desaturate($color, 30%), 95%)
+
+$header-height = 65px
+$header-highlight = muteColor(#2B9DA1)
+.header
+  background #E3E3E3
+  min-height $header-height
+  position relative
+  border-bottom 2px solid #CCC
+  overflow hidden
+
+.logo
+  position absolute
+  top 50%
+  left 15px
+  transform translate(0, -50%)
+  a
+    &:hover
+    &:active
+    &:focus
+      text-decoration none
+  h1
+  h2
+    display inline-block
+    vertical-align middle
+    margin 0
+  h1
+    bg('../../images/logo', 74px, 48px, 0, 0, 'png')
+  h2
+    font-size 12px
+    font-weight bold
+    padding-left 10px
+    color #999
+
+.nav
+  float right
+  li
+    a
+      border-left 1px solid #CCC
+      display inline-block
+      text-align center
+      color #666
+      padding 25px 15px
+      transition background-color .2s ease-in-out
+      i
+        padding-right 4px
+      &:hover
+        background-color $header-highlight
+        text-decoration none
+    &.profile
+    &.new
+      a
+        color #333
+        &:hover
+          background-color $header-highlight
+    &.profile
+      a
+        background-color lighten(desaturate(#2B9DA1, 35%), 85%)
+    &.new
+      a
+        background-color lighten(desaturate(#50B84A, 35%), 85%)

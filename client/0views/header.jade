@@ -1,0 +1,33 @@
+template(name="header")
+  .header
+    header
+      .logo
+        a(href="/")
+          h1 GRITS
+          h2 Global Rapid #[br] Identification Tool #[br] System
+      nav
+        ul.nav.navbar-nav
+          if signedIn
+            li.new
+              a(href="/new")
+                i.fa.fa-file-text-o
+                span New Diagnosis
+
+            li.profile
+              a(href="/profile")
+                i.fa.fa-list
+                span Articles
+
+            li
+              a(href="/help")
+                i.fa.fa-question
+                span Help
+            li
+              a.sign-out(href="/sign-out")
+                i.fa.fa-sign-out.sign-out
+                span Sign Out
+          else
+            li
+              a(href="/sign-in")
+                i.fa.fa-sign-in.sign-in
+                span Sign In / Register

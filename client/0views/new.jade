@@ -1,4 +1,7 @@
 template(name="new")
-  .submit-page
-    textarea.form-control#submit-text(placeholder="Paste text here")
-    button.btn.btn-large.btn-primary#submit-button Diagnose
+  .row
+    .submit-page.col-sm-8.col-sm-offset-2
+      textarea.form-control#submit-text(placeholder="Paste text here")
+      .row
+        .col-sm-6
+          button.btn.btn-large.btn-primary.btn-block#submit-button Diagnose
