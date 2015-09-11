@@ -1,18 +1,18 @@
 template(name="header")
   .header
-    header
+    header.clearfix
       .logo
         a(href="/")
           h1 GRITS
           h2 Global Rapid #[br] Identification Tool #[br] System
+      if signedIn
+        .action-call
+          a.btn.btn-primary(href="/new")
+            i.fa.fa-file-text-o
+            span New Diagnosis
       nav
-        ul.nav.navbar-nav
+        ul.nav.navbar-nav.nav-main
           if signedIn
-            li.new
-              a(href="/new")
-                i.fa.fa-file-text-o
-                span New Diagnosis
-
             li.profile
               a(href="/profile")
                 i.fa.fa-list

@@ -1,5 +1,5 @@
 body
-  background-color #f9f9f9
+  background-color $background-color
   color #333
 
 .pane-container
@@ -9,17 +9,14 @@ body
 
 .vis-pane-bar
   flex 0 0 auto
-  background-color beige
+  background-color $primary-muted
   color black
   width 100%
-  padding 4px
-  box-shadow 1px 1px 1px rgba(0, 0, 0, 0.4)
+  border-bottom 1px solid darken($primary-muted, 20%)
   position relative
   z-index 99
 
 .vis-pane
   flex 1 1 auto
-  background-color white
-  color black
   overflow auto
   position relative

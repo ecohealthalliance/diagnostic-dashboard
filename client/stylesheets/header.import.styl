@@ -1,31 +1,14 @@
-bg($path, $w, $h, $vertical, $horizontal, $type)
-  width $w
-  height $h
-  background-image url($path + '.' + $type)
-  background-repeat no-repeat
-  background-position $vertical $horizontal
-  background-size $w $h
-  text-indent -9999px
-  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi)
-    background-image: url($path + '-2x.' + $type)
-
-muteColor($color)
-  lighten(desaturate($color, 30%), 95%)
-
-$header-height = 65px
-$header-highlight = muteColor(#2B9DA1)
 .header
-  background #E3E3E3
+  background #F9F9F9
   min-height $header-height
   position relative
   border-bottom 2px solid #CCC
   overflow hidden
 
 .logo
-  position absolute
-  top 50%
-  left 15px
-  transform translate(0, -50%)
+  margin-left 15px
+  margin-top 10px
+  float left
   a
     &:hover
     &:active
@@ -37,15 +20,31 @@ $header-highlight = muteColor(#2B9DA1)
     vertical-align middle
     margin 0
   h1
-    bg('../../images/logo', 74px, 48px, 0, 0, 'png')
+    bg('../../images/logo', 'png', 74px, 48px)
   h2
     font-size 12px
     font-weight bold
     padding-left 10px
     color #999
 
+.action-call
+  float left
+  margin-left 25px
+  margin-top 18px
+  .btn
+    background-color desaturate(lighten($confirm, 70%),30%)
+    border-color desaturate(lighten($confirm, 50%),30%)
+    color darken($confirm, 80%)
+    text-shadow 0 1px 0 rgba(255,255,255,.2)
+    i
+      margin-right 5px
+    &:hover
+      background-color desaturate(lighten($confirm, 20%),30%)
+      color darken($confirm, 90%)
+
 .nav
-  float right
+  &.nav-main
+    float right
   li
     a
       border-left 1px solid #CCC
@@ -53,6 +52,7 @@ $header-highlight = muteColor(#2B9DA1)
       text-align center
       color #666
       padding 25px 15px
+      background-color $primary-muted
       transition background-color .2s ease-in-out
       i
         padding-right 4px
@@ -65,9 +65,6 @@ $header-highlight = muteColor(#2B9DA1)
         color #333
         &:hover
           background-color $header-highlight
-    &.profile
-      a
-        background-color lighten(desaturate(#2B9DA1, 35%), 85%)
     &.new
       a
         background-color lighten(desaturate(#50B84A, 35%), 85%)

@@ -10,9 +10,8 @@ template(name="dash")
         a.btn.btn-default.rediagnose Retry
   .dashboard-container
     .left-panel.diagnosis
-      .btn-group.btn-group-justified(style="margin-top:5px;")
+      .find-btns
         a.btn.btn-default(href='/searchGirder?diagnosisId=#{_id}') Find Similar Articles
-      .btn-group.btn-group-justified(style="margin-top:5px;")
         a.btn.btn-default(href='/searchGrid?diagnosisId=#{_id}') Find Similar Disease Emergence Events
 
       h4 Diagnosis
@@ -29,7 +28,6 @@ template(name="dash")
         a.btn.btn-default.open-feedback Feedback
       .btn-group.btn-group-justified.btn-group-sm
         a.btn.btn-default(href='#{mailtoPromedLink}') Report to ProMED-mail
-      +feedback
       if showKeypoints
         .keypoints
           h4 Key Points
@@ -136,14 +134,11 @@ template(name="dash")
                   class="{{featureSelected this}}") #{formatLocation}
     .pane-container
       .vis-pane-bar
-        span.view-select
-          | Choose View:
-          select#choose-view
-            each viewTypes
-              if eq useView name
-                option(selected value=name) {{label}}
-              else
-                option(value=name) {{label}}
+        ul#choose-view.nav.navbar-nav
+          each viewTypes
+            li(data-view=name class="{{selectedView}}")
+              i(class="fa {{viewIcon}}")
+              span=label
       .vis-pane
         if eq useView "geomap"
           +geomapSimple
@@ -153,3 +148,6 @@ template(name="dash")
           +symptomTable
         else
           +text
+  if modal
+    .curtain
+  +feedback

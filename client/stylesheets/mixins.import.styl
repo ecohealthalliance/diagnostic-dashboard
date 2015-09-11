@@ -1,0 +1,167 @@
+clearFix()
+  &::after
+    clear both
+    display block
+    content ''
+
+addFont($fontTitle, $allTypes = true, type = '')
+  @font-face
+    if $allTypes
+      src url('/fonts/' + $fontTitle + '.eot')
+      src url('/fonts/' + $fontTitle + '.eot?#iefix') format('embedded-opentype'), url('/fonts/' + $fontTitle + '.woff') format('woff'), url('/fonts/{fontTitle}.ttf') format('truetype'), url('/fonts/' + $fontTitle + '.svg') format('svg')
+    else
+      src url('/fonts/' + $fontTitle + '.'+type)
+    font-family $fontTitle
+
+header-font()
+  font-family $header-font
+
+body-font()
+  font-family $body-font
+
+transition($prop=all, $duration = .2s, $args...)
+  transition $prop $duration $args
+
+linkTransition($prop=all, $time=.2s)
+  transition($prop, $time, ease-in-out)
+
+vAlign()
+  display inline-block
+  vertical-align middle
+
+makeButton($color, $text = white, $dark = false, $noOutline = false, $hoverColor = white)
+  border 1px solid darken($color, 10%)
+  background $color
+  if $dark
+    @extend .light-shadow
+    &:hover
+      color $hoverColor
+  else
+    @extend .dark-shadow
+  color $text
+  &:hover
+  &:focus
+  &:active
+    border-color darken($color, 30%)
+    background darken($color, 20%)
+    color $text
+    background darken($color, 20%)
+  transition()
+  if $noOutline
+    &:focus
+      outline 0
+
+loading($positioned=true)
+  @extend .icon
+  animate(1s)
+  if $positioned
+    centerPosition()
+    position absolute
+    top 50%
+    left 50%
+    z-index $top-layer
+  opacity 1
+  font-size 5em
+  color $m-gray
+  &::before
+    content '\f1ce'
+
+animate($speed)
+  animation spin $speed infinite ease-in-out
+
+@keyframes spin
+  from
+    transform rotate(0deg)
+  to
+    transform rotate(360deg)
+
+@-webkit-keyframes spin
+  from
+    -webkit-transform rotate(0deg)
+  to
+    -webkit-transform rotate(360deg)
+
+@-moz-keyframes spin
+  from
+    -moz-transform rotate(0deg)
+  to
+    -moz-transform rotate(360deg)
+
+@-o-keyframes spin
+  from
+    -o-transform rotate(0deg)
+  to
+    -o-transform rotate(360deg)
+
+bg($path, $type, $w, $h, $vertical=0, $horizontal=0)
+  width $w
+  height $h
+  background-image url($path + '.' + $type)
+  background-repeat no-repeat
+  background-position $vertical $horizontal
+  background-size $w $h
+  text-indent -9999px
+  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi)
+    background-image: url($path + '-2x.' + $type)
+
+changeBGSize($w,$h)
+  width $w
+  height $h
+  background-size $w $h
+
+centerSmall($marginBottom=0)
+  +below(400px)
+    display block
+    margin 0 auto
+    float none
+    if $marginBottom
+      margin-bottom $marginBottom
+
+buttonHover($hoverBG, $bg=none)
+  transition()
+  background $bg
+  &:hover
+    background $hoverBG
+    transition()
+    color white
+
+centerPosition($h=-50%, $v=-50%)
+  transform translate($h, $v)
+
+centerVertically(position=true)
+  if position
+    position absolute
+  top 50%
+  transform translate(0, -50%)
+
+cover()
+  position absolute
+  top 0
+  bottom 0
+  left 0
+  right 0
+
+addBorder($w=false, $h, $color)
+  if $w
+    border-{$w} unit($h,'px') solid $color
+  else
+    border unit($h, 'px') solid $color
+
+shadow($color, $opacity)
+  text-shadow 0 1px 0 rgba($color, $color, $color, $opacity)
+
+linkColor($color, $hover = darken($color, 35%))
+  color $color
+  &:hover
+    color $hover
+
+truncateString()
+  white-space nowrap
+  overflow hidden
+  text-overflow ellipsis
+
+pointer()
+  cursor pointer
+
+muteColor($color)
+  lighten(desaturate($color, 30%), 95%)

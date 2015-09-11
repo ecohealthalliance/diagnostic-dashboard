@@ -1,0 +1,122 @@
+$header-height-border = $header-height + 2
+
+.dashboard-container
+  display flex
+  flex-direction row
+  align-items top
+  justify-content flex-end
+  top $header-height-border
+  bottom 0
+  right 0
+  left 0
+  position: absolute
+
+.loading-message ~ .dashboard-container
+  // z-index hides the container, but still renders it so that visualizations
+  // have the appropriate size.
+  z-index -1
+
+.loading-message
+  display none
+  padding 50px
+  z-index 100
+  background $background-color
+  position absolute
+  top $header-height-border
+  left 0
+  right 0
+  bottom 0
+
+  h1
+    position relative
+    left 100px
+    top -90px
+
+  .spinner-container
+    position relative
+    left 0
+    top 0
+    width 50px
+    height 100px
+
+.left-panel
+  margin 0
+  border-right 2px solid #CCC
+  flex 0 0 340px
+  background-color #FFF
+  overflow auto
+  // Vertical padding will break the code that positions the panes
+  padding 0 10px
+
+  .reactive-table tr
+    cursor pointer
+
+  .btn-group
+    margin-bottom 10px
+
+  h4
+    padding 10px 8px
+    clear both
+    background-color #eee
+    margin-left -10px
+    margin-right -10px
+    cursor pointer
+    border-bottom 2px solid #CCC
+    &:hover
+      background-color #CCC
+      color black
+
+
+.feature-section
+.keypoints
+  padding-bottom 40px
+
+  .label
+    background-color #444
+    float left
+    margin 1px 5px 8px
+    cursor pointer
+    font-size 1em
+    padding 0
+    font-weight normal
+    padding 7px 10px
+    text-shadow 0 1px 1px rgba(0,0,0,.4)
+    letter-spacing .03em
+    box-shadow 0 1px 1px rgba(255,255,255,.6)
+
+  .label.selected
+    box-shadow 0px 0px 0px 2px #555
+
+.keypoint
+  background-color darkgoldenrod
+  color white
+  border-radius 4px
+  margin 5px
+  padding 5px
+
+.keypoint.selected
+  background-color goldenrod
+
+.find-btns
+  margin-top 20px
+  margin-bottom 20px
+  a
+    margin-top 10px
+    display block
+    &:first-of-type
+      margin 0
+
+#choose-view
+  li
+    padding 10px 20px
+    text-transform capitalize
+    color #555
+    cursor pointer
+    &:hover
+      background darken($primary-muted, 5%)
+    &.selected
+      background-color darken($primary-muted, 10%)
+      color #333
+    .fa
+      padding-right 5px
+

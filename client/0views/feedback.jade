@@ -1,5 +1,5 @@
 template(name="feedback")
-  form.feedback(style="display:none; overflow:scroll;")
+  form.feedback.modal(style="display:none; overflow:scroll;")
     .form-group
       each diseases
         label Disease: {{name}}
@@ -15,7 +15,7 @@ template(name="feedback")
       div
         each missingDiseases
           div
-            input(readonly=readonly value="{{name}}") 
+            input(readonly=readonly value="{{name}}")
             i.fa.fa-times-circle(data-name="{{name}}" class="remove-disease" style="color:crimson;")
       +inputAutocomplete settings=diseaseCompleteSettings id="new-disease" name="missing_diseases" class="input-xlarge"
       button(id="add-disease" type="button") Add

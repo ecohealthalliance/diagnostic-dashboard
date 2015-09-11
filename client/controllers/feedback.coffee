@@ -30,7 +30,8 @@ Template.feedback.events
 
   "click .close-feedback": (event) =>
     $('form.feedback').hide()
-  
+    Session.set('feedbackShowing', false)
+
   "click #add-disease" : (event) ->
     missingDiseases.insert({name : $("#new-disease").val()})
 
