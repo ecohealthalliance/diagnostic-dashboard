@@ -23,7 +23,6 @@
     bg('../../images/logo', 'png', 74px, 48px)
   h2
     font-size 12px
-    font-weight bold
     padding-left 10px
     color #999
 
@@ -36,11 +35,15 @@
     border-color desaturate(lighten($confirm, 50%),30%)
     color darken($confirm, 80%)
     text-shadow 0 1px 0 rgba(255,255,255,.2)
+    transition ease-in-out
     i
       margin-right 5px
     &:hover
-      background-color desaturate(lighten($confirm, 20%),30%)
+      background-color desaturate(lighten($confirm, 40%),30%)
       color darken($confirm, 90%)
+
+.navbar-nav
+  margin 0
 
 .nav
   &.nav-main

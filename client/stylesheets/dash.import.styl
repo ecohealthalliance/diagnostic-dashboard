@@ -1,15 +1,12 @@
 $header-height-border = $header-height + 2
 
 .dashboard-container
-  display flex
-  flex-direction row
-  align-items top
-  justify-content flex-end
+  position fixed
   top $header-height-border
-  bottom 0
-  right 0
   left 0
-  position: absolute
+  right 0
+  bottom 0
+  height 100%
 
 .loading-message ~ .dashboard-container
   // z-index hides the container, but still renders it so that visualizations
@@ -17,10 +14,9 @@ $header-height-border = $header-height + 2
   z-index -1
 
 .loading-message
-  display none
   padding 50px
   z-index 100
-  background $background-color
+  background rgba(255,255,255,.85)
   position absolute
   top $header-height-border
   left 0
@@ -40,13 +36,15 @@ $header-height-border = $header-height + 2
     height 100px
 
 .left-panel
+  position absolute
   margin 0
   border-right 2px solid #CCC
-  flex 0 0 340px
   background-color #FFF
-  overflow auto
-  // Vertical padding will break the code that positions the panes
+  overflow-x scroll
   padding 0 10px
+  width 350px
+  top 0
+  bottom 0
 
   .reactive-table tr
     cursor pointer
@@ -87,6 +85,9 @@ $header-height-border = $header-height + 2
   .label.selected
     box-shadow 0px 0px 0px 2px #555
 
+.features
+  margin 40px 0 70px 0
+
 .keypoint
   background-color darkgoldenrod
   color white
@@ -107,6 +108,7 @@ $header-height-border = $header-height + 2
       margin 0
 
 #choose-view
+  float none
   li
     padding 10px 20px
     text-transform capitalize

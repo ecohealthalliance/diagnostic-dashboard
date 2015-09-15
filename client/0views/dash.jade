@@ -1,8 +1,7 @@
 template(name="dash")
   unless ready
     .loading-message
-      +spinner
-      h1 Please wait...
+      +loading message='Please wait...'
   else
     if error
       .loading-message
@@ -26,7 +25,6 @@ template(name="dash")
           a.btn.btn-default.rediagnose Rediagnose
       .btn-group.btn-group-justified.btn-group-sm
         a.btn.btn-default.open-feedback Feedback
-      .btn-group.btn-group-justified.btn-group-sm
         a.btn.btn-default(href='#{mailtoPromedLink}') Report to ProMED-mail
       if showKeypoints
         .keypoints
@@ -123,7 +121,7 @@ template(name="dash")
                   pillColor=color
                   class="{{featureSelected this}}") #{formatDate}
         if showCategory 'location'
-          .feature-section.locations
+          .feature-section.locations.clearfix
             h4.location Locations
             each features
               if eq type "location"

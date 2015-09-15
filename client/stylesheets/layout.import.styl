@@ -1,14 +1,17 @@
 body
-  background-color $background-color
+  background-color #FFF
   color #333
+  text-shadow 0 1px 0 rgba(255,255,255,.4)
 
 .pane-container
-  flex 1 1 auto
-  display flex
-  flex-direction column
+  position absolute
+  left 350px
+  right 0
+  top 0
+  bottom 0
+  overflow scroll
 
 .vis-pane-bar
-  flex 0 0 auto
   background-color $primary-muted
   color black
   width 100%
@@ -17,6 +20,15 @@ body
   z-index 99
 
 .vis-pane
-  flex 1 1 auto
   overflow auto
   position relative
+  background-color $background-color
+  padding-bottom 100px
+
+.search
+  .vis-pane-bar
+  .vis-pane
+    padding 15px
+
+  .vis-pane
+    background-color white

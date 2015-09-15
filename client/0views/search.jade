@@ -1,9 +1,11 @@
 template(name="searchInput")
-  div
-    each itemsSelected
-      div
-        i.fa.fa-times-circle(data-name="{{value}}" class="remove-selection" style="color:crimson;")
-        span {{value}}
+  div.search-input
+    if itemsSelected
+      .search-input-items
+        each itemsSelected
+          div.search-input-item
+            i.fa.fa-times-circle(data-name="{{value}}" class="remove-selection" style="color:crimson;")
+            span {{value}}
     +inputAutocomplete settings=autocompleteSettings class="input-xlarge add-selection-input"
     button(class="add-selection") Add
 
@@ -53,7 +55,7 @@ template(name="searchAggregations")
           a.set-date(href="") {{../formatDateRange from to}}
           | : {{doc_count}} reports
 
-      
+
 template(name="search")
   .dashboard-container
     .left-panel.search-sidebar
@@ -63,14 +65,14 @@ template(name="search")
       +searchInput selected=selections.DiseasesSelected autocompleteCollection=diseaseNames restrictToAutocomplete="true"
 
       h4 Any of these keywords:
-      +searchInput selected=selections.AnyKeywordsSelected autocompleteCollection=keywords 
+      +searchInput selected=selections.AnyKeywordsSelected autocompleteCollection=keywords
 
       h4 All of these keywords:
-      +searchInput selected=selections.AllKeywordsSelected autocompleteCollection=keywords 
+      +searchInput selected=selections.AllKeywordsSelected autocompleteCollection=keywords
 
       +searchAggregations totalResults=totalResults selections=selections fromDate=fromDate toDate=toDate formatDateRange=formatDateRange aggregations=aggregations
 
-    .pane-container
+    .pane-container.search
       .vis-pane-bar
         if numResults
           span

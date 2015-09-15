@@ -160,7 +160,6 @@ Template.dash.useView = ()->
 
 Template.dash.helpers
   selectedView: ->
-    console.log Session.get("dashView"), @name
     if Session.get("dashView") is @name
       'selected'
 
@@ -208,7 +207,6 @@ Template.dash.events
     Session.set('features', [this])
 
   "click #choose-view li": (event) ->
-    console.log $(event.currentTarget).data('view'), event.currentTarget
     Session.set('dashView', $(event.currentTarget).data('view'))
 
   "click .open-feedback": (event) ->
