@@ -10,7 +10,8 @@ Template.new.events
         alert "Error"
         console.log error
       else
+        bsveAccessKey = Router.current().params.query.bsveAccessKey
         Router.go 'dash', {_id: resultId}, {
-          query: "bsveAccessKey=#{Router.current().params.query.bsveAccessKey}"
+          query: "bsveAccessKey=#{bsveAccessKey}" if bsveAccessKey
         }
     )
