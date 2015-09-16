@@ -5,29 +5,13 @@ template(name="header")
         a(href="/")
           h1 GRITS
           h2 Global Rapid #[br] Identification Tool #[br] System
-      if signedIn
-        .action-call
-          a.btn.btn-primary(href="/new")
-            i.fa.fa-file-text-o
-            span New Diagnosis
       nav
         ul.nav.navbar-nav.nav-main
-          if signedIn
-            li.profile
-              a(href="/profile")
-                i.fa.fa-list
-                span Articles
-
-            li
-              a(href="/help")
-                i.fa.fa-question
-                span Help
-            li
-              a.sign-out(href="/sign-out")
-                i.fa.fa-sign-out.sign-out
-                span Sign Out
-          else
-            li
-              a(href="/sign-in")
-                i.fa.fa-sign-in.sign-in
-                span Sign In / Register
+          li
+            a.back(href="#")
+              i.fa.fa-arrow-left
+              span Back
+          li
+            a(href="/help")
+              i.fa.fa-question
+              span Help
