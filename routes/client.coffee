@@ -41,10 +41,10 @@ Router.map () ->
     path: '/dash/:_id'
     where: 'client'
     onBeforeAction: () ->
-      if not @params.query.bsveAccessKey
-        AccountsEntry.signInRequired(@)
-      else
+      if @params.query.bsveAccessKey
         @next()
+      else
+        AccountsEntry.signInRequired(@)
     waitOn: () ->
       if Meteor.userId()
         [
@@ -110,10 +110,10 @@ Router.map () ->
   @route("new",
     where: 'client'
     onBeforeAction: (pause) ->
-      if not @params.query.bsveAccessKey
-        AccountsEntry.signInRequired(@)
-      else
+      if @params.query.bsveAccessKey
         @next()
+      else
+        AccountsEntry.signInRequired(@)
   )
 
   @route("authenticateSubmission",
