@@ -1,16 +1,17 @@
 template(name="header")
   .header
     header.clearfix
-      .logo
-        a(href="/")
-          h1 GRITS
-          h2 Global Rapid #[br] Identification Tool #[br] System
-      unless bsveApp
-        if currentUser
-          .action-call
-            a.btn.btn-primary(href="/new")
-              i.fa.fa-file-text-o
-              span New Diagnosis
+      .branding-action
+        .logo
+          a(href="/")
+            h1 GRITS
+            h2 Global Rapid #[br] Identification Tool #[br] System
+        unless bsveApp
+          if currentUser
+            .action-call
+              a.btn.btn-primary(href="/new")
+                i.fa.fa-file-text-o
+                span New Diagnosis
       nav
         ul.nav.navbar-nav.nav-main
           unless bsveApp
@@ -19,7 +20,7 @@ template(name="header")
                 a(href="/profile")
                   i.fa.fa-list
                   span Articles
-              +help
+              +helpLink
               li
                 a.sign-out(href="/sign-out")
                   i.fa.fa-sign-out.sign-out
@@ -34,9 +35,9 @@ template(name="header")
               a.back(href="#")
                 i.fa.fa-arrow-left
                 span Back
-            +help
+            +helpLink
 
-template(name="help")
+template(name="helpLink")
   li
     a(href="/help")
       i.fa.fa-question
