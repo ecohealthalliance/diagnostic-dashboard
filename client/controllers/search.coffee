@@ -216,7 +216,7 @@ Template.search.aggregations = () ->
   Template.instance().aggregations.get()
 
 Template.search.formatDateRange = () ->
-  @formatDateRange
+  @dateRangeFormatter
 
 
 Template.searchInput.events

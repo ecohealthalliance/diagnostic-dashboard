@@ -25,8 +25,6 @@ removeEmptyValues = (obj)->
 
 doQuery = (query, options, callback) ->
   query = removeEmptyValues(query)
-  # Only return these fields in the _source property
-  query["_source"] = [ "meta.*", "description" ]
   Meteor.call('elasticsearch', query, options, (e,r) ->
     if e
       callback e
@@ -116,7 +114,7 @@ _.each(_.range(2010, 2016), (year) ->
   )
 )
 
-formatDateRange = (from, to) ->
+formatMonthRange = (from, to) ->
   date = new Date((Number(from) + Number(to))/2)
   monthNames = "January,February,March,April,May,June,July,August,September,October,November,December".split(",")
   monthNames[date.getMonth()] + ' ' + date.getFullYear()
@@ -169,7 +167,7 @@ Router.route("searchGirder",
       viewTypes: viewTypes
       sortMethods: sortMethods
       resultListTemplate: "resultList"
-      formatDateRange: formatDateRange
+      dateRangeFormatter: formatMonthRange
     }
   onStop: () ->
     $('.popover').remove()
