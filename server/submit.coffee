@@ -1,12 +1,25 @@
 Results = @grits.Results
 Quarantine = @grits.Quarantine
 
-submit = (content, userId, prevDiagnosis) ->
+submit = (submission) ->
+  content = submission.text
+  userId = submission.userId
+  prevDiagnosis = submission.prevDiagnosis
+  accessKey = submission.accessKey
+  bsveSubmission = false
+  if not userId
+    if accessKey
+      bsveSubmission = true
+      if accessKey != process.env.BSVE_ACCESS_KEY
+        throw new Meteor.Error("Bad access key")
+    else
+      throw new Meteor.Error("User not authenticated")
   if prevDiagnosis
     resultId = Results.insert
       content: content
       userId: userId
       ready: false
+      bsveSubmission: bsveSubmission
       prevDiagnosisId: prevDiagnosis._id
     Results.update prevDiagnosis._id, {
       $set : {
@@ -18,6 +31,7 @@ submit = (content, userId, prevDiagnosis) ->
       content: content
       userId: userId
       ready: false
+      bsveSubmission: bsveSubmission
   diagnose = () ->
     Meteor.call('diagnose', content, (error, result) ->
       if error
@@ -49,18 +63,25 @@ submit = (content, userId, prevDiagnosis) ->
 
 
 Meteor.methods(
-  'submit' : (content, userId) ->
-    submit(content, userId or @userId)
+  'submit' : (submission) ->
+    submit(_.extend({
+      userId: @userId
+    }, submission))
 
   'submitFromQuarantine' : (submissionId) ->
     content = Quarantine.findOne(submissionId)?.content
     result = false
     if content
       Quarantine.remove(submissionId)
-      result = submit(content, @userId)
+      result = submit
+        text: content
+        userId: @userId
     result
 
   'rediagnose' : (prevDiagnosis) ->
-    submit(prevDiagnosis.content, @userId, prevDiagnosis)
+    submit
+      text: prevDiagnosis.content
+      userId: @userId
+      prevDiagnosis: prevDiagnosis
 
 )
