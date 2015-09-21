@@ -99,7 +99,7 @@ _.each(_.range(1930, 2030, 10), (year) ->
   }
 )
 
-formatDateRange = (from, to) ->
+formatYearRange = (from, to) ->
   (new Date(from)).getFullYear() + 1 + "-" + (new Date(to)).getFullYear()
 
 viewTypes = [
@@ -141,7 +141,7 @@ Router.route("searchGrid",
       viewTypes: viewTypes
       sortMethods: sortMethods
       resultListTemplate: "gridResultList"
-      formatDateRange: formatDateRange
+      dateRangeFormatter: formatYearRange
     }
   onStop: () ->
     $('.popover').remove()

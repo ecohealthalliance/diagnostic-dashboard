@@ -1,2 +1,6 @@
 template(name="text")
-  p#text.paper {{highlight content}}
+  p#text.paper 
+    if processedContent
+        | {{highlight processedContent}}
+    else
+        | {{highlight content}}
