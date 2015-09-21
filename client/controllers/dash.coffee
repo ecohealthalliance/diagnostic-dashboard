@@ -224,9 +224,6 @@ Template.dash.events
 
   "click #choose-view li": (event) ->
     Session.set('dashView', $(event.currentTarget).data('view'))
-    # if $(event.currentTarget).data('view') is 'geomap'
-    #   console.log map
-      # map.invalidateSize()
 
   "click .open-feedback": (event) ->
     feedbackBaseData = {
