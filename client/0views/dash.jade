@@ -139,13 +139,17 @@ template(name="dash")
               span=label
       .vis-pane
         if eq useView "geomap"
-          +geomapSimple
+          .map-container
+            +map
         else if eq useView "timeline"
-          +timelineSimple
+          .timeline-container
+            +timelineSimple
         else if eq useView "symptomTable"
-          +symptomTable
+          .symptom-container
+            +symptomTable
         else
-          +text
+          .text-container
+            +text
   if modal
     .curtain
   +feedback

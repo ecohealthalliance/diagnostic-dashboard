@@ -101,7 +101,7 @@ Template.dash.tableSettings = () ->
         html = ""
         _.each features, (feature) ->
           featureColor = color feature.name
-          html += "<span style='background-color:#{featureColor}'>&nbsp;</span>&ensp;"
+          html += "<span style='background-color:#{featureColor}'></span>"
         Spacebars.SafeString html
     }
   ]
@@ -208,6 +208,9 @@ Template.dash.events
 
   "click #choose-view li": (event) ->
     Session.set('dashView', $(event.currentTarget).data('view'))
+    # if $(event.currentTarget).data('view') is 'geomap'
+    #   console.log map
+      # map.invalidateSize()
 
   "click .open-feedback": (event) ->
     feedbackBaseData = {
