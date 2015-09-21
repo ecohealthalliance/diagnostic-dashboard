@@ -13,7 +13,10 @@ Router.map () ->
 
       user = Meteor.users.findOne({'emails.0.address': from})
       
-      submissionId = Meteor.call('submit', content, user?._id)
+      submissionId = Meteor.call('submit', {
+        text: content,
+        userId: user?._id
+      })
       checkResult = () ->
         result = Results.findOne({_id: submissionId})
         if result?.ready

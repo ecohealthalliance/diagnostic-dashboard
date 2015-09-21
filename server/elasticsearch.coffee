@@ -1,5 +1,7 @@
 Meteor.methods(
   'elasticsearch' : (query, options) ->
+    # Elasticsearch will only return the fields in the _source property
+    query["_source"] = [ "meta.*", "description" ]
     options ?= {}
     if @userId
       response = HTTP.post(

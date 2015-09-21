@@ -9,23 +9,27 @@ template(name="dash")
         a.btn.btn-default.rediagnose Retry
   .dashboard-container
     .left-panel.diagnosis
-      .find-btns
-        a.btn.btn-default(href='/searchGirder?diagnosisId=#{_id}') Find Similar Articles
-        a.btn.btn-default(href='/searchGrid?diagnosisId=#{_id}') Find Similar Disease Emergence Events
-
+      if signedIn
+        .find-btns
+          a.btn.btn-default(href='/searchGirder?diagnosisId=#{_id}') Find Similar Articles
+          a.btn.btn-default(href='/searchGrid?diagnosisId=#{_id}') Find Similar Disease Emergence Events
       h4 Diagnosis
       +reactiveTable collection=diseases settings=tableSettings
+      if signedIn
+        .btn-group.btn-group-justified.btn-group-sm
+          if prevDiagnosisId
+            unless prevDiagnosisError
+              a.btn.btn-default.prev-diagnosis(href='/dash/#{prevDiagnosisId}') Previous Diagnosis
+          if updatedDiagnosisId
+            a.btn.btn-default.prev-diagnosis(href='/dash/#{updatedDiagnosisId}') Updated Diagnosis
+          else
+            a.btn.btn-default.rediagnose Rediagnose
+        .btn-group.btn-group-justified.btn-group-sm
+          a.btn.btn-default.open-feedback Feedback
       .btn-group.btn-group-justified.btn-group-sm
-        if prevDiagnosisId
-          unless prevDiagnosisError
-            a.btn.btn-default.prev-diagnosis(href='/dash/#{prevDiagnosisId}') Previous Diagnosis
-        if updatedDiagnosisId
-          a.btn.btn-default.prev-diagnosis(href='/dash/#{updatedDiagnosisId}') Updated Diagnosis
-        else
-          a.btn.btn-default.rediagnose Rediagnose
-      .btn-group.btn-group-justified.btn-group-sm
-        a.btn.btn-default.open-feedback Feedback
         a.btn.btn-default(href='#{mailtoPromedLink}') Report to ProMED-mail
+      if signedIn
+        +feedback
       if showKeypoints
         .keypoints
           h4 Key Points

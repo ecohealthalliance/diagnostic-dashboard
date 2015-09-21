@@ -68,3 +68,9 @@ Template.resultList.eq = (a, b) ->
 
 Template.resultList.toDateString = (d)->
   (new Date(d)).toDateString()
+
+Template.resultList.events({
+  "click .add-keyword-link": (event, template) ->
+    AllKeywordsSelected = template.data.AllKeywordsSelected
+    AllKeywordsSelected.insert({value : $(event.currentTarget).text()})
+})

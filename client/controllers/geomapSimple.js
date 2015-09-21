@@ -5,8 +5,8 @@
     'use strict';
 
     // Hide popovers when unrelated things are clicked.
-    $(document).on('click', function(evt){
-        if($(evt.target).closest('.popover-content').length === 0) {
+    $(document).on('click', function (evt) {
+        if ($(evt.target).closest('.popover-content').length === 0) {
             $('body div.popover').popover('hide');
         }
     });
@@ -27,16 +27,26 @@
             var that = this;
 
             this._map = geo.map({node: this.element.get(0), zoom: 0});
-            this.resize();
 
+            this._osm = this._map.createLayer('osm', {'baseUrl': 'http://otile1.mqcdn.com/tiles/1.0.0/osm/'});
+            /* If we want to restrict the zoom range:
+            this._map.zoomRange({
+                min: 0,
+                max: 6
+            });
+            */
+
+            this._layer = this._map.createLayer('feature', {'renderer': 'd3Renderer'});
+            this._feature = this._layer.createFeature('point', {'selectionAPI': true});
+
+
+            this._slider = this._map.createLayer('ui')
+                .createWidget('slider');
+
+            this.resize();
             this.element.on('rescale', function () {
                 that.resize();
             });
-
-            this._osm = this._map.createLayer('osm');
-
-            this._layer = this._map.createLayer('feature', {'renderer': 'd3Renderer'});
-            this._feature = this._layer.createFeature('point');
 
             this._geomapCreated = true;
             this._data = [];
@@ -57,6 +67,7 @@
         },
         resize: function () {
             this.map().resize(0, 0, this.options.width, this.options.height);
+            this.map().zoom(this.map().zoom() + 0.001); // this is a hack...
         },
         update: function () {
             var that = this;
@@ -68,7 +79,7 @@
 
             // georeference the data
             this._data = [];
-            this.options.data.forEach(function (d) {
+            (this.options.data || []).forEach(function (d) {
                 if (Number.isFinite(d.latitude) && Number.isFinite(d.longitude)) {
                     that._data.push(d);
                 }
@@ -98,19 +109,13 @@
                     msg.push('<a target="MarkerArticle" href="' + data.link + '">link</a>');
                 }
 
-                $(this)
+                $(this) // jshint ignore:line
                 .popover({
                     html: true,
                     container: 'body',
                     placement: 'auto top',
                     trigger: 'manual',
                     content: msg.join('<br>\n')
-                })
-                .off('mouseover')
-                .on('mouseover', function (evt) {
-                    $('body div.popover').popover('hide');
-                    $(this).popover('show');
-                    evt.stopPropagation();
                 });
             }
 
@@ -130,7 +135,7 @@
                     fill: function () { return true; },
                     fillColor: function (d) {
                         if (!d.selected) {
-                            return {r: 70/255, g: 130/255, b: 180/255 };
+                            return {r: 70 / 255, g: 130 / 255, b: 180 / 255 };
                         } else {
                             return {r: 1, g: 0, b: 0};
                         }
@@ -145,6 +150,14 @@
                     radius: function () { return that.options.pointSize; }
                 })
                 .draw();
+            this._feature.geoOff(geo.event.feature.mouseon)
+                .geoOn(geo.event.feature.mouseon, function (evt) {
+                    $(this.select()[0][evt.index]).popover('show');
+                })
+                .geoOff(geo.event.feature.mouseoff)
+                .geoOn(geo.event.feature.mouseoff, function (evt) {
+                    $(this.select()[0][evt.index]).popover('hide');
+                });
             this._feature.select().each(function (d) {
                 makePopOver.call(this, d);
                 if (d.selected) {
@@ -164,7 +177,9 @@
         var features = Session.get('features') || [],
             selectedLocations = [],
             data = [];
-        if($(node).length === 0) return;
+        if ($(node).length === 0) {
+            return;
+        }
         var width = $(node).width();
         var height = $(node).height();
         $(node).gritsMap({
@@ -172,7 +187,7 @@
             height: height,
             data: locations
         }).gritsMap('update');
-        
+
         // Highlight selected features on the visulization
         features.forEach(function (feature) {
             if (feature.type === 'location') {

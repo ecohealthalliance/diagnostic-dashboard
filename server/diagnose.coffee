@@ -2,7 +2,8 @@ diagnose = (content) =>
   try
     response = HTTP.post("http://localhost:5000/diagnose", {
       data: {
-        content: content
+        content: content,
+        returnSourceContent: true
       }
     })
     JSON.parse(response.content)
