@@ -1,6 +1,5 @@
 Results = @grits.Results
 
-
 Router.configure
   layoutTemplate: "layout"
 
@@ -63,6 +62,7 @@ Router.map () ->
 
       # Set dates/locations session variables for visualizations
       features = data?.features or []
+
       Session.set('dates',
         _.chain(features)
           .where({type : 'datetime'})
@@ -87,11 +87,12 @@ Router.map () ->
               latitude: location.geoname.latitude
               longitude: location.geoname.longitude
               location: location.name
+              color: @grits.services.color(@grits.services.getIdKeyFromFeature(location))
             }
           ).value()
       )
-
       return data
+
     onAfterAction: () ->
       try
         if typeof(@params.showKeypoints) != 'undefined'

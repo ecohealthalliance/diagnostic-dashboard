@@ -1,9 +1,16 @@
+grits = () -> @grits
+
+Template.dash.created = ->
+  # @data.features = _.map @data.features, (feature) ->
+  #   feature.color = color feature.name
+  #   feature
+
 Template.dash.rendered = ->
   Session.set("dashView", 'text')
 
 DISABLE_MULTI_HIGHLIGHT = true
 color = (text) =>
-  @grits.services.color text
+  grits().services.color text
 
 Template.dash.eq = (a, b) ->
   a == b
@@ -77,18 +84,10 @@ Template.dash.formatDate = () ->
         return dateString
 
 Template.dash.color = () ->
-  color Template.dash.getIdKeyFromFeature(@)
+  color grits().services.getIdKeyFromFeature(@)
 
 Template.dash.getIdKey = () ->
-  Template.dash.getIdKeyFromFeature @
-
-Template.dash.getIdKeyFromFeature = (feature) ->
-  if feature.textOffsets
-    # ids are generated from offsets so that features with content that appears
-    # in mutiple places (e.g. counts) can be individually highlighted.
-    return feature.type + '-o-' + feature.textOffsets.map((o)-> o[0] + '_' + o[1]).join('-')
-  idKey = feature.name or feature.text or String(feature.value)
-  idKey.replace(/[^A-Za-z0-9]/g, '_')
+  grits().services.getIdKeyFromFeature @
 
 Template.dash.selected = () ->
   @name == Session.get('disease')
@@ -116,8 +115,8 @@ Template.dash.tableSettings = () ->
       fn: (features) ->
         html = ""
         _.each features, (feature) ->
-          featureColor = color feature.name
-          html += "<span style='background-color:#{featureColor}'></span>"
+          bgColor = color feature.name
+          html += "<span style='background-color:#{bgColor}'></span>"
         Spacebars.SafeString html
     }
   ]
@@ -126,11 +125,11 @@ Template.dash.tableSettings = () ->
   group: 'diagnosis'
 
 Template.dash.keywordCategories = () =>
-  @grits.KEYWORD_CATEGORIES
+  grits().KEYWORD_CATEGORIES
 
 Template.dash.featureSelected = (feature) ->
-  idKey = Template.dash.getIdKeyFromFeature(feature)
-  ids = _.map(Session.get('features') or [], Template.dash.getIdKeyFromFeature)
+  idKey = grits().services.getIdKeyFromFeature(feature)
+  ids = _.map(Session.get('features') or [], grits().services.getIdKeyFromFeature)
   if _.contains(ids, idKey)
     "selected"
   else
@@ -300,12 +299,12 @@ Template.dash.events
     else
       currentFeatures = Session.get('features') or []
       currentFeatureIdMap = _.chain(currentFeatures)
-        .map(Template.dash.getIdKeyFromFeature)
+        .map(grits().services.getIdKeyFromFeature)
         .zip()
         .object()
         .value()
       for feature in categoryFeatures
-        if not currentFeatureIdMap.hasOwnProperty(Template.dash.getIdKeyFromFeature(feature))
+        if not currentFeatureIdMap.hasOwnProperty(grits().services.getIdKeyFromFeature(feature))
           currentFeatures.push(feature)
       Session.set('features', currentFeatures)
 

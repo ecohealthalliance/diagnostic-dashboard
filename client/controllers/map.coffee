@@ -24,20 +24,20 @@ Template.map.rendered = () ->
   updateMarkers = ()=>
     locations = Session.get('locations')
     features = Session.get('features') || []
-    
+
     lMap.removeLayer(markers)
     markers = new L.FeatureGroup()
-    
+
     # Highlight selected features on the visulization
     selectedLocations = features.filter((feature)->
       feature.type == 'location'
     )
-    
+
     locations.forEach((location)->
       color = if _.find(selectedLocations, (sl)->
         sl.geoname.name == location.location
-      ) then 'red' else 'blue'
-      
+      ) then @grits.services.darken(location.color, -5) else '#9564BF'
+
       L.marker([location.latitude, location.longitude], {
         icon: L.divIcon({
           className: 'map-marker-container'
@@ -54,7 +54,7 @@ Template.map.rendered = () ->
       )
     )
     markers.addTo(lMap)
-  
+
   updateMarkers()
   lMap.fitBounds(markers.getBounds())
   @autorun updateMarkers

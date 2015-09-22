@@ -1,5 +1,5 @@
 color = (feature) =>
-  @grits.services.color Template.dash.getIdKeyFromFeature(feature)
+  @grits.services.color @grits.services.getIdKeyFromFeature(feature)
 
 Template.text.highlight = (content) ->
   features = Session.get('features')
