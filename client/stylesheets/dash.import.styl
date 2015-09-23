@@ -38,7 +38,8 @@
   border-right 2px solid #CCC
   background-color #FFF
   overflow-x scroll
-  padding 0 10px
+  -ms-overflow-style -ms-autohiding-scrollbar
+  padding 0 20px
   width $left-pane-width
   top 0
   bottom 0
@@ -46,8 +47,8 @@
   .reactive-table
     width $left-pane-width - 2
     max-width $left-pane-width - 2
-    margin-left -10px
-    margin-right -10px
+    margin-left -20px
+    margin-right -20px
     font-size 13px
     tr
       cursor pointer
@@ -72,8 +73,8 @@
     padding 10px 8px
     clear both
     background-color $primary-muted
-    margin-left -10px
-    margin-right -10px
+    margin-left -20px
+    margin-right -20px
     cursor pointer
     border-bottom 2px solid #CCC
     &:hover
