@@ -96,13 +96,6 @@ Template.dash.tableSettings = () ->
       fn: (prob) ->
         Math.round(prob * 1000) / 1000
     },
-    {
-      key: 'name'
-      label: ' '
-      fn: (name) ->
-        if Session.equals('disease', name)
-          Spacebars.SafeString '<span style="color: green">&#10004;</span>'
-    },
     { key: 'name', label: 'Disease' },
     {
       key: 'keywords'
@@ -189,6 +182,7 @@ Template.dash.helpers
 
 Template.dash.events
   "click .diagnosis .reactive-table tbody tr" : (event) ->
+    $(event.currentTarget).addClass("selected").siblings().removeClass('selected')
     if Session.get('disease') is @name
       Session.set('disease', null)
       Session.set('features', [])
