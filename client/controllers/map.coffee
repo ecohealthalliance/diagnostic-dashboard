@@ -36,7 +36,7 @@ Template.map.rendered = () ->
     locations.forEach((location)->
       color = if _.find(selectedLocations, (sl)->
         sl.geoname.name == location.location
-      ) then @grits.services.darken(location.color, -5) else '#9564BF'
+      ) then @grits.services.adjustValue(location.color, -5) else '#9564BF'
 
       L.marker([location.latitude, location.longitude], {
         icon: L.divIcon({

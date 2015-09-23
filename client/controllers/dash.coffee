@@ -1,10 +1,5 @@
 grits = () -> @grits
 
-Template.dash.created = ->
-  # @data.features = _.map @data.features, (feature) ->
-  #   feature.color = color feature.name
-  #   feature
-
 Template.dash.rendered = ->
   Session.set("dashView", 'text')
 

@@ -9,7 +9,7 @@
   idKey.replace(/[^A-Za-z0-9]/g, '_')
 @grits.services.color = d3.scale.category20()
 
-@grits.services.darken = (color, amt) ->
+@grits.services.adjustValue = (color, amt) ->
 
   if color[0] is "#" then color = color.slice(1)
 
