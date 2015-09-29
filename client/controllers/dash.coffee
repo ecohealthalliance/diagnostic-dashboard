@@ -1,11 +1,11 @@
-grits = () -> @grits
+grits = @grits
 
 Template.dash.rendered = ->
   Session.set("dashView", 'text')
 
 DISABLE_MULTI_HIGHLIGHT = true
 color = (text) =>
-  grits().services.color text
+  grits.services.color text
 
 Template.dash.eq = (a, b) ->
   a == b
@@ -79,10 +79,10 @@ Template.dash.formatDate = () ->
         return dateString
 
 Template.dash.color = () ->
-  color grits().services.getIdKeyFromFeature(@)
+  color grits.services.getIdKeyFromFeature(@)
 
 Template.dash.getIdKey = () ->
-  grits().services.getIdKeyFromFeature @
+  grits.services.getIdKeyFromFeature @
 
 Template.dash.selected = () ->
   @name == Session.get('disease')
@@ -113,11 +113,11 @@ Template.dash.tableSettings = () ->
   group: 'diagnosis'
 
 Template.dash.keywordCategories = () =>
-  grits().KEYWORD_CATEGORIES
+  grits.KEYWORD_CATEGORIES
 
 Template.dash.featureSelected = (feature) ->
-  idKey = grits().services.getIdKeyFromFeature(feature)
-  ids = _.map(Session.get('features') or [], grits().services.getIdKeyFromFeature)
+  idKey = grits.services.getIdKeyFromFeature(feature)
+  ids = _.map(Session.get('features') or [], grits.services.getIdKeyFromFeature)
   if _.contains(ids, idKey)
     "selected"
   else
@@ -296,12 +296,12 @@ Template.dash.events
     else
       currentFeatures = Session.get('features') or []
       currentFeatureIdMap = _.chain(currentFeatures)
-        .map(grits().services.getIdKeyFromFeature)
+        .map(grits.services.getIdKeyFromFeature)
         .zip()
         .object()
         .value()
       for feature in categoryFeatures
-        if not currentFeatureIdMap.hasOwnProperty(grits().services.getIdKeyFromFeature(feature))
+        if not currentFeatureIdMap.hasOwnProperty(grits.services.getIdKeyFromFeature(feature))
           currentFeatures.push(feature)
       Session.set('features', currentFeatures)
 
