@@ -9,7 +9,6 @@ stylus
 http
 email
 tangelo
-geojs
 mquandalle:jade
 twbs:bootstrap
 aslagle:reactive-table
@@ -23,3 +22,4 @@ iron:router
 joshowens:accounts-entry
 reactive-var
 underscore
+bevanhunt:leaflet

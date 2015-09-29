@@ -5,11 +5,11 @@ body
 
 .pane-container
   position absolute
-  left 350px
+  left $left-pane-width
   right 0
   top 0
   bottom 0
-  overflow scroll
+  overflow auto
 
 .vis-pane-bar
   background-color $primary-muted
@@ -21,9 +21,10 @@ body
 
 .vis-pane
   overflow auto
-  position relative
-  padding-bottom 100px
-  min-height 100%
+  position absolute
+  bottom 0
+  top 0
+  width 100%
 
 .search
   .vis-pane-bar

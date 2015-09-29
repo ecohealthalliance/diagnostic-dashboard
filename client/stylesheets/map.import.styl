@@ -1,4 +1,35 @@
 #map
   height 100%
+  background #F9F9F9
+
+addFont('icons', true)
+
+secondary = rgba(63, 136, 160, 1)
+marker-width = 22px
+marker-height = 32px
+arrow-top = (marker-height * 4 / 5)
+arrow-width = (marker-width * 3 / 4)
+arrow-height = (arrow-width / 2)
+
+.map-marker
   position relative
-  top 40px
+  text-align center
+  // Shift marker position so it points to the correct location
+  margin-top (-(arrow-top + arrow-height))
+  margin-left (-(marker-width / 2))
+  text-shadow 0px 2px 5px rgba(0,0,0,.1)
+  cursor pointer
+  &::before
+    content 'm'
+    display block
+    font-family icons
+    font-size marker-height
+  &:hover
+    &::before
+      color secondary
+
+.leaflet-popup-content-wrapper
+  border-radius 3px
+
+.leaflet-popup
+  bottom 5px !important // Overwrites inline css to better position pop-up

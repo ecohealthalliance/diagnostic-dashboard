@@ -4,7 +4,6 @@
   left 0
   right 0
   bottom 0
-  height 100%
 
 .loading-message ~ .dashboard-container
   // z-index hides the container, but still renders it so that visualizations
@@ -39,13 +38,33 @@
   border-right 2px solid #CCC
   background-color #FFF
   overflow-x scroll
-  padding 0 10px
-  width 350px
+  -ms-overflow-style -ms-autohiding-scrollbar
+  padding 0 20px
+  width $left-pane-width
   top 0
   bottom 0
 
-  .reactive-table tr
-    cursor pointer
+  .reactive-table
+    width $left-pane-width - 2
+    max-width $left-pane-width - 2
+    margin-left -20px
+    margin-right -20px
+    font-size 13px
+    tr
+      cursor pointer
+      &.selected
+        background-color desaturate(lighten(#DEEDDC, 20%),40%)
+      td
+        max-width 32%
+        &:first-of-type
+          padding-left 15px
+        &:last-of-type
+          padding-right 15px
+    th
+      &:first-of-type
+        padding-left 15px
+      &:last-of-type
+        padding-right 15px
 
   .btn-group
     margin-bottom 10px
@@ -54,17 +73,20 @@
     padding 10px 8px
     clear both
     background-color $primary-muted
-    margin-left -10px
-    margin-right -10px
+    margin-left -20px
+    margin-right -20px
     cursor pointer
     border-bottom 2px solid #CCC
     &:hover
       background-color #CCC
       color black
-    &.diagnosis
+// <<<<<<< HEAD
+// =======
+    &.diagnosis-heading
       cursor default
       &:hover
         background-color $primary-muted
+// >>>>>>> master
 
 .feature-section
 .keypoints
@@ -80,6 +102,7 @@
     text-shadow 0 1px 1px rgba(0,0,0,.4)
     letter-spacing .03em
     box-shadow 0 1px 1px rgba(255,255,255,0)
+    -webkit-font-smoothing subpixel-antialiased
     &:hover
       box-shadow 0px 0px 0px 2px rgba(100,100,100,.5)
 
@@ -98,6 +121,15 @@
 
 .keypoint.selected
   background-color goldenrod
+
+.keywords
+  span
+    display inline-block
+    margin-bottom 5px
+    min-height 20px
+    margin-right 5px
+    width 5px
+    border-radius 1px
 
 .find-btns
   margin-top 20px
@@ -123,3 +155,17 @@
     .fa
       padding-right 5px
 
+.text-container
+.symptom-container
+.timeline-container
+  padding-top 40px
+
+.text-container
+  padding-bottom 100px
+
+.map-container
+  position absolute
+  top 40px
+  bottom 0
+  left 0
+  right 0
