@@ -203,6 +203,10 @@ Template.dash.events
       Session.set('features', @keywords)
 
   "click .diagnosis .label" : (event) ->
+    if Session.get('disease')
+      Session.set('disease', null)
+      Session.set('features', null)
+
     currentFeatures = Session.get('features') or []
 
     found = false
