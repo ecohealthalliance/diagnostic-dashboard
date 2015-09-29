@@ -9,7 +9,7 @@
         node = '#timeline';
 
     function binData(data, start, end) {
-        var bins = [], 
+        var bins = [],
             s = start.valueOf(),
             e = end.valueOf(),
             dt = (e - s)/(nBins - 1),
@@ -40,7 +40,7 @@
         });
         return bins;
     }
-    
+
     Template.timeline.rendered = function () {
         var data = [];
         if (!this.initialized) {
@@ -61,7 +61,7 @@
                     transition: 0,
                     padding: padding,
                     width: obj.width,
-                    height: obj.height
+                    height: 400
                 });
             });
             this.initialized = true;

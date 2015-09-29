@@ -1,21 +1,15 @@
 template(name="splash")
-  h4.controls
-    a.nav-btn(href="/help")
-      i.fa.fa-question
-      p Help
-    a.nav-btn(href="/sign-in")
-      i.fa.fa-sign-in.sign-in
-      p Sign In / Register
-  .jumbotron.splash
-    h1 GRITS
-    br
+  +header
+  .brand
+    h1.splash-logo GRITS
     h2 Global Rapid Identification Tool System
-    br
-    .about
 
-      a(target="_blank", href="http://www.ecohealthalliance.org")
-        img(src="images/logos/eha.png", alt="EHA")
+  .about
+    .featured
+      a(href="http://ecohealthalliance.org")
+        h4.eha-logo EcoHealth Alliance
 
+    .secondary
       a(target="_blank", href="http://www.healthmap.org")
         img(src="images/logos/healthmap.png", alt="HealthMap")
 

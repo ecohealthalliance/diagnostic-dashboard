@@ -4,17 +4,6 @@ Template.profile.username = () ->
 Template.profile.tableSettings = () ->
   fields: [
     {
-      key: 'createDate'
-      label: 'Date'
-      sort: -1
-      fn: (date) ->
-        date = if date then new Date(date) else new Date(0)
-        dateString = date.toDateString()
-        sortString = date.toISOString()
-        # The column is sorted by this string, so the sort string comes first
-        new Spacebars.SafeString("<span value=#{sortString}>#{dateString}</span>")
-    },
-    {
       key: 'diseases'
       label: 'Diagnosis'
       fn: (diseases) ->
@@ -27,6 +16,17 @@ Template.profile.tableSettings = () ->
       label: 'Content'
       fn: (content) ->
         if content.length > 100 then content.slice(0, 100) + '...' else content
+    },
+    {
+      key: 'createDate'
+      label: 'Date'
+      sort: -1
+      fn: (date) ->
+        date = if date then new Date(date) else new Date(0)
+        dateString = date.toDateString()
+        sortString = date.toISOString()
+        # The column is sorted by this string, so the sort string comes first
+        new Spacebars.SafeString("<span value=#{sortString}>#{dateString}</span>")
     }
   ]
   group: 'profile'

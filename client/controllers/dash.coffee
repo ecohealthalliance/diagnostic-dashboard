@@ -1,3 +1,6 @@
+Template.dash.rendered = ->
+  Session.set("dashView", 'text')
+
 DISABLE_MULTI_HIGHLIGHT = true
 color = (text) =>
   @grits.services.color text
@@ -136,15 +139,15 @@ Template.dash.featureSelected = (feature) ->
 Template.dash.mailtoPromedLink = () ->
   "mailto:promed@promedmail.org?subject=[GRITS] " +
   encodeURIComponent((d.name for d in @.diseases).join('/') + " Report") +
-  "&body=" + 
+  "&body=" +
   encodeURIComponent("""
   This is a GRITS generated report.
-  
+
   ***Include your name and affiliation***
-  
+
   Dashboard url:
   #{window.location.toString()}
-  
+
   Possible diagnoses:
   #{(d.name + ', confidence=' + Math.round(d.probability * 100) + '%' for d in @.diseases).join('\n')}
 
@@ -171,6 +174,25 @@ Template.dash.viewTypes = [
 Template.dash.useView = ()->
   Session.get("dashView")
 
+Template.dash.helpers
+  selectedView: ->
+    if Session.get("dashView") is @name
+      'selected'
+
+  viewIcon: ->
+    if @name is 'text'
+      'fa-file-text'
+    else if @name is 'geomap'
+      'fa-globe'
+    else if @name is 'timeline'
+      'fa-bar-chart'
+    else if @name is 'symptomTable'
+      'fa-table'
+
+  modal: ->
+    Session.get('feedbackShowing')
+
+
 Template.dash.events
   "click .diagnosis .reactive-table tbody tr" : (event) ->
     if Session.get('disease') is @name
@@ -181,6 +203,10 @@ Template.dash.events
       Session.set('features', @keywords)
 
   "click .diagnosis .label" : (event) ->
+    if Session.get('disease')
+      Session.set('disease', null)
+      Session.set('features', null)
+
     currentFeatures = Session.get('features') or []
 
     found = false
@@ -200,8 +226,8 @@ Template.dash.events
     this.color = 'goldenrod'
     Session.set('features', [this])
 
-  "change #choose-view": (event) ->
-    Session.set('dashView', $(event.target).val())
+  "click #choose-view li": (event) ->
+    Session.set('dashView', $(event.currentTarget).data('view'))
 
   "click .open-feedback": (event) ->
     feedbackBaseData = {
@@ -234,6 +260,7 @@ Template.dash.events
         _.extend({created: new Date()}, feedbackBaseData))
       )
     $('form.feedback').show()
+    Session.set('feedbackShowing', true)
 
   "click .rediagnose": (event) ->
     Meteor.call('rediagnose', @, (error, resultId) ->
@@ -249,7 +276,7 @@ Template.dash.events
     # turn highlighting on for all features in that category
     # - if all features for the category are highlighted, turn them all off.
     # We assume that each name is unique per category
-    
+
     # If a disease is selected, clicking a header unselects it
     if Session.get('disease')
       Session.set('disease', null)
