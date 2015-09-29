@@ -13,7 +13,7 @@ template(name="dash")
         .find-btns
           a.btn.btn-default(href='/searchGirder?diagnosisId=#{_id}') Find Similar Articles
           a.btn.btn-default(href='/searchGrid?diagnosisId=#{_id}') Find Similar Disease Emergence Events
-      h4 Diagnosis
+      h4.diagnosis-heading Diagnosis
       +reactiveTable collection=diseases settings=tableSettings
       if signedIn
         .btn-group.btn-group-justified.btn-group-sm
@@ -107,7 +107,7 @@ template(name="dash")
       .features
         each keywordCategories
           if showCategory pattern ../features
-            .feature-section
+            .feature-section.clearfix
               h4(class=pattern) #{label}
               each ../features
                 if eq type ../pattern

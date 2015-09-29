@@ -61,7 +61,7 @@
                     transition: 0,
                     padding: padding,
                     width: obj.width,
-                    height: obj.height
+                    height: 400
                 });
             });
             this.initialized = true;
