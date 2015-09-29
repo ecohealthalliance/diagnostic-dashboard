@@ -182,7 +182,11 @@ Template.dash.helpers
 
 Template.dash.events
   "click .diagnosis .reactive-table tbody tr" : (event) ->
-    $(event.currentTarget).addClass("selected").siblings().removeClass('selected')
+    $target = $(event.currentTarget)
+    if $target.hasClass('selected')
+      $target.removeClass('selected')
+    else
+      $target.addClass('selected').siblings().removeClass('selected')
     if Session.get('disease') is @name
       Session.set('disease', null)
       Session.set('features', [])
