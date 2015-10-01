@@ -3,9 +3,14 @@ template(name="header")
     header.clearfix
       .branding-action
         .logo
-          a(href="/")
-            h1 GRITS
-            h2 Global Rapid #[br] Identification #[br] Tool System
+          if bsveApp
+            a
+              h1 GRITS
+              h2 Global Rapid #[br] Identification #[br] Tool System
+          else
+            a(href="/")
+              h1 GRITS
+              h2 Global Rapid #[br] Identification #[br] Tool System
         unless bsveApp
           if currentUser
             .action-call
