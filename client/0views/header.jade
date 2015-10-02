@@ -36,7 +36,7 @@ template(name="header")
                   i.fa.fa-sign-in.sign-in
                   span Sign In / Register
           else
-            unless newDiagnosisPage
+            unless hideBackButton
               li
                 a.back(href="#")
                   i.fa.fa-arrow-left

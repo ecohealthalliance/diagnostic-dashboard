@@ -2,8 +2,8 @@ Template.header.helpers
   bsveApp: ->
     Router.current().params.query.bsveAccessKey
 
-  newDiagnosisPage: ->
-    Router.current().route.getName() is 'new'
+  hideBackButton: ->
+    Router.current().params.query.hideBackButton
 
 Template.helpLink.helpers
   helpLinkHref: ->
