@@ -3,20 +3,14 @@ template(name="header")
     header.clearfix
       .branding-action
         .logo
-          if bsveApp
-            a
-              h1 GRITS
-              h2 Global Rapid #[br] Identification #[br] Tool System
-          else
-            a(href="/")
-              h1 GRITS
-              h2 Global Rapid #[br] Identification #[br] Tool System
-        unless bsveApp
-          if currentUser
-            .action-call
-              a.btn.btn-primary(href="/new")
-                i.fa.fa-file-text-o
-                span New Diagnosis
+          a(href=logoHref)
+            h1 GRITS
+            h2 Global Rapid #[br] Identification #[br] Tool System
+        if showNewDiagnosisLink
+          .action-call
+            a.btn.btn-primary(href=newDiagnosisHref)
+              i.fa.fa-file-text-o
+              span New Diagnosis
       nav
         ul.nav.navbar-nav.nav-main
           unless bsveApp
