@@ -7,7 +7,10 @@ Template.new.events
       accessKey: Router.current().params.query.bsveAccessKey
     }, (error, resultId) ->
       if error
-        alert "Error"
+        if error.error is "Bad access key"
+          alert "Error: Bad access key"
+        else
+          alert "Error"
         console.log error
       else
         bsveAccessKey = Router.current().params.query.bsveAccessKey
