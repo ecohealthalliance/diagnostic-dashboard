@@ -2,6 +2,9 @@ Template.header.helpers
   bsveApp: ->
     Router.current().params.query.bsveAccessKey
 
+  hideBackButton: ->
+    Router.current().params.query.hideBackButton
+
 Template.helpLink.helpers
   helpLinkHref: ->
     key = Router.current().params.query.bsveAccessKey

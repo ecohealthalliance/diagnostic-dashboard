@@ -36,10 +36,11 @@ template(name="header")
                   i.fa.fa-sign-in.sign-in
                   span Sign In / Register
           else
-            li
-              a.back(href="#")
-                i.fa.fa-arrow-left
-                span Back
+            unless hideBackButton
+              li
+                a.back(href="#")
+                  i.fa.fa-arrow-left
+                  span Back
             +helpLink
 
 template(name="helpLink")
