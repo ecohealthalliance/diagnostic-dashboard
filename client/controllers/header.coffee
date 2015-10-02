@@ -2,6 +2,9 @@ Template.header.helpers
   bsveApp: ->
     Router.current().params.query.bsveAccessKey
 
+  newDiagnosisPage: ->
+    Router.current().route.getName() is 'new'
+
 Template.helpLink.helpers
   helpLinkHref: ->
     key = Router.current().params.query.bsveAccessKey
