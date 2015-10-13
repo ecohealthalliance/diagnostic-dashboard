@@ -9,10 +9,10 @@ template(name="dash")
         a.btn.btn-default.rediagnose Retry
   .dashboard-container
     .left-panel.diagnosis
-      if signedIn
-        .find-btns
-          a.btn.btn-default(href='/searchGirder?diagnosisId=#{_id}') Find Similar Articles
-          a.btn.btn-default(href='/searchGrid?diagnosisId=#{_id}') Find Similar Disease Emergence Events
+      // if signedIn
+      //   .find-btns
+      //     a.btn.btn-default(href='/searchGirder?diagnosisId=#{_id}') Find Similar Articles
+      //     a.btn.btn-default(href='/searchGrid?diagnosisId=#{_id}') Find Similar Disease Emergence Events
       h4.diagnosis-heading Diagnosis
       +reactiveTable collection=diseases settings=tableSettings
       if signedIn
