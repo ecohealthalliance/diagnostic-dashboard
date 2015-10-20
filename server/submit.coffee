@@ -2,12 +2,17 @@ Results = @grits.Results
 Quarantine = @grits.Quarantine
 
 submit = (submission) ->
-  content = submission.text
-  userId = submission.userId
+  if submission.text
+    submission.content = submission.text
+  postData = _.pick(
+    submission,
+    'content',
+    'url'
+  )
   prevDiagnosis = submission.prevDiagnosis
-  accessKey = submission.accessKey
   bsveSubmission = false
-  if not userId
+  accessKey = submission.accessKey
+  if not submission.userId
     if accessKey
       bsveSubmission = true
       if accessKey != process.env.BSVE_ACCESS_KEY
@@ -15,25 +20,25 @@ submit = (submission) ->
     else
       throw new Meteor.Error("User not authenticated")
   if prevDiagnosis
-    resultId = Results.insert
-      content: content
-      userId: userId
+    resultId = Results.insert(_.extend({
       ready: false
+      userId: submission.userId
       bsveSubmission: bsveSubmission
       prevDiagnosisId: prevDiagnosis._id
+    }, postData))
     Results.update prevDiagnosis._id, {
       $set : {
         updatedDiagnosisId: resultId
       }
     }
   else
-    resultId = Results.insert
-      content: content
-      userId: userId
+    resultId = Results.insert(_.extend({
       ready: false
+      userId: submission.userId
       bsveSubmission: bsveSubmission
+    }, postData))
   diagnose = () ->
-    Meteor.call('diagnose', content, (error, result) ->
+    Meteor.call('diagnose', postData, (error, result) ->
       if error
         message = error?.stack?.split('\n')?[0]
         Results.update resultId, { '$set': {

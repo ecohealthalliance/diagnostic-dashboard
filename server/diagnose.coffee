@@ -1,10 +1,8 @@
-diagnose = (content) =>
+diagnose = (postData) =>
   try
+    postData.returnSourceContent = true
     response = HTTP.post("http://localhost:5000/diagnose", {
-      data: {
-        content: content,
-        returnSourceContent: true
-      }
+      data: postData
     })
     JSON.parse(response.content)
   catch error
@@ -14,6 +12,6 @@ diagnose = (content) =>
     throw error
 
 Meteor.methods(
-  'diagnose' : (content) ->
-    diagnose(content)
+  'diagnose' : (postData) ->
+    diagnose(postData)
 )
