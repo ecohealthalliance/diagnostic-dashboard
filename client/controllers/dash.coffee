@@ -255,11 +255,19 @@ Template.dash.events
     Session.set('feedbackShowing', true)
 
   "click .rediagnose": (event) ->
-    Meteor.call('rediagnose', @, (error, resultId) ->
+    bsveAccessKey = Router.current().params.query.bsveAccessKey
+    submission = {
+      prevDiagnosis: @
+      content: @content
+      accessKey: bsveAccessKey
+    }
+    Meteor.call('submit', submission, (error, resultId) ->
       if error
         alert "Could not rediagnose: " + error.message
       else
-        Router.go 'dash', {_id: resultId}
+        Router.go 'dash', {_id: resultId}, {
+          query: "bsveAccessKey=#{bsveAccessKey}" if bsveAccessKey
+        }
     )
 
   "click .features h4": (event, template) ->
