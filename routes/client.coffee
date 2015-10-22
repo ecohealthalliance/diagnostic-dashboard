@@ -101,7 +101,10 @@ Router.map () ->
         alert('Invalid value for showKeypoints')
       result = @data()
       if result?.error and result?.updatedDiagnosisId
-        Router.go "dash", {_id: result.updatedDiagnosisId}
+        bsveAccessKey = @params.query.bsveAccessKey
+        Router.go "dash", {_id: result.updatedDiagnosisId}, {
+          query: "bsveAccessKey=#{bsveAccessKey}" if bsveAccessKey
+        }
     onStop: () ->
       Session.set('disease', null)
       Session.set('features', [])

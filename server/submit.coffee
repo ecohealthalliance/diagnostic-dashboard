@@ -83,10 +83,4 @@ Meteor.methods(
         userId: @userId
     result
 
-  'rediagnose' : (prevDiagnosis) ->
-    submit
-      text: prevDiagnosis.content
-      userId: @userId
-      prevDiagnosis: prevDiagnosis
-
 )
