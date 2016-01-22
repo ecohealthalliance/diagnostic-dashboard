@@ -1,13 +1,26 @@
 template(name="new")    
   .row
     .submit-page.col-sm-8.col-sm-offset-2
-      .input-group
-        .input-group-addon
-          | http://
-        input.form-control.submit-url#submit-url(type="text", placeholder="Paste URL here")
+ 
+      ul.nav.nav-tabs
+        li.nav.active
+          a(href='#copy', data-toggle='tab') Copy &amp; Paste
+        li.nav
+          a(href='#web', data-toggle='tab') From the web
+          
+      .tab-content
+        #copy.tab-pane.fade.in.active
+          textarea.form-control.submit-text#submit-text(placeholder="Paste text here")
+        #web.tab-pane.fade  
+          .input-group
+            .input-group-addon
+              | http://
+            input.form-control.submit-url#submit-url(type="text", placeholder="Paste URL here")
 
-    .submit-page.col-sm-8.col-sm-offset-2
-      textarea.form-control.submit-text#submit-text(placeholder="Paste text here")
       .row
         .col-sm-3
           button.btn.btn-large.btn-primary.btn-block#submit-button Diagnose
+
+
+
+
