@@ -1,7 +1,13 @@
-template(name="new")
+template(name="new")    
   .row
     .submit-page.col-sm-8.col-sm-offset-2
-      textarea.form-control#submit-text(placeholder="Paste text here")
+      .input-group
+        .input-group-addon
+          | http://
+        input.form-control.submit-url#submit-url(type="text", placeholder="Paste URL here")
+
+    .submit-page.col-sm-8.col-sm-offset-2
+      textarea.form-control.submit-text#submit-text(placeholder="Paste text here")
       .row
         .col-sm-3
           button.btn.btn-large.btn-primary.btn-block#submit-button Diagnose

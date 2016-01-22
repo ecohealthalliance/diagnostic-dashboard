@@ -2,8 +2,14 @@ Template.new.events
   "click #submit-button": (instance) ->
     $('#submit-button').prop('disabled', true)
     text = $('#submit-text').val()
+    url  = $('#submit-url').val()
+    
+    if !/^(f|ht)tps?:\/\//i.test(url)
+      url = 'http://' + url
+
     Meteor.call('submit', {
       text: text,
+      url: url,
       accessKey: Router.current().params.query.bsveAccessKey
     }, (error, resultId) ->
       if error
