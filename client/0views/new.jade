@@ -1,7 +1,26 @@
 template(name="new")
-  .row
-    .submit-page.col-sm-8.col-sm-offset-2
-      textarea.form-control#submit-text(placeholder="Paste text here")
-      .row
-        .col-sm-3
-          button.btn.btn-large.btn-primary.btn-block#submit-button Diagnose
+  .container
+    .row
+      .submit-page.col-sm-10.col-sm-offset-1
+        ul.nav.nav-tabs.upload-menu
+          li.active
+            a(href='#copy', data-toggle='tab')
+              i.fa.fa-file-text-o
+              | Copy &amp; Paste
+          li
+            a(href='#web', data-toggle='tab')
+              i.fa.fa-link
+              | From the web
+
+        .tab-content
+          #copy.tab-pane.fade.in.active
+            textarea.form-control.submit-text#submit-text(placeholder="Paste text here")
+          #web.tab-pane.fade
+            .input-group
+              .input-group-addon
+                | http://
+              input.form-control.submit-url#submit-url(type="text", placeholder="Paste URL here")
+
+        .row
+          .col-sm-3.col-sm-offset-9
+            button.btn.btn-large.btn-primary.btn-block.pull-right#submit-button Diagnose
