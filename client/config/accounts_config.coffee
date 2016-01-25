@@ -3,4 +3,4 @@ Meteor.startup ->
     homeRoute: '/'
     dashboardRoute: '/'
     passwordSignupFields: 'EMAIL_ONLY'
-    showSignupCode: false
+    showSignupCode: true
