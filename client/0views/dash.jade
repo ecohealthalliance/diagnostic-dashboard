@@ -28,8 +28,6 @@ template(name="dash")
           a.btn.btn-default.open-feedback Feedback
       .btn-group.btn-group-justified.btn-group-sm
         a.btn.btn-default(href='#{mailtoPromedLink}') Report to ProMED-mail
-      if signedIn
-        +feedback
       if showKeypoints
         .keypoints
           h4 Key Points
@@ -156,4 +154,5 @@ template(name="dash")
             +text
   if modal
     .curtain
-  +feedback
+  if signedIn
+    +feedback
