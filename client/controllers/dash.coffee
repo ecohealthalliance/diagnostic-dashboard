@@ -170,10 +170,6 @@ Template.dash.helpers
     else if @name is 'symptomTable'
       'fa-table'
 
-  modal: ->
-    Session.get('feedbackShowing')
-
-
 Template.dash.events
   "click .diagnosis .reactive-table tbody tr" : (event) ->
     $target = $(event.currentTarget)
@@ -214,10 +210,6 @@ Template.dash.events
 
   "click #choose-view li": (event) ->
     Session.set('dashView', $(event.currentTarget).data('view'))
-
-  "click .open-feedback": (event, instance) ->
-    $('form.feedback').show()
-    Session.set('feedbackShowing', true)
 
   "click .rediagnose": (event) ->
     bsveAccessKey = Router.current().params.query.bsveAccessKey

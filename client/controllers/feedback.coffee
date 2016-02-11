@@ -2,6 +2,7 @@ if Meteor.isClient
   Template.feedback.created = ->
     @missingDiseases = new Meteor.Collection(null)
     @feedbackId = new ReactiveVar(null)
+    @addDiseaseEnabled = new ReactiveVar(false)
 
     feedbackBaseData =
       userId: Meteor.userId()
@@ -47,6 +48,9 @@ if Meteor.isClient
         },
       ]
 
+    addDiseaseEnabled: ->
+      Template.instance().addDiseaseEnabled.get()
+
   Template.feedback.events
     "submit .feedback": (event, instance) ->
       event.preventDefault()
@@ -76,16 +80,22 @@ if Meteor.isClient
         if error
           throw new Meteor.Error error.reason
         else
-          $('form.feedback').hide()
-          Session.set('feedbackShowing', false)
           event.target.reset()
+          $('#feedback-modal').modal('hide')
 
     "click .close-feedback": (event, instance) ->
-      $('form.feedback').hide()
-      Session.set('feedbackShowing', false)
+      $('#feedback-modal').modal('hide')
+
+    "input #new-disease" : (event, instance) ->
+      enababled = instance.addDiseaseEnabled
+      if $(event.target).val()
+        enababled.set true
+      else
+        enababled.set false
 
     "click #add-disease" : (event, instance) ->
-      instance.missingDiseases.insert({name : $("#new-disease").val()})
+      if $("#new-disease").val()
+        instance.missingDiseases.insert({name : $("#new-disease").val()})
 
     "click .remove-disease" : (event, instance) ->
       instance.missingDiseases.remove({name : $(event.currentTarget).data('name')})

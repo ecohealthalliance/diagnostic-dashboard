@@ -8,10 +8,17 @@ $primary-muted      = muteColor($primary)
 $primary-muted-dark = darken(muteColor($primary), 20%)
 $confirm            = #4CBB43
 $header-highlight   = $primary-muted
-$delete             = #F23330
+$delete             = rgba(219, 82, 75, 1)
+$blue               = rgba(86, 192, 224, 1)
+$border-color       = $background-color
 
 .btn-default
   background $background-color
+
+.btn-plain
+  border 0
+  background none
+  padding 0
 
 .modal
   box-shadow 0 0 5px rgba(0,0,0,.5)
@@ -32,6 +39,17 @@ $delete             = #F23330
 
 .space-btn-1
   margin-bottom 10px
+
+.no-margin
+  margin 0 !important
+
+label
+  .info
+    display block
+    font-size 90%
+    font-weight normal
+    color lighten(#333, 10%)
+    margin-bottom 10px
 
 @import 'loading.import'
 @import 'accounts.import'
