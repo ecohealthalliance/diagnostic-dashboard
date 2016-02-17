@@ -50,7 +50,7 @@ if Meteor.isClient
     "submit .feedback": (event, instance) ->
       event.preventDefault()
       event.stopPropagation()
-      form = $('form.feedback').serializeArray()
+      form = $(event.target).serializeArray()
       parseDisease = (f)->
           diseaseMatch = f.name.match(/(.*)-correct/)
           if diseaseMatch then diseaseMatch[1] else false

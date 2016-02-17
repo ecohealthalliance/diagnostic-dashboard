@@ -1,5 +1,10 @@
 postMessageHandler = (event)->
-  request = JSON.parse(event.data)
+  try
+    request = JSON.parse(event.data)
+  catch
+    # Some things besides the BSVE will trigger the message handler, so if the
+    # message isn't JSON, it is ignored and the parsing exception is swallowed.
+    return
   request.url = request.link
   submission = _.extend({
     accessKey: Router.current().params.query.bsveAccessKey
