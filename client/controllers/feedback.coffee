@@ -1,37 +1,32 @@
 if Meteor.isClient
   Template.feedback.created = ->
     @missingDiseases = new Meteor.Collection(null)
-    @feedbackId = new ReactiveVar(null)
+    @feedbackBaseData = new ReactiveVar(null)
     @addDiseaseEnabled = new ReactiveVar(false)
-
-    feedbackBaseData =
-      userId: Meteor.userId()
-      diagnosisId: @._id
-
-    storedFeedback = grits.feedback.findOne(feedbackBaseData)
     # Dynamically load disease names for the autocomplete
     Meteor.subscribe('diseaseNames')
-    # Clear the missing diseases collection
-    @missingDiseases.find().fetch().forEach((d)->
-      @missingDiseases.remove(d._id)
-    )
-    if storedFeedback
-      @feedbackId.set(storedFeedback._id)
-      # Repopulate feedback form so users can edit it later
-      $('[name="comments"]').val(storedFeedback.comments)
-      $('[name="general_comments"]').val(storedFeedback.generalComments)
-      storedFeedback.correctDiseases?.forEach((d)->
-        $('[name="' + d + '-correct"][value=true]').prop('checked', true)
-      )
-      storedFeedback.incorrectDiseases?.forEach((d)->
-        $('[name="' + d + '-correct"][value=false]').prop('checked', true)
-      )
-      storedFeedback.missingDiseases?.forEach (d)->
-        missingDiseases.insert(name : d)
+    @autorun =>
+      @feedbackBaseData.set
+        userId: Meteor.userId()
+        diagnosisId: Iron.controller().getParams()?._id
 
-    else
-      @feedbackId.set grits.feedback.insert(_.extend({created: new Date()}, feedbackBaseData))
-
+  Template.feedback.rendered = ->
+    @autorun =>
+      storedFeedback = grits.feedback.findOne(@feedbackBaseData.get())
+      if storedFeedback
+        # Repopulate feedback form so users can edit it later
+        $('[name="comments"]').val(storedFeedback?.comments)
+        $('[name="general_comments"]').val(storedFeedback?.generalComments)
+        storedFeedback.correctDiseases?.forEach((d)->
+          $('[name="' + d + '-correct"][value=true]').prop('checked', true)
+        )
+        storedFeedback.incorrectDiseases?.forEach((d)->
+          $('[name="' + d + '-correct"][value=false]').prop('checked', true)
+        )
+        @missingDiseases.find({}, reactive: false).forEach (d)=>
+          @missingDiseases.remove(d._id)
+        storedFeedback.missingDiseases?.forEach (d)=>
+          @missingDiseases.insert(name : d)
 
   Template.feedback.helpers
     missingDiseases: ->
@@ -54,12 +49,13 @@ if Meteor.isClient
   Template.feedback.events
     "submit .feedback": (event, instance) ->
       event.preventDefault()
-      form = $(event.target).serializeArray()
+      event.stopPropagation()
+      form = $('form.feedback').serializeArray()
       parseDisease = (f)->
           diseaseMatch = f.name.match(/(.*)-correct/)
           if diseaseMatch then diseaseMatch[1] else false
       feedbackItem =
-        diagnosisId : @._id
+        diagnosisId : Iron.controller().getParams()?._id
         version: "0.1.1"
         lastModified: new Date()
         comments : _.findWhere(form, name : 'comments').value
@@ -75,13 +71,21 @@ if Meteor.isClient
           .compact()
           .value()
         missingDiseases : instance.missingDiseases.find().map((x)->x.name)
-
-      Meteor.call 'submitFeedback', instance.feedbackId.get(), feedbackItem, (error, response) ->
-        if error
-          throw new Meteor.Error error.reason
-        else
-          event.target.reset()
-          $('#feedback-modal').modal('hide')
+      storedFeedback = grits.feedback.findOne(instance.feedbackBaseData.get())
+      if storedFeedback
+        grits.feedback.update(
+          storedFeedback._id,
+          $set: feedbackItem
+        )
+      else
+        grits.feedback.insert(
+          _.extend({
+            created: new Date()
+            userEmail: Meteor.user().emails[0].address
+          }, instance.feedbackBaseData.get(), feedbackItem)
+        )
+      event.target.reset()
+      $('#feedback-modal').modal('hide')
 
     "click .close-feedback": (event, instance) ->
       $('#feedback-modal').modal('hide')
