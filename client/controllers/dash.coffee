@@ -7,161 +7,155 @@ DISABLE_MULTI_HIGHLIGHT = true
 color = (text) =>
   grits.services.color text
 
-Template.dash.eq = (a, b) ->
-  a == b
-
-Template.dash.showCategory = (category, features) ->
-
-  visibleCats = [
-    'datetime'
-    'location'
-    'caseCount'
-    'deathCount'
-    'hospitalizationCount'
-    'diseases'
-    'hosts'
-    'modes'
-    'pathogens'
-    'symptoms'
-  ]
-  if category in visibleCats
-    _.any(@features or features, (feature) ->
-      feature.type is category
-    )
-
-Template.dash.showKeypoints = ()->
-  Session.get('showKeypoints')
-
-Template.dash.hasCategory = (keywordCategories, categoryPattern) ->
-  categoryRegex = new RegExp(categoryPattern)
-  _.any(keywordCategories, (keywordCategory) ->
-    keywordCategory.match(categoryRegex)
-  )
-
-Template.dash.formatLocation = () ->
-  location = "#{@name}"
-  admin1Code = @geoname['admin1 code'] # e.g., state
-  location += ", #{admin1Code}" if admin1Code and /^[a-z]+$/i.test(admin1Code)
-  countryCode = @geoname['country code']
-  location += ", #{countryCode}" if countryCode
-  location
-
-Template.dash.formatDate = () ->
-  if @value == "PAST_REF"
-    return "Past reference"
-  else if @value == "PRESENT_REF"
-    return "Present reference"
-  else if @value == "FUTURE_REF"
-    return "Future reference"
-  else
-    # We don't want to display dates with more specificity than they possess.
-    # But if we take a date like '2014-11' and create a JS Date with it, it will
-    # be created with a specific day and time, and displayed as 11/1/2014.
-    # Perhaps this could all be handled in a more elegant way by using some
-    # library can that format arbitrary ISO date strings according to the local
-    # date format, but for now, sniff our year-only and month-year-only strings
-    # and turn them into slash-based dates in the month/year format.
-
-    yearPat = /^\d{4}$/
-    monthPat = /^\d{4}\-\d{2}$/
-
-    if @value.match yearPat
-      return @value
-    else if @value.match monthPat
-      return @value.substring(5,7) + '/' + @value.substring(0,4)
-    else
-      date = new Date(@value)
-      date.setDate(date.getDate() + 1)
-      dateString = date.toLocaleDateString()
-      if dateString == 'Invalid Date'
-        return @value
-      else
-        return dateString
-
-Template.dash.color = () ->
-  color grits.services.getIdKeyFromFeature(@)
-
-Template.dash.getIdKey = () ->
-  grits.services.getIdKeyFromFeature @
-
-Template.dash.selected = () ->
-  @name == Session.get('disease')
-
-Template.dash.tableSettings = () ->
-  fields: [
-    {
-      key: 'probability'
-      label: 'Confidence'
-      sort: -1
-      fn: (prob) ->
-        Math.round(prob * 1000) / 1000
-    },
-    { key: 'name', label: 'Disease' },
-    {
-      key: 'keywords'
-      label: 'Characteristics'
-      fn: (features) ->
-        html = ""
-        _.each features, (feature) ->
-          bgColor = color feature.name
-          html += "<span style='background-color:#{bgColor}'></span>"
-        Spacebars.SafeString html
-    }
-  ]
-  showNavigation: 'never'
-  showFilter: false
-  group: 'diagnosis'
-
-Template.dash.keywordCategories = () =>
-  grits.KEYWORD_CATEGORIES
-
-Template.dash.featureSelected = (feature) ->
-  idKey = grits.services.getIdKeyFromFeature(feature)
-  ids = _.map(Session.get('features') or [], grits.services.getIdKeyFromFeature)
-  if _.contains(ids, idKey)
-    "selected"
-  else
-    ""
-
-Template.dash.mailtoPromedLink = () ->
-  "mailto:promed@promedmail.org?subject=[GRITS] " +
-  encodeURIComponent((d.name for d in @.diseases).join('/') + " Report") +
-  "&body=" +
-  encodeURIComponent("""
-  This is a GRITS generated report.
-
-  ***Include your name and affiliation***
-
-  Dashboard url:
-  #{window.location.toString()}
-
-  Possible diagnoses:
-  #{(d.name + ', confidence=' + Math.round(d.probability * 100) + '%' for d in @.diseases).join('\n')}
-
-  Article:
-  #{@.content}
-  """)
-
-Template.dash.viewTypes = [
-  {
-    name: "text"
-    label: "Text"
-  }, {
-    name: "geomap"
-    label: "Map"
-  }, {
-    name: "timeline"
-    label: "Timeline"
-  }, {
-    name: "symptomTable"
-    label: "Detailed Diagnosis"
-  }
-]
-
-Template.dash.useView = ()->
-  Session.get("dashView")
-
 Template.dash.helpers
+  eq: (a, b) ->
+    a == b
+
+  showCategory: (category, features) ->
+    visibleCats = [
+      'datetime'
+      'location'
+      'caseCount'
+      'deathCount'
+      'hospitalizationCount'
+      'diseases'
+      'hosts'
+      'modes'
+      'pathogens'
+      'symptoms'
+    ]
+    if category in visibleCats
+      _.any @features or features, (feature) -> feature.type is category
+
+  showKeypoints: ->
+    Session.get('showKeypoints')
+
+  hasCategory: (keywordCategories, categoryPattern) ->
+    categoryRegex = new RegExp(categoryPattern)
+    _.any keywordCategories, (keywordCategory) -> keywordCategory.match(categoryRegex)
+
+  formatLocation: ->
+    location = "#{@name}"
+    admin1Code = @geoname['admin1 code'] # e.g., state
+    location += ", #{admin1Code}" if admin1Code and /^[a-z]+$/i.test(admin1Code)
+    countryCode = @geoname['country code']
+    location += ", #{countryCode}" if countryCode
+    location
+
+  formatDate: ->
+    if @value == "PAST_REF"
+      return "Past reference"
+    else if @value == "PRESENT_REF"
+      return "Present reference"
+    else if @value == "FUTURE_REF"
+      return "Future reference"
+    else
+      # We don't want to display dates with more specificity than they possess.
+      # But if we take a date like '2014-11' and create a JS Date with it, it will
+      # be created with a specific day and time, and displayed as 11/1/2014.
+      # Perhaps this could all be handled in a more elegant way by using some
+      # library can that format arbitrary ISO date strings according to the local
+      # date format, but for now, sniff our year-only and month-year-only strings
+      # and turn them into slash-based dates in the month/year format.
+
+      yearPat = /^\d{4}$/
+      monthPat = /^\d{4}\-\d{2}$/
+
+      if @value.match yearPat
+        return @value
+      else if @value.match monthPat
+        return @value.substring(5,7) + '/' + @value.substring(0,4)
+      else
+        date = new Date(@value)
+        date.setDate(date.getDate() + 1)
+        dateString = date.toLocaleDateString()
+        if dateString == 'Invalid Date'
+          return @value
+        else
+          return dateString
+  color: ->
+    color grits.services.getIdKeyFromFeature(@)
+
+  getIdKey: ->
+    grits.services.getIdKeyFromFeature @
+
+  selected: ->
+    @name == Session.get('disease')
+
+  tableSettings: ->
+    fields: [
+      {
+        key: 'probability'
+        label: 'Confidence'
+        sort: -1
+        fn: (prob) ->
+          Math.round(prob * 1000) / 1000
+      },
+      { key: 'name', label: 'Disease' },
+      {
+        key: 'keywords'
+        label: 'Characteristics'
+        fn: (features) ->
+          html = ""
+          _.each features, (feature) ->
+            bgColor = color feature.name
+            html += "<span style='background-color:#{bgColor}'></span>"
+          Spacebars.SafeString html
+      }
+    ]
+    showNavigation: 'never'
+    showFilter: false
+    group: 'diagnosis'
+
+  keywordCategories: =>
+    grits.KEYWORD_CATEGORIES
+
+  featureSelected: (feature) ->
+    idKey = grits.services.getIdKeyFromFeature(feature)
+    ids = _.map(Session.get('features') or [], grits.services.getIdKeyFromFeature)
+    if _.contains(ids, idKey)
+      "selected"
+    else
+      ""
+  mailtoPromedLink: ->
+    "mailto:promed@promedmail.org?subject=[GRITS] " +
+    encodeURIComponent((d.name for d in @.diseases).join('/') + " Report") +
+    "&body=" +
+    encodeURIComponent("""
+    This is a GRITS generated report.
+
+    ***Include your name and affiliation***
+
+    Dashboard url:
+    #{window.location.toString()}
+
+    Possible diagnoses:
+    #{(d.name + ', confidence=' + Math.round(d.probability * 100) + '%' for d in @.diseases).join('\n')}
+
+    Article:
+    #{@.content}
+    """)
+
+  viewTypes: ->
+    [
+      {
+        name: "text"
+        label: "Text"
+      }, {
+        name: "geomap"
+        label: "Map"
+      }, {
+        name: "timeline"
+        label: "Timeline"
+      }, {
+        name: "symptomTable"
+        label: "Detailed Diagnosis"
+      }
+    ]
+
+  useView: ->
+    Session.get("dashView")
+
   selectedView: ->
     if Session.get("dashView") is @name
       'selected'
@@ -175,10 +169,6 @@ Template.dash.helpers
       'fa-bar-chart'
     else if @name is 'symptomTable'
       'fa-table'
-
-  modal: ->
-    Session.get('feedbackShowing')
-
 
 Template.dash.events
   "click .diagnosis .reactive-table tbody tr" : (event) ->
@@ -220,39 +210,6 @@ Template.dash.events
 
   "click #choose-view li": (event) ->
     Session.set('dashView', $(event.currentTarget).data('view'))
-
-  "click .open-feedback": (event) ->
-    feedbackBaseData = {
-      userId: Meteor.userId()
-      diagnosisId: @._id
-    }
-    storedFeedback = grits.feedback.findOne(feedbackBaseData)
-    # Dynamically load disease names for the autocomplete
-    Meteor.subscribe('diseaseNames')
-    # Clear the missing diseases collection
-    missingDiseases.find().fetch().forEach((d)->
-      missingDiseases.remove(d._id)
-    )
-    if storedFeedback
-      Session.set('feedbackId', storedFeedback._id)
-      # Repopulate feedback form so users can edit it later
-      $('[name="comments"]').val(storedFeedback.comments)
-      $('[name="general_comments"]').val(storedFeedback.generalComments)
-      storedFeedback.correctDiseases?.forEach((d)->
-        $('[name="' + d + '-correct"][value=true]').prop('checked', true)
-      )
-      storedFeedback.incorrectDiseases?.forEach((d)->
-        $('[name="' + d + '-correct"][value=false]').prop('checked', true)
-      )
-      storedFeedback.missingDiseases?.forEach((d)->
-        missingDiseases.insert(name : d)
-      )
-    else
-      Session.set('feedbackId', grits.feedback.insert(
-        _.extend({created: new Date()}, feedbackBaseData))
-      )
-    $('form.feedback').show()
-    Session.set('feedbackShowing', true)
 
   "click .rediagnose": (event) ->
     bsveAccessKey = Router.current().params.query.bsveAccessKey

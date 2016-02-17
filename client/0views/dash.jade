@@ -25,11 +25,9 @@ template(name="dash")
           else
             a.btn.btn-default.rediagnose Rediagnose
         .btn-group.btn-group-justified.btn-group-sm
-          a.btn.btn-default.open-feedback Feedback
+          a.btn.btn-default.open-feedback(data-toggle="modal" data-target="#feedback-modal") Feedback
       .btn-group.btn-group-justified.btn-group-sm
         a.btn.btn-default(href='#{mailtoPromedLink}') Report to ProMED-mail
-      if signedIn
-        +feedback
       if showKeypoints
         .keypoints
           h4 Key Points
@@ -154,6 +152,5 @@ template(name="dash")
         else
           .text-container
             +text
-  if modal
-    .curtain
-  +feedback
+  if signedIn
+    +feedback
