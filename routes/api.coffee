@@ -27,6 +27,8 @@ Router.map () ->
     where: 'server'
     action: () ->
       {email, password} = @request.body
+      check email, String
+      check password, String
       try
         valid = ApiPassword.validate({email: email, password: password})
         if not valid
