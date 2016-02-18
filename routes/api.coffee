@@ -20,6 +20,48 @@ Router.map () ->
         @response.end()
   })
 
+  # Get classifier training data from the feedback collection
+  # in JSON format.
+  @route('trainingData', {
+    path: '/trainingData'
+    where: 'server'
+    action: () ->
+      {email, password} = @request.body
+      check email, String
+      check password, String
+      try
+        valid = ApiPassword.validate({email: email, password: password})
+        if not valid
+          console.log "Wrong password"
+          @response.writeHead(400)
+          @response.end()
+          return
+      catch
+        console.log "Account not found"
+        @response.writeHead(400)
+        @response.end()
+        return
+
+      @response.setHeader('Content-Type', 'application/json')
+      data = grits.feedback.find(userEmail: email)
+        .map (feedbackForm)->
+          diagnosis = grits.Results.findOne(feedbackForm.diagnosisId)
+          if not diagnosis then return null
+          correctDiseases = _.difference(
+            _.pluck(diagnosis.diseases, "name"),
+            feedbackForm?.incorrectDiseases or []
+          )
+          diseases = _.union(correctDiseases, feedbackForm?.missingDiseases or [])
+          return {
+            content: diagnosis?.processedContent or diagnosis.content
+            labels: diseases
+          }
+        # remove nulls
+        .filter((x)->x)
+      @response.write(JSON.stringify(data))
+      @response.end()
+  })
+
 Router.map () ->
   @route('submit', {
     path: '/submit'

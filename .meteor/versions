@@ -51,6 +51,7 @@ localstorage@1.0.1
 logging@1.0.5
 meteor-platform@1.2.0
 meteor@1.1.3
+miktam:api-password@1.0.0
 minifiers@1.1.2
 minimongo@1.0.5
 mizzao:autocomplete@0.4.10
