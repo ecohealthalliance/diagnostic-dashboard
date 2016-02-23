@@ -53,6 +53,8 @@ Router.map () ->
           )
           diseases = _.union(correctDiseases, feedbackForm?.missingDiseases or [])
           return {
+            id: feedbackForm._id
+            created: feedbackForm.created
             content: diagnosis?.processedContent or diagnosis.content
             labels: diseases
           }
