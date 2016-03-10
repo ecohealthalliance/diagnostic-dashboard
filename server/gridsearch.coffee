@@ -1,17 +1,17 @@
-GRID_URL = process.env.GRID_URL
+EIDR_URL = process.env.EIDR_URL
 
 Meteor.methods(
   'gridsearch' : (query, options) ->
     options ?= {}
     if @userId
       response = HTTP.post(
-        "#{GRID_URL}/search",
+        "#{EIDR_URL}/search",
           data:
             query: query,
             options: options
       )
       JSON.parse(response.content)
 
-  'gridUrl': () ->
-    GRID_URL
+  'eidrUrl': ->
+    EIDR_URL or "https://eidr.ecohealthalliance.org"
 )
