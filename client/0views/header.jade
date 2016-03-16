@@ -13,6 +13,10 @@ template(name="header")
               span New Diagnosis
       nav
         ul.nav.navbar-nav.nav-main
+          li
+            a(href=eidrUrl)
+              i.fa.fa-book
+              span EIDR
           unless bsveApp
             if currentUser
               li.profile
@@ -36,7 +40,6 @@ template(name="header")
                   i.fa.fa-arrow-left
                   span Back
             +helpLink
-
 template(name="helpLink")
   li
     a(href=helpLinkHref)
