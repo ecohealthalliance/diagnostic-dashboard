@@ -4,7 +4,7 @@ DiseaseNames = () =>
 Keywords = () =>
   @grits.Girder.Keywords
 
-RESULTS_PER_PAGE = 10
+RESULTS_PER_PAGE = 20
 
 
 createDoQueryFunction = (template, doQuery) ->
@@ -159,20 +159,6 @@ Template.search.destroyed = () ->
 Template.search.selections = () ->
   Template.instance().selections
 
-Template.searchInput.autocompleteSettings = () ->
-  position: "top"
-  limit: 5
-  rules: [
-    {
-      collection: @autocompleteCollection
-      field: "_id"
-      template: Template.searchPill
-    }
-  ]
-
-Template.searchInput.itemsSelected = () ->
-  @selected.find()
-
 Template.search.eq = (a, b) ->
   a == b
 
@@ -219,9 +205,23 @@ Template.search.formatDateRange = () ->
   @dateRangeFormatter
 
 
+Template.searchInput.autocompleteSettings = () ->
+  position: "top"
+  limit: 5
+  rules: [
+    {
+      collection: @autocompleteCollection
+      field: "_id"
+      template: Template.searchPill
+    }
+  ]
+
+Template.searchInput.itemsSelected = () ->
+  @selected.find()
+
 Template.searchInput.events
   "click .add-selection" : (event, template) ->
-    input = $(event.target).siblings('.add-selection-input')
+    input = template.$('.add-selection-input')
     kwName = $(input).val()
     
     if (not template.data.restrictToAutocomplete) or template.data.autocompleteCollection.findOne({_id : kwName})
