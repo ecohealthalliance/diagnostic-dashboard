@@ -22,10 +22,6 @@ module.exports =
       # fill out form
       .setValue "input[type=email]", username
       .setValue "input[type=password]", password
-      # this assumes no sign up code has been set,
-      # so it can be anything. we should figure out
-      # how to read the sign up code from mongo
-      .setValue "input[name=signupCode]", "abcde"
       .click ".submit"
       # should be on the profile page
       .waitForElementVisible '.user-info', 5000
