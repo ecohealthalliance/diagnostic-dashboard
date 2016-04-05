@@ -2,41 +2,11 @@ DiagnosisResults = () =>
   @grits.Results
 
 doQuery = (query, options, callback) ->
-  Meteor.call('gridsearch', query, options, (e,r) ->
+  Meteor.call('eidrSearch', query, options, (e,r) ->
     callback e, r?.results, r?.total, r?.aggregations
   )
 
 createQuery = (DiseasesSelected, AnyKeywordsSelected, AllKeywordsSelected) ->
-  categoryMap = {
-    "eha/vector": "hostVal"
-    "wordnet/hosts": "hostVal"
-    "wordnet_hosts": "hostVal"
-    "pm/vector": "hostVal"
-    "biocaster/pathogens": "initiallyReportedPathogenNameVal"
-    "hm/disease": "diseaseVal"
-    "doid/diseases": "diseaseVal"
-    "eha/disease": "diseaseVal"
-    "wordnet/pathogens": "initiallyReportedPathogenNameVal"
-    "wordnet_pathogens": "initiallyReportedPathogenNameVal"
-    "pm_mode of transmission": "eventTransmissionVal"
-    "pm/mode of transmission": "eventTransmissionVal"
-    "eha/mode of transmission": "eventTransmissionVal"
-
-    # probably not useful
-    #"eha/description of infected": "occupationVal"
-    #"wordnet/season": "startDateDescription"
-    #"doid/located_in": "locationName"
-
-    # lots of similar symptoms gives this too much weight
-    #"eha/symptom": "reportedSymptomsVal"
-    #"biocaster/symptoms": "reportedSymptomsVal"
-    #"doid/has_symptom": "reportedSymptomsVal"
-    #"pm_symptom": "reportedSymptomsVal"
-    #"biocaster_symptoms": "reportedSymptomsVal"
-    #"doid_has_symptom": "reportedSymptomsVal"
-    #"pm/symptom": "reportedSymptomsVal"
-  }
-
   disease_terms = DiseasesSelected.find().map (k)->
     fuzzy_like_this:
       fields: ['diseaseVal']
@@ -44,16 +14,9 @@ createQuery = (DiseasesSelected, AnyKeywordsSelected, AllKeywordsSelected) ->
 
   should_terms = AnyKeywordsSelected.find().map (k)->
     name = k.value.toLowerCase()
-    categories = @grits.Girder.Keywords.findOne({_id: name})?.value?.categories or []
-    gridFields = _.uniq categories.map (category) ->
-      categoryMap[category]
-    gridFields = _.without gridFields, undefined
-    if _.isEmpty(gridFields)
-      null
-    else
-      fuzzy_like_this:
-        fields: gridFields
-        like_text: name
+    fuzzy_like_this:
+      fields: ['_all']
+      like_text: name
 
   should_terms = should_terms.concat(disease_terms)
   should_terms = _.without should_terms, null
@@ -64,16 +27,9 @@ createQuery = (DiseasesSelected, AnyKeywordsSelected, AllKeywordsSelected) ->
   ]
   must_terms = must_terms.concat AllKeywordsSelected.find().map (k)->
     name = k.value.toLowerCase()
-    categories = @grits.Girder.Keywords.findOne({_id: name})?.value?.categories
-    gridFields = _.uniq categories.map (category) ->
-      categoryMap[category]
-    gridFields = _.without gridFields, undefined
-    if _.isEmpty(gridFields)
-      null
-    else
-      fuzzy_like_this:
-        fields: gridFields
-        like_text: name
+    fuzzy_like_this:
+      fields: ['_all']
+      like_text: name
   must_terms = _.without must_terms, null
 
   query = {}
@@ -116,9 +72,9 @@ sortMethods = [
   }
 ]
 
-Router.route("searchGrid",
+Router.route("searchEidr",
   where: "client"
-  path: "/searchGrid"
+  path: "/searchEidr"
   template: "search"
   onBeforeAction: () ->
     AccountsEntry.signInRequired(@)
@@ -140,7 +96,7 @@ Router.route("searchGrid",
       dateAggregationRanges: dateAggregationRanges
       viewTypes: viewTypes
       sortMethods: sortMethods
-      resultListTemplate: "gridResultList"
+      resultListTemplate: "eidrResultList"
       dateRangeFormatter: formatYearRange
     }
   onStop: () ->

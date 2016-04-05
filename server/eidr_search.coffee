@@ -1,7 +1,7 @@
-EIDR_URL = process.env.EIDR_URL
+EIDR_URL = process.env.EIDR_URL or "https://eidr.ecohealthalliance.org"
 
 Meteor.methods(
-  'gridsearch' : (query, options) ->
+  'eidrSearch' : (query, options) ->
     options ?= {}
     if @userId
       response = HTTP.post(
@@ -13,5 +13,5 @@ Meteor.methods(
       JSON.parse(response.content)
 
   'eidrUrl': ->
-    EIDR_URL or "https://eidr.ecohealthalliance.org"
+    EIDR_URL
 )

@@ -107,11 +107,8 @@ template(name="search")
                 else
                   option(value=name) {{label}}
         span.view-select
-          | | View:
-          if eq viewTypes.length 1
-            each viewTypes
-              span {{label}}
-          else
+          unless eq viewTypes.length 1
+            | | View:
             select#choose-view
               each viewTypes
                 if eq useView name

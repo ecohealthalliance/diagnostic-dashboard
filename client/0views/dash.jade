@@ -9,10 +9,6 @@ template(name="dash")
         a.btn.btn-default.rediagnose Retry
   .dashboard-container
     .left-panel.diagnosis
-      // if signedIn
-      //   .find-btns
-      //     a.btn.btn-default(href='/searchGirder?diagnosisId=#{_id}') Find Similar Articles
-      //     a.btn.btn-default(href='/searchGrid?diagnosisId=#{_id}') Find Similar Disease Emergence Events
       h4.diagnosis-heading Diagnosis
       +reactiveTable collection=diseases settings=tableSettings
       if signedIn
@@ -26,6 +22,9 @@ template(name="dash")
             a.btn.btn-default.rediagnose Rediagnose
         .btn-group.btn-group-justified.btn-group-sm
           a.btn.btn-default.open-feedback(data-toggle="modal" data-target="#feedback-modal") Feedback
+      .find-btns
+        a.btn.btn-default(href='/searchEidr?diagnosisId=#{_id}') Find Similar Disease Emergence Events
+      //  a.btn.btn-default(href='/searchGirder?diagnosisId=#{_id}') Find Similar Articles
       .btn-group.btn-group-justified.btn-group-sm
         a.btn.btn-default(href='#{mailtoPromedLink}') Report to ProMED-mail
       if showKeypoints
