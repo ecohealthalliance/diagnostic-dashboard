@@ -15,7 +15,7 @@ Meteor.startup(function() {
     //as well as an (optional) oplog mongo url
     if (Meteor.isServer) {
         _.extend(_opts, {
-            mongoUrl: "mongodb://localhost:27017/girder"
+            mongoUrl: "mongodb://172.30.2.123:27017/girder"
         });
     }
 
