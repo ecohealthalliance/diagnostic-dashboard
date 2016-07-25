@@ -1,11 +1,11 @@
 Template.map.rendered = () ->
   L.Icon.Default.imagePath = 'packages/bevanhunt_leaflet/images'
   lMap = L.map(@$('#map')[0]).setView([49.25044, -123.137], 10)
-  layer = L.tileLayer('http://otile{s}.mqcdn.com/tiles/1.0.0/{type}/{z}/{x}/{y}.{ext}', {
-    type: 'osm',
-    ext: 'jpg',
+  layer = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
     attribution: """
-    Tiles Courtesy of <a href="http://www.mapquest.com/">MapQuest</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>
+    Map tiles by <a href="http://cartodb.com/attributions#basemaps">CartoDB</a>,
+    nder <a href="https://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
+    Data by <a href="http://www.openstreetmap.org/">OpenStreetMap</a>, under ODbL.
     <br>
     CRS:
     <a href="http://wiki.openstreetmap.org/wiki/EPSG:3857" >
