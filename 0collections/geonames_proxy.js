@@ -1,6 +1,11 @@
 this.grits = this.grits || {};
 
 Meteor.startup(function() {
+    if (process.env.MONGO_URL) {
+        var mongo_url = process.env.MONGO_URL + '/geonames';
+    } else {
+        var mongo_url = 'mongodb://localhost:27017/geonames';
+    }
 
     var _opts = {
         collections: [
@@ -13,7 +18,7 @@ Meteor.startup(function() {
     //as well as an (optional) oplog mongo url
     if (Meteor.isServer) {
         _.extend(_opts, {
-            mongoUrl: "mongodb://172.30.2.123:27017/geonames"
+            mongoUrl: mongo_url
         });
     }
 
