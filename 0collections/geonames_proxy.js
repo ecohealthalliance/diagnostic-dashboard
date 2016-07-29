@@ -2,7 +2,7 @@ this.grits = this.grits || {};
 
 Meteor.startup(function() {
     if (process.env.MONGO_URL) {
-        var mongo_url = process.env.MONGO_URL + '/geonames';
+        var mongo_url = process.env.MONGO_URL;
     } else {
         var mongo_url = 'mongodb://localhost:27017/geonames';
     }
