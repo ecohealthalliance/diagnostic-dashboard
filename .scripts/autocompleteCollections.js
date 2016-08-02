@@ -11,8 +11,6 @@ if (typeof process != 'undefined' && process.env.MONGO_URL) {
 }
 
 var mongodb = new Mongo(mongo_url);
-console.log(mongo_url)
-
 var db = mongodb.getDB('girder');
 var collection = db.item;
 collection.mapReduce(
