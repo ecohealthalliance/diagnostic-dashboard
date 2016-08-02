@@ -3,14 +3,15 @@
 // that have been applied to articles in the girder database.
 // The disease classifications are used by the autocomplete on the search page.
 
-if (process.env.MONGO_URL) {
+if (typeof process != 'undefined' && process.env.MONGO_URL) {
   url_array = process.env.MONGO_URL.split("/")
   mongo_url = url_array[0] + "//" + url_array[2]
-  var mongodb = new Mongo(url_array);
-  console.log(mongo_url)
 } else {
-  var mongodb = new Mongo('localhost:27017');
+  mongo_url = "localhost:27017"
 }
+
+var mongodb = new Mongo(mongo_url);
+console.log(mongo_url)
 
 var db = mongodb.getDB('girder');
 var collection = db.item;
