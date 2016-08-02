@@ -7,6 +7,7 @@ if (process.env.MONGO_URL) {
   url_array = process.env.MONGO_URL.split("/")
   mongo_url = url_array[0] + "//" + url_array[2]
   var mongodb = new Mongo(url_array);
+  console.log(mongo_url)
 } else {
   var mongodb = new Mongo('localhost:27017');
 }
