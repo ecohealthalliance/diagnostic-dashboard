@@ -3,7 +3,8 @@ this.grits = this.grits || {};
 Meteor.startup(function() {
 
     if (typeof process != 'undefined' && process.env.MONGO_URL) {
-        var mongo_url = process.env.MONGO_URL;
+        var urlArray = process.env.MONGO_URL.split("/");
+        var mongo_url = urlArray[0] + "//" + urlArray[2] + "/girder";
     } else {
         var mongo_url = 'mongodb://localhost:27017/girder';
     }
