@@ -60,6 +60,7 @@ mongo@1.0.9
 mquandalle:jade@0.4.1
 mrt:dbproxy@0.0.4
 mrt:underscore-string-latest@2.3.3
+new3rs:html2canvas@0.0.5
 npm-bcrypt@0.7.7
 observe-sequence@1.0.3
 ordered-dict@1.0.1
