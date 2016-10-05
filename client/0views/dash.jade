@@ -157,5 +157,8 @@ template(name="dash")
         else
           .text-container
             +text
+            if featuresSelected
+              .text-options
+                a.clear-annotations Clear Annotations
   if signedIn
     +feedback

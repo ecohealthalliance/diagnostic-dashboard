@@ -4,6 +4,9 @@ Template.dash.created = ->
   @sideBarOpen = new ReactiveVar true
   @dashView = new ReactiveVar 'text'
 
+Template.dash.rendered = ->
+  Session.set('features', @data.features)
+
 DISABLE_MULTI_HIGHLIGHT = true
 color = (text) =>
   grits.services.color text
@@ -177,6 +180,9 @@ Template.dash.helpers
   sideBarState: ->
     Template.instance().sideBarOpen
 
+  featuresSelected: ->
+    Session.get('features').length
+
 Template.dash.events
   "click .diagnosis .reactive-table tbody tr" : (event) ->
     $target = $(event.currentTarget)
@@ -282,5 +288,8 @@ Template.dash.events
     event.stopPropagation()
     sideBarState = instance.sideBarOpen
     sideBarState.set not sideBarState.get()
+
+  'click .clear-annotations': ->
+    Session.set 'features', []
 
 Meteor.Spinner.options = { color: '#fff' }
