@@ -2,9 +2,7 @@ grits = @grits
 
 Template.dash.created = ->
   @sideBarOpen = new ReactiveVar true
-
-Template.dash.rendered = ->
-  Session.set("dashView", 'text')
+  @dashView = new ReactiveVar 'text'
 
 DISABLE_MULTI_HIGHLIGHT = true
 color = (text) =>
@@ -157,10 +155,10 @@ Template.dash.helpers
     ]
 
   useView: ->
-    Session.get("dashView")
+    Template.instance().dashView.get()
 
   selectedView: ->
-    if Session.get("dashView") is @name
+    if Template.instance().dashView.get() is @name
       'selected'
 
   viewIcon: ->
@@ -217,8 +215,8 @@ Template.dash.events
     this.color = 'goldenrod'
     Session.set('features', [this])
 
-  "click #choose-view li": (event) ->
-    Session.set('dashView', $(event.currentTarget).data('view'))
+  "click #choose-view li": (event, instance) ->
+    instance.dashView.set $(event.currentTarget).data('view')
 
   "click .rediagnose": (event) ->
     bsveAccessKey = Router.current().params.query.bsveAccessKey
@@ -236,7 +234,7 @@ Template.dash.events
         }
     )
 
-  "click .feature-setion--header": (event, template) ->
+  "click .feature-section--header": (event, template) ->
     # Clicking a header can do one of two things:
     # - if any of the features for that category are currently not highlighted,
     # turn highlighting on for all features in that category
@@ -248,8 +246,8 @@ Template.dash.events
       Session.set('disease', null)
       Session.set('features', [])
 
-    category = $(event.currentTarget).attr('class')
-    console.log category
+    category = $(event.currentTarget).data('category')
+
     if category in ['caseCount', 'hospitalizationCount', 'deathCount',
                     'datetime', 'diseases', 'hosts', 'modes', 'pathogens',
                     'symptoms']

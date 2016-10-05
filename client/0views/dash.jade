@@ -114,7 +114,7 @@ template(name="dash")
         each keywordCategories
           if showCategory pattern ../features
             .feature-section.clearfix
-              .feature-setion--header(class=pattern)
+              .feature-section--header(data-category=pattern)
                 h4 #{label}
               each ../features
                 if eq type ../pattern
@@ -124,7 +124,7 @@ template(name="dash")
                     class="{{featureSelected this}}") #{value}
         if showCategory 'datetime'
           .feature-section.dates
-            .feature-setion--header.datetime
+            .feature-section--header(data-category='datetime')
               h4 Dates
             each features
               if eq type "datetime"
@@ -134,7 +134,7 @@ template(name="dash")
                   class="{{featureSelected this}}") #{formatDate}
         if showCategory 'location'
           .feature-section.locations.clearfix
-            .feature-setion--header.location
+            .feature-section--header(data-category='location')
               h4 Locations
             each features
               if eq type "location"
