@@ -1,6 +1,6 @@
 Template.map.rendered = () ->
   L.Icon.Default.imagePath = 'packages/bevanhunt_leaflet/images'
-  lMap = L.map(@$('#map')[0]).setView([49.25044, -123.137], 10)
+  map = L.map(@$('#map')[0]).setView([49.25044, -123.137], 10)
   layer = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
     attribution: """
     Map tiles by <a href="http://cartodb.com/attributions#basemaps">CartoDB</a>,
@@ -17,15 +17,15 @@ Template.map.rendered = () ->
     #noWrap: true,
     minZoom: 1,
     maxZoom: 18
-  }).addTo(lMap)
-  L.control.scale().addTo(lMap)
+  }).addTo(map)
+  L.control.scale().addTo(map)
   markers = new L.FeatureGroup()
 
   updateMarkers = ()=>
     locations = Session.get('locations')
     features = Session.get('features') || []
 
-    lMap.removeLayer(markers)
+    map.removeLayer(markers)
     markers = new L.FeatureGroup()
 
     # Highlight selected features on the visulization
@@ -53,8 +53,14 @@ Template.map.rendered = () ->
         })
       )
     )
-    markers.addTo(lMap)
+    markers.addTo(map)
 
   updateMarkers()
-  lMap.fitBounds(markers.getBounds())
+  map.fitBounds(markers.getBounds())
   @autorun updateMarkers
+
+  @autorun =>
+    @data.sideBarState.get()
+    setTimeout ->
+      map?.invalidateSize()
+    , 300

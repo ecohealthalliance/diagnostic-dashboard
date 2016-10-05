@@ -5,7 +5,7 @@
 
 standard-app-packages
 coffeescript
-stylus
+mquandalle:stylus
 http
 email
 tangelo

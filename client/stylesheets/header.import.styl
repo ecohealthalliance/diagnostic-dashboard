@@ -3,6 +3,8 @@
   min-height $header-height
   position relative
   border-bottom 2px solid #CCC
+  z-index 1000
+  min-height 50px
 
 .branding-action
   float left
@@ -69,6 +71,14 @@
 .hide-md
   display inline-block
 
+.navbar-toggle
+  font-size 1.5em
+  position absolute
+  top 10px
+  right 5px
+  margin-bottom 0
+  margin-top 0
+
 @media (max-width: 768px)
   .bsve
     .hide-md
@@ -86,6 +96,7 @@
       & > li
         float left
     .collapse
+      z-index 10000
       visibility visible
       &.in
         display block !important

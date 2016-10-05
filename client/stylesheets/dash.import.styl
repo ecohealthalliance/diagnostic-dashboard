@@ -32,6 +32,67 @@
     width 50px
     height 100px
 
+.feature-setion--header
+.panel-header
+  position relative
+  padding 10px 8px
+  background-color $primary-muted
+  border-bottom 1px solid $primary-border
+  font-weight 700
+  h4
+    font-weight bold
+    margin 0
+    transition 'font-size' .1s ease-in-out
+
+.panel-header
+  position absolute
+  display flex
+  align-items center
+  min-height 50px
+  display flex
+  align-items center
+  width 350px
+  min-height 50px
+  border-right 2px solid #CCC
+  transition $transition-time ease-in-out
+  z-index 10
+  &.closed
+    width 200px
+    h4
+      font-size 14px
+  &.side-bar-toggle
+    cursor pointer
+    &:hover
+      background darken($primary-muted, 5%)
+
+.feature-setion--header
+  clear both
+  margin-bottom 1em
+  cursor pointer
+  background-color #f9f9f9
+  border-bottom-color darken(@background-color, 15%)
+  margin-left -20px
+  margin-right -20px
+  &:hover
+    background-color $primary-muted
+    color black
+
+.toggle-icon
+  position absolute
+  right 0
+  top 0
+  bottom 0
+  width 50px
+  display flex
+  align-items center
+  justify-content center
+  font-size 1.5em
+  color #444
+  cursor pointer
+  &:hover
+    color black
+    font-size 1.65em
+
 .left-panel
   position absolute
   margin 0
@@ -41,8 +102,13 @@
   -ms-overflow-style -ms-autohiding-scrollbar
   padding 0 20px
   width $left-pane-width
-  top 0
+  top 50px
   bottom 0
+  transition $transition-time ease-in-out
+  opacity 1
+  &.closed
+    transform translate(-1 * $left-pane-width, 0)
+    opacity 0
 
   .reactive-table
     width $left-pane-width - 2
@@ -69,23 +135,6 @@
   .btn-group
     margin-bottom 10px
 
-  h4
-    padding 10px 8px
-    clear both
-    background-color $primary-muted
-    margin-left -20px
-    margin-right -20px
-    cursor pointer
-    border-bottom 2px solid #CCC
-    font-weight 700
-    &:hover
-      background-color #CCC
-      color black
-    &.diagnosis-heading
-      cursor default
-      margin-top 0
-      &:hover
-        background-color $primary-muted
 
 .feature-section
 .keypoints
@@ -140,9 +189,7 @@
       margin 0
 
 #choose-view
-  float none
   li
-    padding 10px 20px
     text-transform capitalize
     color #555
     cursor pointer
@@ -152,12 +199,28 @@
       background-color darken($primary-muted, 10%)
       color #333
     .fa
-      padding-right 5px
+      padding-right 10px
+    +below(850px)
+      flex-direction column
+      text-align center
+      .fa
+        font-size 1em
+        padding 0
+        margin-bottom .2em
+      span
+        font-size .75em
+        line-height 1em
+    +below(650px)
+      span
+        display none
+      .fa
+        font-size 1.25em
+        margin 0
 
 .text-container
 .symptom-container
 .timeline-container
-  padding-top 40px
+  padding-top 50px
 
 .text-container
   padding-bottom 100px

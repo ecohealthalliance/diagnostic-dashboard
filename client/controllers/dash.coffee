@@ -1,5 +1,8 @@
 grits = @grits
 
+Template.dash.created = ->
+  @sideBarOpen = new ReactiveVar true
+
 Template.dash.rendered = ->
   Session.set("dashView", 'text')
 
@@ -170,6 +173,12 @@ Template.dash.helpers
     else if @name is 'symptomTable'
       'fa-table'
 
+  sideBarOpen: ->
+    Template.instance().sideBarOpen.get()
+
+  sideBarState: ->
+    Template.instance().sideBarOpen
+
 Template.dash.events
   "click .diagnosis .reactive-table tbody tr" : (event) ->
     $target = $(event.currentTarget)
@@ -227,7 +236,7 @@ Template.dash.events
         }
     )
 
-  "click .features h4": (event, template) ->
+  "click .feature-setion--header": (event, template) ->
     # Clicking a header can do one of two things:
     # - if any of the features for that category are currently not highlighted,
     # turn highlighting on for all features in that category
@@ -239,7 +248,8 @@ Template.dash.events
       Session.set('disease', null)
       Session.set('features', [])
 
-    category = $(event.target).attr('class')
+    category = $(event.currentTarget).attr('class')
+    console.log category
     if category in ['caseCount', 'hospitalizationCount', 'deathCount',
                     'datetime', 'diseases', 'hosts', 'modes', 'pathogens',
                     'symptoms']
@@ -269,5 +279,10 @@ Template.dash.events
         if not currentFeatureIdMap.hasOwnProperty(grits.services.getIdKeyFromFeature(feature))
           currentFeatures.push(feature)
       Session.set('features', currentFeatures)
+
+  'click .side-bar-toggle': (event, instance) ->
+    event.stopPropagation()
+    sideBarState = instance.sideBarOpen
+    sideBarState.set not sideBarState.get()
 
 Meteor.Spinner.options = { color: '#fff' }

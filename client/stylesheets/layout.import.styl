@@ -10,14 +10,24 @@ body
   top 0
   bottom 0
   overflow auto
+  transition $transition-time ease-in-out
+  margin-left 0
+  &.full-width
+    left 0
 
 .vis-pane-bar
   background-color $primary-muted
   color black
   width 100%
-  border-bottom 1px solid darken($primary-muted, 20%)
+  border-bottom 1px solid $primary-border
   position relative
   z-index 99
+  left 350px
+  transition $transition-time ease-in-out
+  &.full-width
+    left 200px
+    .tabs
+      width calc(100% - 200px)
 
 .vis-pane
   overflow auto
@@ -36,3 +46,24 @@ body
   .vis-pane-bar
   .vis-pane
     padding 15px
+
+.tabs
+  display flex
+  min-height 50px - 1
+  align-items stretch
+  margin 0
+  padding 0
+  width calc(100% - 350px)
+  transition width $transition-time ease-in-out
+  transition-delay $transition-time - .2
+  li
+    border-right 1px solid lighten($primary-border, 20%)
+    flex 1
+    display flex
+    align-items center
+    justify-content center
+    padding 0 .5em
+  .side-bar-toggle
+    font-weight bold
+    font-size 20px
+    flex 0
