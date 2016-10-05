@@ -66,3 +66,87 @@
         text-decoration none
         color #333
 
+.hide-md
+  display inline-block
+
+@media (max-width: 768px)
+  .bsve
+    .hide-md
+      display none
+    .navbar-toggle
+      display none
+    .navbar-header
+      float left
+    .navbar-collapse
+      padding-right 0
+      &.collapse
+        display block !important
+    .navbar-nav
+      float right !important
+      & > li
+        float left
+    .collapse
+      visibility visible
+      &.in
+        display block !important
+    .navbar-left
+      float left
+    .navbar-right
+      float right
+
+  body:not(.bsve)
+    .nav
+      &.navbar-nav
+        float none
+        margin-left -15px
+        margin-right -15px
+        border-top 1px solid #CCC
+        > li > a
+          display block
+          text-align left
+          border-bottom 1px solid lighten(#CCC, 20%)
+
+@media (max-width: 600px)
+  .bsve
+    .hide-md
+      display inline-block
+    .navbar-header
+      float none
+    .navbar-toggle
+      display block
+    .navbar-collapse
+      border-top 1px solid #CCC
+      box-shadow inset 0 1px 0 rgba(255,255,255,0.1)
+      &.collapse
+        display none !important
+    .navbar-fixed-top
+      top 0
+      border-width 0 0 1px
+    .navbar-nav
+      float none !important
+      margin-top 7.5px
+      > li
+        float none
+        > a
+          border-left 0
+          border-bottom 1px solid lighten(#ccc, 20%)
+          padding-top 10px
+          padding-bottom 10px
+    .collapse
+      &.in
+        display block !important
+
+    .navbar-left
+    .navbar-right
+      float none !important
+
+  .nav
+    &.navbar-nav
+      float none
+      margin-left -15px
+      margin-right -15px
+      margin-top 0
+      > li > a
+        display block
+        text-align left
+        border-bottom 1px solid lighten(#CCC, 20%)
