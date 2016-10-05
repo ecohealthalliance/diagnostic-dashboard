@@ -74,12 +74,11 @@
 .navbar-toggle
   font-size 1.5em
   position absolute
-  top 10px
   right 5px
   margin-bottom 0
   margin-top 0
 
-@media (max-width: 768px)
++below(768px)
   .bsve
     .hide-md
       display none
@@ -106,6 +105,8 @@
       float right
 
   body:not(.bsve)
+    .navbar-header
+      min-height 50px
     .nav
       &.navbar-nav
         float none
@@ -117,12 +118,13 @@
           text-align left
           border-bottom 1px solid lighten(#CCC, 20%)
 
-@media (max-width: 600px)
++below(600px)
   .bsve
     .hide-md
       display inline-block
     .navbar-header
       float none
+      min-height 50px
     .navbar-toggle
       display block
     .navbar-collapse
