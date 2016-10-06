@@ -1,7 +1,11 @@
 grits = @grits
 
+Template.dash.created = ->
+  @sideBarOpen = new ReactiveVar true
+  @dashView = new ReactiveVar 'text'
+
 Template.dash.rendered = ->
-  Session.set("dashView", 'text')
+  Session.set('features', @data.features)
 
 DISABLE_MULTI_HIGHLIGHT = true
 color = (text) =>
@@ -154,10 +158,10 @@ Template.dash.helpers
     ]
 
   useView: ->
-    Session.get("dashView")
+    Template.instance().dashView.get()
 
   selectedView: ->
-    if Session.get("dashView") is @name
+    if Template.instance().dashView.get() is @name
       'selected'
 
   viewIcon: ->
@@ -169,6 +173,15 @@ Template.dash.helpers
       'fa-bar-chart'
     else if @name is 'symptomTable'
       'fa-table'
+
+  sideBarOpen: ->
+    Template.instance().sideBarOpen.get()
+
+  sideBarState: ->
+    Template.instance().sideBarOpen
+
+  featuresSelected: ->
+    Session.get('features').length
 
 Template.dash.events
   "click .diagnosis .reactive-table tbody tr" : (event) ->
@@ -208,8 +221,8 @@ Template.dash.events
     this.color = 'goldenrod'
     Session.set('features', [this])
 
-  "click #choose-view li": (event) ->
-    Session.set('dashView', $(event.currentTarget).data('view'))
+  "click #choose-view li": (event, instance) ->
+    instance.dashView.set $(event.currentTarget).data('view')
 
   "click .rediagnose": (event) ->
     bsveAccessKey = Router.current().params.query.bsveAccessKey
@@ -227,7 +240,7 @@ Template.dash.events
         }
     )
 
-  "click .features h4": (event, template) ->
+  "click .feature-section--header": (event, template) ->
     # Clicking a header can do one of two things:
     # - if any of the features for that category are currently not highlighted,
     # turn highlighting on for all features in that category
@@ -239,7 +252,8 @@ Template.dash.events
       Session.set('disease', null)
       Session.set('features', [])
 
-    category = $(event.target).attr('class')
+    category = $(event.currentTarget).data('category')
+
     if category in ['caseCount', 'hospitalizationCount', 'deathCount',
                     'datetime', 'diseases', 'hosts', 'modes', 'pathogens',
                     'symptoms']
@@ -269,5 +283,13 @@ Template.dash.events
         if not currentFeatureIdMap.hasOwnProperty(grits.services.getIdKeyFromFeature(feature))
           currentFeatures.push(feature)
       Session.set('features', currentFeatures)
+
+  'click .side-bar-toggle': (event, instance) ->
+    event.stopPropagation()
+    sideBarState = instance.sideBarOpen
+    sideBarState.set not sideBarState.get()
+
+  'click .clear-annotations': ->
+    Session.set 'features', []
 
 Meteor.Spinner.options = { color: '#fff' }

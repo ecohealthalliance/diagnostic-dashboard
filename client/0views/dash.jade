@@ -8,8 +8,17 @@ template(name="dash")
         h2 There was an error processing this diagnosis.
         a.btn.btn-default.rediagnose Retry
   .dashboard-container
-    .left-panel.diagnosis
-      h4.diagnosis-heading Diagnosis
+    .panel-header(class="{{#unless sideBarOpen}} closed side-bar-toggle {{/unless}}")
+      h4.diagnosis-heading Diagnosis Details
+      .side-bar-toggle.toggle-icon
+        i.fa(class="{{#if sideBarOpen}} fa-arrow-circle-o-left {{else}} fa-arrow-circle-o-right {{/if}}")
+    .vis-pane-bar(class="{{#unless sideBarOpen}} full-width {{/unless}}")
+      ul#choose-view.tabs
+        each viewTypes
+          li(data-view=name class="{{selectedView}}")
+            i(class="fa {{viewIcon}}")
+            span=label
+    .left-panel.diagnosis(class="{{#unless sideBarOpen}} closed {{/unless}}")
       +reactiveTable collection=diseases settings=tableSettings
       if signedIn
         .btn-group.btn-group-justified.btn-group-sm
@@ -105,7 +114,8 @@ template(name="dash")
         each keywordCategories
           if showCategory pattern ../features
             .feature-section.clearfix
-              h4(class=pattern) #{label}
+              .feature-section--header(data-category=pattern)
+                h4 #{label}
               each ../features
                 if eq type ../pattern
                   .label(id="{{getIdKey}}"
@@ -114,7 +124,8 @@ template(name="dash")
                     class="{{featureSelected this}}") #{value}
         if showCategory 'datetime'
           .feature-section.dates
-            h4.datetime Dates
+            .feature-section--header(data-category='datetime')
+              h4 Dates
             each features
               if eq type "datetime"
                 .label(id="{{getIdKey}}"
@@ -123,7 +134,8 @@ template(name="dash")
                   class="{{featureSelected this}}") #{formatDate}
         if showCategory 'location'
           .feature-section.locations.clearfix
-            h4.location Locations
+            .feature-section--header(data-category='location')
+              h4 Locations
             each features
               if eq type "location"
                 .label(id="{{getIdKey}}"
@@ -131,17 +143,11 @@ template(name="dash")
                   pillColor=color
                   value=name
                   class="{{featureSelected this}}") #{formatLocation}
-    .pane-container
-      .vis-pane-bar
-        ul#choose-view.nav.navbar-nav
-          each viewTypes
-            li(data-view=name class="{{selectedView}}")
-              i(class="fa {{viewIcon}}")
-              span=label
+    .pane-container(class="{{#unless sideBarOpen}} full-width {{/unless}}")
       .vis-pane
         if eq useView "geomap"
           .map-container
-            +map
+            +map sideBarState=sideBarState
         else if eq useView "timeline"
           .timeline-container
             +timelineSimple
@@ -151,5 +157,8 @@ template(name="dash")
         else
           .text-container
             +text
+            if featuresSelected
+              .text-options
+                a.clear-annotations Clear Annotations
   if signedIn
     +feedback

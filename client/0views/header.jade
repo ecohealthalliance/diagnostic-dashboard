@@ -1,6 +1,6 @@
 template(name="header")
   .header
-    header.clearfix
+    header.clearfix.navbar-header
       .branding-action
         .logo
           a(href=logoHref)
@@ -11,37 +11,45 @@ template(name="header")
             a.btn.btn-primary(href=newDiagnosisHref)
               i.fa.fa-file-text-o
               span New Diagnosis
-      nav
-        ul.nav.navbar-nav.nav-main
-          li
-            a(href=eidrUrl)
-              i.fa.fa-book
-              span EIDR
-          unless bsveApp
-            if currentUser
-              li.profile
-                a(href="/profile")
-                  i.fa.fa-list
-                  span Articles
-              +helpLink
-              li
-                a.sign-out(href="/sign-out")
-                  i.fa.fa-sign-out.sign-out
-                  span Sign Out
-            else
-              li
-                a(href="/sign-in")
-                  i.fa.fa-sign-in.sign-in
-                  span Sign In / Register
-          else
-            unless hideBackButton
-              li
-                a.back(href="#")
-                  i.fa.fa-arrow-left
-                  span Back
+      button.navbar-toggle.collapsed(
+        type='button'
+        data-toggle='collapse'
+        data-target='#grits-nav'
+        aria-expanded='false')
+        i.fa.fa-bars
+
+    nav#grits-nav.collapse.navbar-collapse
+      ul.nav.navbar-nav.nav-main
+        li
+          a(href=eidrUrl)
+            i.fa.fa-book
+            span EIDR
+        unless bsveApp
+          if currentUser
+            li.profile
+              a(href="/profile")
+                i.fa.fa-list
+                span Articles
             +helpLink
+            li
+              a.sign-out(href="/sign-out")
+                i.fa.fa-sign-out.sign-out
+                span Sign Out
+          else
+            li
+              a(href="/sign-in")
+                i.fa.fa-sign-in.sign-in
+                span Sign In / Register
+        else
+          unless hideBackButton
+            li
+              a.back(href="#")
+                i.fa.fa-arrow-left
+                span.hide-md Back
+          +helpLink
+
 template(name="helpLink")
   li
     a(href=helpLinkHref)
       i.fa.fa-question
-      span Help
+      span.hide-md Help
