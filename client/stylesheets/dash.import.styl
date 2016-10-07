@@ -51,11 +51,18 @@
   min-height 50px
   display flex
   align-items center
-  width 350px
+  width $left-pane-width-small
   min-height 50px
   border-right 2px solid #CCC
   transition $transition-time ease-in-out
   z-index 10
+  font-size 16px
+  +above(3)
+    width $left-pane-width
+  h4
+    font-size 16px
+    +above(3)
+      font-size 18px
   &.closed
     width 200px
     h4
@@ -71,8 +78,11 @@
   cursor pointer
   background-color #f9f9f9
   border-bottom-color darken(@background-color, 15%)
-  margin-left -20px
-  margin-right -20px
+  margin-left -5px
+  margin-right -5px
+  +above(3)
+    margin-left -20px
+    margin-right -20px
   &:hover
     background-color $primary-muted
     color black
@@ -100,41 +110,122 @@
   background-color #FFF
   overflow-x scroll
   -ms-overflow-style -ms-autohiding-scrollbar
-  padding 0 20px
-  width $left-pane-width
+  padding 0 5px
+  width $left-pane-width-small
   top 50px
   bottom 0
   transition $transition-time ease-in-out
   opacity 1
+  +above(3)
+    width $left-pane-width
+    padding 0 20px
   &.closed
-    transform translate(-1 * $left-pane-width, 0)
+    transform translate(-1 * $left-pane-width-small, 0)
     opacity 0
+    +above(3)
+      transform translate(-1 * $left-pane-width, 0)
 
-  .reactive-table
-    width $left-pane-width - 2
-    max-width $left-pane-width - 2
-    margin-left -20px
-    margin-right -20px
+  .btn-group .btn
+    margin-bottom 10px
+    +below(3)
+      display block
+      width 95%
+      margin-left auto
+      margin-right auto
+      margin-bottom .5em
+      border-radius 4px !important //Overide the btn-group bootstrap styles
+
+.left-panel
+  .table
+    width $left-pane-width-small - 2
+    max-width $left-pane-width-small - 2
+    margin-left -5px
+    margin-right -5px
     font-size 13px
+    +above(3)
+      width $left-pane-width - 2
+      max-width $left-pane-width - 2
+      margin-left -20px
+      margin-right -20px
     tr
       cursor pointer
       &.selected
-        background-color desaturate(lighten(#DEEDDC, 20%),40%)
+        td
+          &:first-of-type
+            background darken(#f9f9f9, 2%)
+      +below(3)
+        background-color white !important // Overide styles applied by reactive table
+        border-bottom 2px solid #CCC
       td
         max-width 32%
-        &:first-of-type
-          padding-left 15px
-        &:last-of-type
+        +above(3)
+          &:first-of-type
+            padding-left 15px
+          &:last-of-type
+            padding-right 15px
+        +below(3)
+          border 0
+          max-width 100%
+          display flex
+          align-items center
+          padding-top 5px
+          padding-bottom 5px
           padding-right 15px
+          padding-left 15px
+          > span
+            display block
+          &:before
+            margin-right 1em
+          &:first-of-type
+            padding 10px
+            border-bottom 1px solid #CCC
+          &:nth-of-type(2):before
+            content 'Confidence'
+          &:nth-of-type(3):before
+            content 'Characteristics'
+        +below(2)
+          align-items flex-start
+          flex-direction column
+          &:before
+            margin-bottom 3px
+        &:first-of-type
+          > span
+            font-weight bold
     th
       &:first-of-type
         padding-left 15px
       &:last-of-type
         padding-right 15px
 
-  .btn-group
-    margin-bottom 10px
-
+.symptom-table
+  .reactive-table-options
+    display none
+  .table
+    +below(4)
+      width 100%
+      thead
+        display none
+    tr
+      +below(4)
+        background none !important // Override srtiped styling
+        &:hover
+          background none
+      td
+        +below(4)
+          display flex
+          align-items center
+          justify-content flex-start
+          &:first-of-type
+            font-weight bold
+            &:before
+              content ''
+              display none
+          &:before
+            flex 1
+            content attr(class)
+            text-transform capitalize
+          span
+            flex 4
 
 .feature-section
 .keypoints
@@ -147,15 +238,22 @@
     font-size 1em
     font-weight normal
     padding 7px 10px
-    text-shadow 0 1px 1px rgba(0,0,0,.4)
     letter-spacing .03em
+    text-shadow none
     box-shadow 0 1px 1px rgba(255,255,255,0)
     -webkit-font-smoothing subpixel-antialiased
     &:hover
       box-shadow 0px 0px 0px 2px rgba(100,100,100,.5)
+      +below(3)
+        box-shadow 0px 0px 0px 1px rgba(100,100,100,.5)
+    +below(3)
+      font-size .85em
+      padding 5px 8px
 
   .label.selected
     box-shadow 0px 0px 0px 2px rgba(100,100,100,.9)
+    +below(3)
+      box-shadow 0px 0px 0px 1px rgba(100,100,100,.9)
 
 .features
   margin 25px 0 70px 0
@@ -173,11 +271,12 @@
 .keywords
   span
     display inline-block
-    margin-bottom 5px
-    min-height 20px
+    min-height 15px
+    min-width 5px
     margin-right 5px
-    width 5px
     border-radius 1px
+    +above(3)
+      min-height 20px
 
 .find-btns
   margin-top 20px
@@ -243,3 +342,15 @@
     &:hover
       text-decoration none
       color $confirm
+
+.secondary-actions
+  display flex
+  align-items center
+  justify-content center
+  margin 10px 0
+  a
+    color #CCC
+    font-size 1.5em
+    margin 0 .75em
+    i
+      cursor pointer

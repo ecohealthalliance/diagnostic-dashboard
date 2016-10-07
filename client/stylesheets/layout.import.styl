@@ -5,29 +5,33 @@ body
 
 .pane-container
   position absolute
-  left $left-pane-width
+  left $left-pane-width-small
   right 0
   top 0
   bottom 0
   overflow auto
   transition $transition-time ease-in-out
   margin-left 0
+  +above(3)
+    left $left-pane-width
   &.full-width
     left 0
 
 .vis-pane-bar
   background-color $primary-muted
   color black
-  width 100%
+  width 'calc(100% - %s)' % $left-pane-width-small
   border-bottom 1px solid $primary-border
   position relative
   z-index 99
-  left 350px
+  left $left-pane-width-small
   transition $transition-time ease-in-out
+  +above(3)
+    left $left-pane-width
+    width 'calc(100% - %s)' % $left-pane-width
   &.full-width
-    left 200px
-    .tabs
-      width calc(100% - 200px)
+    left $closed-sidebar-toggle-width
+    width 'calc(100% - %s)' % $left-pane-width-small
 
 .vis-pane
   overflow auto
@@ -53,7 +57,6 @@ body
   align-items stretch
   margin 0
   padding 0
-  width calc(100% - 350px)
   transition width $transition-time ease-in-out
   transition-delay $transition-time - .2
   li

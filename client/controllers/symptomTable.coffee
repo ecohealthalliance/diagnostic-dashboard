@@ -15,13 +15,21 @@ Template.symptomTable.tableSettings = () ->
      .uniq()
      .value()
   fields: [
-    { key: 'name', label: 'Disease' },
+    {
+      key: 'name'
+      label: 'Disease'
+      fn: (value) ->
+        Spacebars.SafeString "<span>#{value}</span>"
+    },
   ].concat(_.map symptoms, (name)->
     {
       key: name
       label: name
       fn: (score) ->
-        Math.round(score * 1000) / 1000
+        html = '<span>'
+        _score = Math.round(score * 1000) / 1000
+        html += "#{_score}</span>"
+        Spacebars.SafeString html
     }
   )
   showNavigation: 'never'
