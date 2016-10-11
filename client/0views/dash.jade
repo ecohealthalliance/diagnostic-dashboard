@@ -171,5 +171,7 @@ template(name="dash")
             if featuresSelected
               .text-options
                 a.clear-annotations Clear Annotations
-  if signedIn
-    +feedback
+
+    //- Feedback Modal
+    if signedIn
+      +feedback

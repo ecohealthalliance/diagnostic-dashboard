@@ -4,6 +4,7 @@ template(name="feedback")
       .modal-content
         .modal-header
           h2 Feedback
+          i.fa.fa-times-circle.close-modal(data-dismiss="modal" aria-label="Close")
         form.feedback
           .modal-body
             .form-group
@@ -26,13 +27,13 @@ template(name="feedback")
               div
                 each missingDiseases
                   .row.added-disease
-                    .col-sm-8
-                      input.form-control(readonly=readonly value="{{name}}" disabled)
-                    .col-sm-1.disease-button-container
+                    .col-sm-8.col-xs-8
+                      input.form-control.with-btn(readonly=readonly value="{{name}}" disabled)
+                    .col-sm-1.col-xs-1.disease-button-container
                       i.fa.fa-times-circle.remove-disease(data-name="{{name}}")
               .row
                 .col-sm-8
-                  +inputAutocomplete settings=diseaseCompleteSettings id="new-disease" name="missing_diseases" class="form-control"
+                  +inputAutocomplete settings=diseaseCompleteSettings id="new-disease" name="missing_diseases" class="form-control with-btn"
                 .col-sm-1.disease-button-container
                   i.fa.fa-plus-circle.add-disease(id="add-disease" type="button" class="btn-plain btn" disabled="{{#unless addDiseaseEnabled}} disabled {{/unless}}")
 
