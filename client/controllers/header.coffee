@@ -34,3 +34,7 @@ Template.header.events
     e.preventDefault()
     window.history.back()
 
+  'click' : (e) ->
+    if $('.navbar-toggle').is(':visible')
+      console.log("collapsing")
+      $('.navbar-collapse').collapse('toggle')
