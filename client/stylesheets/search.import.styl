@@ -4,6 +4,7 @@
   margin-left 10px
   white-space nowrap
   overflow hidden
+
 .sp-category
   color blue
   font-size 10pt
@@ -11,14 +12,33 @@
 .sp-label
   display inline-block
 
+.search-results-details
+  min-height 49px
+  display flex
+  align-items center
+  align-content center
+  justify-content flex-start
+  padding-left 15px
+  span
+    align-content center
+
+.search-results
+  padding-top 60px
+  padding-left 15px
+  padding-right 15px
+
 .search-result
   padding 2px
 
 .search-result:nth-child(2n)
   background-color #eee
 
-.search-results
-  padding 0px 5px
+.search-sidebar
+  .feature-section--header
+    &:hover
+      cursor default
+      background-color #f9f9f9
+
 
 .title-link
   display block
@@ -97,4 +117,3 @@
 
 .left-panel-block
   padding 5px 0
-

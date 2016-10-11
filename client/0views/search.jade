@@ -10,7 +10,7 @@ template(name="searchInput")
       .col-xs-9.input-wrap
         +inputAutocomplete settings=autocompleteSettings class="form-control input-xlarge add-selection-input"
       .col-xs-2
-        button.btn.btn-default(class="add-selection") Add
+        i.fa.fa-plus-circle.add-selection.btn.btn-plain
 
 template(name="selector")
   each itemsInCollection
@@ -21,7 +21,7 @@ template(name="selector")
     .col-xs-9.input-wrap
       input.input-xlarge.form-control
     .col-xs-2
-      button.add-item.btn.btn-default Add
+      i.fa.fa-plus-circle.add-selection.btn.btn-plain
 
 template(name="searchPill")
   span(class="sp-label") {{_id}}
@@ -31,11 +31,11 @@ template(name="searchPill")
 
 template(name="searchAggregations")
 
-  h4 In one of these countries:
+  .feature-section--header
+    h4 In one of these countries:
   .left-panel-block
     +selector collection=selections.CountriesSelected
-    div
-      b Approximate Document Counts:
+    h6 Approximate Document Counts:
     each aggregations.countries.buckets
       .document-count
         span.count-bar(style="width: {{percentage doc_count ../totalResults}}%;")
@@ -43,7 +43,8 @@ template(name="searchAggregations")
           a.add-country-filter(href="#" data-name="{{key}}") {{key}}
           span : {{doc_count}} reports
 
-  h4 In the date range:
+  .feature-section--header
+    h4 In the date range:
   .left-panel-block
     .form-inline
       .form-group
@@ -52,8 +53,7 @@ template(name="searchAggregations")
       .form-group
         label.date-label End
         input.date-selector.to-date.form-control(type="date" value="{{toDate}}")
-    div
-      b Approximate Document Counts:
+    h6 Approximate Document Counts:
     each aggregations.dates.buckets
       if doc_count
         .document-count
@@ -65,26 +65,13 @@ template(name="searchAggregations")
 
 template(name="search")
   .dashboard-container
-    .left-panel.search-sidebar
-      h3 Find #{label} with...
+    .panel-header(class="{{#unless sideBarOpen}} closed side-bar-toggle {{/unless}}")
+      h4.diagnosis-heading  Find #{label} with...
+      .side-bar-toggle.toggle-icon
+        i.fa(class="{{#if sideBarOpen}} fa-arrow-circle-o-left {{else}} fa-arrow-circle-o-right {{/if}}")
 
-      h4 Any of these diseases:
-      .left-panel-block
-        +searchInput selected=selections.DiseasesSelected autocompleteCollection=diseaseNames restrictToAutocomplete="true"
-
-      h4 Any of these keywords:
-      .left-panel-block
-        +searchInput selected=selections.AnyKeywordsSelected autocompleteCollection=keywords
-
-      h4 All of these keywords:
-      .left-panel-block
-        +searchInput selected=selections.AllKeywordsSelected autocompleteCollection=keywords
-
-      +searchAggregations totalResults=totalResults selections=selections fromDate=fromDate toDate=toDate formatDateRange=formatDateRange aggregations=aggregations
-
-
-    .pane-container.search
-      .vis-pane-bar
+    .vis-pane-bar(class="{{#unless sideBarOpen}} full-width {{/unless}}")
+      .search-results-details
         if numResults
           span
             | Page {{pageNum}}
@@ -115,16 +102,36 @@ template(name="search")
                   option(selected value=name) {{label}}
                 else
                   option(value=name) {{label}}
-      .vis-pane
-        if searching
-          p Searching...
-        else if eq useView "listView"
-          +Template.dynamic template=resultListTemplate data=resultListData
-        else if eq useView "mapView"
-          +geomapSimple
-        else if eq useView "dateGroupView"
-          +dateGroups
-        else if eq useView "locationGroupView"
-          +locationGroups
-        else if eq useView "diseaseGroupView"
-          +diseaseGroups
+
+    .left-panel.search-sidebar(class="{{#unless sideBarOpen}} closed {{/unless}}")
+      .feature-section--header
+        h4 Any of these diseases:
+      .left-panel-block
+        +searchInput selected=selections.DiseasesSelected autocompleteCollection=diseaseNames restrictToAutocomplete="true"
+
+      .feature-section--header
+        h4 Any of these keywords:
+      .left-panel-block
+        +searchInput selected=selections.AnyKeywordsSelected autocompleteCollection=keywords
+
+      .feature-section--header
+        h4 All of these keywords:
+      .left-panel-block
+        +searchInput selected=selections.AllKeywordsSelected autocompleteCollection=keywords
+
+      +searchAggregations totalResults=totalResults selections=selections fromDate=fromDate toDate=toDate formatDateRange=formatDateRange aggregations=aggregations
+
+
+    .pane-container.search-results(class="{{#unless sideBarOpen}} full-width {{/unless}}")
+      if searching
+        p Searching...
+      else if eq useView "listView"
+        +Template.dynamic template=resultListTemplate data=resultListData
+      else if eq useView "mapView"
+        +geomapSimple
+      else if eq useView "dateGroupView"
+        +dateGroups
+      else if eq useView "locationGroupView"
+        +locationGroups
+      else if eq useView "diseaseGroupView"
+        +diseaseGroups

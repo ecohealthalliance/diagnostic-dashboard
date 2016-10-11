@@ -3,7 +3,32 @@
 
 .dashboard-list
   margin 20px 50px
-
-  .reactive-table
-    tr
-      cursor pointer
+  .table.reactive-table
+    +below(3)
+      margin-left -50px
+      margin-right -50px
+      width calc(100% + 100px)
+      max-width calc(100% + 100px)
+    tbody
+      tr
+        cursor pointer
+        td
+          border 0
+        +below(3)
+          display block
+          border-top 0
+          border-bottom 1px solid lighten(#CCC, 20%)
+          padding 10px 50px
+          &:empty
+            display none
+          td
+            padding-right 0
+            padding-left 0
+            &.diseases
+              font-weight bold
+              font-size 16px
+            &.content
+              font-style italic
+            &.createDate
+              font-size 12px
+              text-align right

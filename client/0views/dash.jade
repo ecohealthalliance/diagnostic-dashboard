@@ -29,13 +29,24 @@ template(name="dash")
             a.btn.btn-default.prev-diagnosis(href='/dash/#{updatedDiagnosisId}') Updated Diagnosis
           else
             a.btn.btn-default.rediagnose Rediagnose
-        .btn-group.btn-group-justified.btn-group-sm
-          a.btn.btn-default.open-feedback(data-toggle="modal" data-target="#feedback-modal") Feedback
-      .find-btns
-        a.btn.btn-default(href='/searchEidr?diagnosisId=#{_id}') Find Similar Disease Emergence Events
-      //  a.btn.btn-default(href='/searchGirder?diagnosisId=#{_id}') Find Similar Articles
-      .btn-group.btn-group-justified.btn-group-sm
-        a.btn.btn-default(href='#{mailtoPromedLink}') Report to ProMED-mail
+      .secondary-actions
+        if signedIn
+          a.open-feedback(data-toggle="modal" data-target="#feedback-modal")
+            i.fa.fa-comment(
+              data-toggle="tooltip"
+              data-placement="bottom"
+              title="Feedback")
+          a(href='/searchEidr?diagnosisId=#{_id}'
+            data-toggle="tooltip"
+            data-placement="bottom"
+            title="Find Similar Disease Emergence Events")
+            i.fa.fa-search
+        a(href='#{mailtoPromedLink}'
+          data-toggle="tooltip"
+          data-placement="bottom"
+          title="Report to ProMED-mail")
+          i.fa.fa-envelope
+
       if showKeypoints
         .keypoints
           h4 Key Points
@@ -160,5 +171,7 @@ template(name="dash")
             if featuresSelected
               .text-options
                 a.clear-annotations Clear Annotations
-  if signedIn
-    +feedback
+
+    //- Feedback Modal
+    if signedIn
+      +feedback

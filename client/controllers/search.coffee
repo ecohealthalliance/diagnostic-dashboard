@@ -50,7 +50,7 @@ createSearchAutorunFunction = (template, doQuery) ->
       dateRange.from = template.fromDate.get().toISOString()
     if template.toDate.get()
       dateRange.to = template.toDate.get().toISOString()
-    
+
     countries = selections.CountriesSelected.find().map( (k)-> k.name )
     dateRangeQuery = {}
     should_terms = countries.map((country) ->
@@ -110,7 +110,7 @@ createSearchAutorunFunction = (template, doQuery) ->
     })
 
 
-Template.search.created = () ->
+Template.search.created = ->
   # Temporary collections
   DiseasesSelected = new Meteor.Collection(null)
   AnyKeywordsSelected = new Meteor.Collection(null)
@@ -123,7 +123,7 @@ Template.search.created = () ->
     AllKeywordsSelected: AllKeywordsSelected
     CountriesSelected: CountriesSelected
   }
-  
+
   selections = @selections
   diagnosis = @data.diagnosis
 
@@ -144,6 +144,7 @@ Template.search.created = () ->
   @searchResults = new ReactiveVar([])
   @totalResults = new ReactiveVar(0)
   @aggregations = new ReactiveVar([])
+  @sideBarOpen = new ReactiveVar true
 
   searchAutorun = createSearchAutorunFunction(
     this,
@@ -152,143 +153,155 @@ Template.search.created = () ->
 
   @searchAutorun = Deps.autorun(searchAutorun)
 
+Template.search.helpers
+  destroyed: ->
+    @searchAutorun.stop()
 
-Template.search.destroyed = () ->
-  @searchAutorun.stop()
+  selections: ->
+    Template.instance().selections
 
-Template.search.selections = () ->
-  Template.instance().selections
+  eq: (a, b) ->
+    a == b
 
-Template.search.eq = (a, b) ->
-  a == b
+  diseaseNames: ->
+    DiseaseNames()
 
-Template.search.diseaseNames = () ->
-  DiseaseNames()
+  keywords: ->
+    Keywords()
 
-Template.search.keywords = () ->
-  Keywords()
+  useView: ->
+    Template.instance().useView.get()
 
-Template.search.useView = () ->
-  Template.instance().useView.get()
+  searching: ->
+    Template.instance().searching.get()
 
-Template.search.searching = () ->
-  Template.instance().searching.get()
+  numResults: ->
+    Template.instance().searchResults.get()?.length or 0
 
-Template.search.numResults = () -> 
-  Template.instance().searchResults.get()?.length or 0
+  totalResults: ->
+    Template.instance().totalResults.get() or 0
 
-Template.search.totalResults = () ->
-  Template.instance().totalResults.get() or 0
+  sortBy: ->
+    Template.instance().sortBy.get()
 
-Template.search.sortBy = () ->
-  Template.instance().sortBy.get()
+  fromDate: ->
+    Template.instance().fromDate
 
-Template.search.fromDate = () ->
-  Template.instance().fromDate
+  toDate: ->
+    Template.instance().toDate
 
-Template.search.toDate = () ->
-  Template.instance().toDate
+  pageNum: ->
+    Template.instance().searchPage.get() or 0
 
-Template.search.pageNum = () ->
-  Template.instance().searchPage.get() or 0
-
-Template.search.resultListData = () ->
-  {
+  resultListData: ->
     results: Template.instance().searchResults.get()
     AllKeywordsSelected: Template.instance().selections.AllKeywordsSelected
-  }
 
-Template.search.aggregations = () ->
-  Template.instance().aggregations.get()
+  aggregations: ->
+    Template.instance().aggregations.get()
 
-Template.search.formatDateRange = () ->
-  @dateRangeFormatter
+  formatDateRange: ->
+    @dateRangeFormatter
 
-
-Template.searchInput.autocompleteSettings = () ->
-  position: "top"
-  limit: 5
-  rules: [
-    {
-      collection: @autocompleteCollection
-      field: "_id"
-      template: Template.searchPill
-    }
-  ]
-
-Template.searchInput.itemsSelected = () ->
-  @selected.find()
-
-Template.searchInput.events
-  "click .add-selection" : (event, template) ->
-    input = template.$('.add-selection-input')
-    kwName = $(input).val()
-    
-    if (not template.data.restrictToAutocomplete) or template.data.autocompleteCollection.findOne({_id : kwName})
-      template.data.selected.insert({value : kwName})
-      $(input).val('')
-    else
-      alert("You can only search for terms in the auto-complete menu.")
-
-  "click .remove-selection" : (event, template) ->
-    template.data.selected.remove({value : $(event.currentTarget).data('name')})
+  sideBarOpen: ->
+    Template.instance().sideBarOpen.get()
 
 Template.search.events
-  "click .prev-page": (event, template) ->
+  'click .prev-page': (event, template) ->
     template.searchPage.set(Math.max(template.searchPage.get() - 1, 0))
-    
-  "click .next-page": (event, template) ->
+
+  'click .next-page': (event, template) ->
     template.searchPage.set(
       Math.min(template.searchPage.get() + 1,
         Math.floor(template.totalResults.get() / RESULTS_PER_PAGE)
       )
     )
 
-  "change #sort-by": (event, template) ->
+  'change #sort-by': (event, template) ->
     template.sortBy.set($(event.target).val())
 
-  "change #choose-view": (event, template) ->
+  'change #choose-view': (event, template) ->
     template.useView.set($(event.target).val())
 
 
-Template.searchAggregations.percentage = (a,b) ->
-  100 * a / b
+  'click .side-bar-toggle': (event, instance) ->
+    event.stopPropagation()
+    sideBarState = instance.sideBarOpen
+    sideBarState.set not sideBarState.get()
 
-Template.searchAggregations.toDate = ()-> @toDate.get()?.toISOString().split('T')[0]
-Template.searchAggregations.fromDate = ()-> @fromDate.get()?.toISOString().split('T')[0]
+
+Template.searchInput.helpers
+  autocompleteSettings: ->
+    position: "top"
+    limit: 5
+    rules: [
+      {
+        collection: @autocompleteCollection
+        field: "_id"
+        template: Template.searchPill
+      }
+    ]
+
+  itemsSelected: ->
+    @selected.find()
+
+Template.searchInput.events
+  'click .add-selection': (event, template) ->
+    input = template.$('.add-selection-input')
+    kwName = $(input).val()
+
+    if (not template.data.restrictToAutocomplete) or template.data.autocompleteCollection.findOne({_id: kwName})
+      template.data.selected.insert({value: kwName})
+      $(input).val('')
+    else
+      alert("You can only search for terms in the auto-complete menu.")
+
+  'click .remove-selection': (event, template) ->
+    template.data.selected.remove({value: $(event.currentTarget).data('name')})
+
+
+Template.searchAggregations.helpers
+  percentage: (a,b) ->
+    100 * a / b
+
+  toDate:-> @toDate.get()?.toISOString().split('T')[0]
+
+  fromDate:-> @fromDate.get()?.toISOString().split('T')[0]
 
 Template.searchAggregations.events
-  "click .add-country-filter" : (event, template) ->
-    template.data.selections.CountriesSelected.insert({name : $(event.currentTarget).data('name')})
+  'click .add-country-filter': (event, template) ->
+    template.data.selections.CountriesSelected.insert({name: $(event.currentTarget).data('name')})
 
-  "click .remove-country-filter" : (event, template) ->
-    template.data.selections.CountriesSelected.remove({name : $(event.currentTarget).data('name')})
+  'click .remove-country-filter': (event, template) ->
+    template.data.selections.CountriesSelected.remove({name: $(event.currentTarget).data('name')})
 
-  "click .set-date" : (event, template) ->
+  'click .set-date': (event, template) ->
     fromDate = new Date(this.from)
     toDate = new Date(this.to)
     template.data.fromDate.set(fromDate)
     template.data.toDate.set(toDate)
 
-  "change .from-date" : (event, template) ->
+  'change .from-date': (event, template) ->
     date = new Date($(event.target).val())
     if date.toString() == "Invalid Date"
       date = null
     template.data.fromDate.set(date)
 
-  "change .to-date" : (event, template) ->
+  'change .to-date': (event, template) ->
     date = new Date($(event.target).val())
     if date.toString() == "Invalid Date"
       date = null
     template.data.toDate.set(date)
 
-Template.selector.itemsInCollection = ()-> this.collection.find()
+
+Template.selector.helpers
+  itemsInCollection: -> this.collection.find()
 
 Template.selector.events
-  "click .add-item" : (event) ->
+  'click .add-selection': (event) ->
     itemInput = $(event.target).parent().find('input')
-    this.collection.insert({name : itemInput.val()})
+    this.collection.insert({name: itemInput.val()})
     itemInput.val('')
 
-  "click .remove-item" : (event, template) ->
-    template.data.collection.remove({name : this.name})
+  'click .remove-selection': (event, template) ->
+    template.data.collection.remove({name: this.name})

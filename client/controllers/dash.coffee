@@ -6,6 +6,7 @@ Template.dash.created = ->
 
 Template.dash.rendered = ->
   Session.set('features', @data.features)
+  @$('[data-toggle="tooltip"]').tooltip()
 
 DISABLE_MULTI_HIGHLIGHT = true
 color = (text) =>
@@ -89,21 +90,28 @@ Template.dash.helpers
   tableSettings: ->
     fields: [
       {
+        key: 'name',
+        label: 'Disease'
+        fn: (value) ->
+          new Spacebars.SafeString("<span>#{value}</span>");
+      },
+      {
         key: 'probability'
         label: 'Confidence'
         sort: -1
-        fn: (prob) ->
-          Math.round(prob * 1000) / 1000
+        fn: (value) ->
+          prob = value.toFixed(4) * 100
+          new Spacebars.SafeString("<span>#{prob}%</span>");
       },
-      { key: 'name', label: 'Disease' },
       {
         key: 'keywords'
         label: 'Characteristics'
         fn: (features) ->
-          html = ""
+          html = '<div>'
           _.each features, (feature) ->
             bgColor = color feature.name
             html += "<span style='background-color:#{bgColor}'></span>"
+          html += '</div>'
           Spacebars.SafeString html
       }
     ]
