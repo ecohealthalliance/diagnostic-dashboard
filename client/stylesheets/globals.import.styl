@@ -32,6 +32,9 @@ body
 .no-margin
   margin 0 !important
 
+.muted-text
+  color #CCC
+
 label
   .info
     display block
@@ -45,3 +48,27 @@ label
   font-family 'Open Sans'
   > .tooltip-inner
     background-color alpha(black, 95%)
+
+.no-results
+  margin-top 20px
+  padding 0 15px
+  text-align center
+  @extend .muted-text
+  &::before
+    display block
+    content '\f002'
+    icon()
+    font-size 250%
+    margin-bottom 10px
+
+.remove-selection
+.add-selection
+  pointer()
+  font-size 1.5em
+  color $blue
+  padding-top .3em
+  &[disabled]
+    cursor not-allowed
+
+.remove-selection
+  color $delete

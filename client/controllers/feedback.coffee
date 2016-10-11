@@ -101,5 +101,5 @@ if Meteor.isClient
       if $("#new-disease").val()
         instance.missingDiseases.insert({name : $("#new-disease").val()})
 
-    "click .remove-disease" : (event, instance) ->
+    "click .remove-selection" : (event, instance) ->
       instance.missingDiseases.remove({name : $(event.currentTarget).data('name')})

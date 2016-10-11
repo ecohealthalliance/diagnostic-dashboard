@@ -30,12 +30,15 @@ template(name="feedback")
                     .col-sm-8.col-xs-8
                       input.form-control.with-btn(readonly=readonly value="{{name}}" disabled)
                     .col-sm-1.col-xs-1.disease-button-container
-                      i.fa.fa-times-circle.remove-disease(data-name="{{name}}")
+                      i.fa.fa-times-circle.remove-selection(data-name="{{name}}")
               .row
                 .col-sm-8
                   +inputAutocomplete settings=diseaseCompleteSettings id="new-disease" name="missing_diseases" class="form-control with-btn"
                 .col-sm-1.disease-button-container
-                  i.fa.fa-plus-circle.add-disease(id="add-disease" type="button" class="btn-plain btn" disabled="{{#unless addDiseaseEnabled}} disabled {{/unless}}")
+                  i.fa.fa-plus-circle.add-disease.add-selection.btn.btn-plain(
+                    id="add-disease"
+                    type="button"
+                    disabled="{{#unless addDiseaseEnabled}} disabled {{/unless}}")
 
             .form-group
               label(for="comments") Diagnosis Comments:
