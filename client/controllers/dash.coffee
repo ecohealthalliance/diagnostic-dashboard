@@ -189,7 +189,7 @@ Template.dash.helpers
     Template.instance().sideBarOpen
 
   featuresSelected: ->
-    Session.get('features').length
+    Session.get('features')?.length
 
 Template.dash.events
   "click .diagnosis .reactive-table tbody tr" : (event) ->
