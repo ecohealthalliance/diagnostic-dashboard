@@ -4,11 +4,11 @@ template(name="new")
       .submit-page.col-sm-10.col-sm-offset-1
         ul.nav.nav-tabs.upload-menu
           li.active
-            a(href='#copy', data-toggle='tab')
+            a(href='#copy', data-toggle='tab' data-source='text')
               i.fa.fa-file-text-o
               | Copy &amp; Paste
           li
-            a(href='#web', data-toggle='tab')
+            a(href='#web', data-toggle='tab' data-source='url')
               i.fa.fa-link
               | From the web
 
@@ -23,4 +23,5 @@ template(name="new")
 
         .row
           .col-sm-3.col-sm-offset-9
-            button.btn.btn-large.btn-primary.btn-block.pull-right#submit-button Diagnose
+            button.btn.btn-large.btn-primary.btn-block.pull-right#submit-button(disabled)
+              | Diagnose
