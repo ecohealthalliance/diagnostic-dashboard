@@ -6,7 +6,7 @@ postMessageHandler = (event)->
     # Some things besides the BSVE will trigger the message handler, so if the
     # message isn't JSON, it is ignored and the parsing exception is swallowed.
     return
-  if request.type == "screenCapture"
+  if request.type == "eha.dossierRequest"
     title = "GRITS"
     url = window.location.toString()
     console.log "screenCapture starting..."
@@ -24,11 +24,12 @@ postMessageHandler = (event)->
       )
       console.log "screenCapture done"
       window.parent.postMessage(JSON.stringify({
+        type: "eha.dossierTag"
         screenCapture: tempCanvas.toDataURL()
         url: url
         title: title
-      }), "*")
-  else if request.link
+      }), event.origin)
+  else if request.type == "eha.dataExchange"
     request.url = request.link
     submission = _.extend({
       accessKey: Router.current().params.query.bsveAccessKey
