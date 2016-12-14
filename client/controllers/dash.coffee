@@ -237,7 +237,6 @@ Template.dash.events
     submission = {
       prevDiagnosis: @
       content: @content
-      accessKey: bsveAccessKey
     }
     Meteor.call('submit', submission, (error, resultId) ->
       if error

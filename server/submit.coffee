@@ -10,20 +10,11 @@ submit = (submission) ->
     'url'
   )
   prevDiagnosis = submission.prevDiagnosis
-  bsveSubmission = false
   accessKey = submission.accessKey
-  if not submission.userId
-    if accessKey
-      bsveSubmission = true
-      if accessKey != process.env.BSVE_ACCESS_KEY
-        throw new Meteor.Error("Bad access key")
-    else
-      throw new Meteor.Error("User not authenticated")
   if prevDiagnosis
     resultId = Results.insert(_.extend({
       ready: false
       userId: submission.userId
-      bsveSubmission: bsveSubmission
       prevDiagnosisId: prevDiagnosis._id
     }, postData))
     Results.update prevDiagnosis._id, {
@@ -35,7 +26,6 @@ submit = (submission) ->
     resultId = Results.insert(_.extend({
       ready: false
       userId: submission.userId
-      bsveSubmission: bsveSubmission
     }, postData))
   diagnose = () ->
     Meteor.call('diagnose', postData, (error, result) ->

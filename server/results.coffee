@@ -1,8 +1,8 @@
 Results = @grits.Results
 
-Meteor.publish('results', (query, bsveAccessKey) ->
+Meteor.publish('results', (query) ->
   if @userId
     Results.find(query)
-  else if bsveAccessKey == process.env.BSVE_ACCESS_KEY and query._id
-    Results.find(_.extend(query, { bsveSubmission: true }))
+  else if query._id
+    Results.find(query)
 )
