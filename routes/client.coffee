@@ -40,10 +40,7 @@ Router.map () ->
     path: '/dash/:_id'
     where: 'client'
     onBeforeAction: () ->
-      if @params.query.bsveAccessKey
-        @next()
-      else
-        AccountsEntry.signInRequired(@)
+      @next()
     waitOn: () ->
       if Meteor.userId()
         [
@@ -51,8 +48,8 @@ Router.map () ->
           Meteor.subscribe('feedback')
           Meteor.subscribe('results', {_id: @params._id})
         ]
-      else if @params.query.bsveAccessKey
-        Meteor.subscribe('results', {_id: @params._id}, @params.query.bsveAccessKey)
+      else
+        Meteor.subscribe('results', {_id: @params._id})
     data: () ->
       data = Results.findOne(@params._id)
       if data?.prevDiagnosisId
@@ -111,14 +108,7 @@ Router.map () ->
       $('.popover').remove()
   )
 
-  @route("new",
-    where: 'client'
-    onBeforeAction: (pause) ->
-      if @params.query.bsveAccessKey
-        @next()
-      else
-        AccountsEntry.signInRequired(@)
-  )
+  @route("new", where: 'client')
 
   @route("authenticateSubmission",
     path: '/authenticateSubmission/:_id'

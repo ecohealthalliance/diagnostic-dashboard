@@ -31,10 +31,7 @@ postMessageHandler = (event)->
       }), event.origin)
   else if request.type == "eha.dataExchange"
     request.url = request.link
-    submission = _.extend({
-      accessKey: Router.current().params.query.bsveAccessKey
-    }, request)
-    Meteor.call('submit', submission, (error, resultId) ->
+    Meteor.call('submit', request, (error, resultId) ->
       if error
         if error.error is "Bad access key"
           alert "Error: Bad access key"
