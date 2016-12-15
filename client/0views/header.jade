@@ -20,11 +20,11 @@ template(name="header")
 
     nav#grits-nav.collapse.navbar-collapse
       ul.nav.navbar-nav.nav-main
-        li
-          a(href=eidrUrl)
-            i.fa.fa-book
-            span EIDR
         unless bsveApp
+          li
+            a(href=eidrUrl)
+              i.fa.fa-book
+              span EIDR
           if currentUser
             li.profile
               a(href="/profile")
