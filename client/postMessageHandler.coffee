@@ -44,4 +44,23 @@ postMessageHandler = (event)->
           query: "bsveAccessKey=#{bsveAccessKey}" if bsveAccessKey
         }
     )
+  else if request.type == "eha.authInfo"
+    Meteor.call("setPasswordViaBSVEAuthTicket", request, (error, password) ->
+      if error
+        window.parent.postMessage(JSON.stringify({
+          type: 'eha.alert',
+          msg: 'Authentication failed: GRITS',
+          dismissable: true,
+          cb: null
+        }), event.origin)
+      else
+        Meteor.loginWithPassword(username: "bsve-" + request.user, password, (error)->
+          if error
+            console.log error
+        )
+    )
 window.addEventListener("message", postMessageHandler, false)
+# The timeout is used to wait for BSVE.init to be called in the parent frame.
+window.setTimeout ->
+  window.parent.postMessage(JSON.stringify(type: "eha.authRequest"), "*")
+, 1000
