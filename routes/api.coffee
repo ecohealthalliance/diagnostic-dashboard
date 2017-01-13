@@ -1,4 +1,20 @@
+fs = Npm.require('fs')
+path = Npm.require('path')
+
 Router.map () ->
+  @route('revision', {
+    path: '/revision'
+    where: 'server'
+    action: () ->
+      fs.readFile path.join(process.env.PWD, 'revision.txt'), 'utf8', (err, data)=>
+        if err
+          console.log(err)
+          data = "Error getting revision. Check the server log for details."
+
+        @response.write data
+        @response.end()
+  })
+
   @route('diagnose', {
     path: '/diagnose'
     where: 'server'
