@@ -7,7 +7,7 @@ standard-app-packages
 coffeescript
 mquandalle:stylus
 http
-email
+email@1.1.18
 tangelo
 mquandalle:jade
 twbs:bootstrap
@@ -19,9 +19,15 @@ mrt:dbproxy
 mizzao:autocomplete
 chuangbo:marked
 iron:router
-joshowens:accounts-entry
-reactive-var
-underscore
+reactive-var@1.0.11
+underscore@1.0.10
 bevanhunt:leaflet
 miktam:api-password
 new3rs:html2canvas
+random@1.0.10
+shell-server
+accounts-base
+accounts-ui
+accounts-password
+useraccounts:bootstrap
+useraccounts:iron-routing

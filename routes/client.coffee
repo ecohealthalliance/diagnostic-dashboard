@@ -1,8 +1,13 @@
 Results = @grits.Results
 
+redirectIfNotSignedIn = (router) ->
+  if Meteor.userId()
+    router.next()
+  else
+    router.redirect '/sign-in'
+
 Router.configure
   layoutTemplate: "layout"
-
 
 Router.map () ->
 
@@ -20,7 +25,7 @@ Router.map () ->
     path: '/profile/:_id?'
     where: 'client'
     onBeforeAction: () ->
-      AccountsEntry.signInRequired(@)
+      redirectIfNotSignedIn(@)
     waitOn: () ->
       if Meteor.userId()
         [
@@ -115,7 +120,7 @@ Router.map () ->
     where: 'client'
     template: 'authenticateSubmission'
     onBeforeAction: () ->
-      AccountsEntry.signInRequired(@)
+      redirectIfNotSignedIn(@)
     onAfterAction: () ->
       submissionId = @params._id
       Meteor.call('submitFromQuarantine', submissionId, (error, resultId) ->

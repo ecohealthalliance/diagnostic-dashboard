@@ -76,8 +76,6 @@ Router.route("searchEidr",
   where: "client"
   path: "/searchEidr"
   template: "search"
-  onBeforeAction: () ->
-    AccountsEntry.signInRequired(@)
   waitOn: () ->
     if Meteor.userId()
       [
