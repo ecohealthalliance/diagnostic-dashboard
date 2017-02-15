@@ -34,6 +34,9 @@ Template.header.events
     e.preventDefault()
     window.history.back()
 
+  'click .sign-out' : (e) ->
+    Meteor.logout()
+
   'click' : (e) ->
     if $('.navbar-toggle').is(':visible')
       console.log("collapsing")

@@ -1,3 +1,6 @@
+Accounts.emailTemplates.siteName = "GRITS"
+Accounts.emailTemplates.from = "GRITS <no-reply@grits>"
+
 Meteor.methods(
   ###
   # Create or update a meteor account for a BSVE user with the given auth info.

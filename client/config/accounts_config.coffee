@@ -5,5 +5,4 @@ AccountsTemplates.configureRoute 'signIn',
       Router.go '/'
 
 AccountsTemplates.configure
-  #hideSignUpLink: true
   showForgotPasswordLink: true
