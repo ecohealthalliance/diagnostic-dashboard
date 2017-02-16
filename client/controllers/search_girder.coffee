@@ -146,8 +146,6 @@ Router.route("searchGirder",
   where: "client"
   path: "/searchGirder"
   template: "search"
-  onBeforeAction: () ->
-    AccountsEntry.signInRequired(@)
   waitOn: () ->
     if Meteor.userId()
       [

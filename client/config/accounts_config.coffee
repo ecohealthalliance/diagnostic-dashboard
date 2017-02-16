@@ -1,5 +1,8 @@
-Meteor.startup ->
-  AccountsEntry.config
-    homeRoute: '/'
-    dashboardRoute: '/'
-    passwordSignupFields: 'EMAIL_ONLY'
+AccountsTemplates.configureRoute 'signIn',
+  layoutTemplate: 'layout',
+  redirect: ->
+    if window.location.pathname == '/sign-in'
+      Router.go '/'
+
+AccountsTemplates.configure
+  showForgotPasswordLink: true

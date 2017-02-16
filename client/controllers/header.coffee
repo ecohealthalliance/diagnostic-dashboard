@@ -30,11 +30,13 @@ Template.helpLink.helpers
       "/help"
 
 Template.header.events
-  'click .back': (e) ->
-    e.preventDefault()
+  'click .back': (event) ->
+    event.preventDefault()
     window.history.back()
 
-  'click' : (e) ->
+  'click .sign-out' : ->
+    Meteor.logout()
+
+  'click' : ->
     if $('.navbar-toggle').is(':visible')
-      console.log("collapsing")
       $('.navbar-collapse').collapse('toggle')

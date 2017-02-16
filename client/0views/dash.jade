@@ -20,7 +20,7 @@ template(name="dash")
             span=label
     .left-panel.diagnosis(class="{{#unless sideBarOpen}} closed {{/unless}}")
       +reactiveTable collection=diseases settings=tableSettings
-      if signedIn
+      if currentUser
         .btn-group.btn-group-justified.btn-group-sm
           if prevDiagnosisId
             unless prevDiagnosisError
@@ -30,7 +30,7 @@ template(name="dash")
           else
             a.btn.btn-default.rediagnose Rediagnose
       .secondary-actions
-        if signedIn
+        if currentUser
           a.open-feedback(data-toggle="modal" data-target="#feedback-modal")
             i.fa.fa-comment(
               data-toggle="tooltip"
@@ -173,5 +173,5 @@ template(name="dash")
                 a.clear-annotations Clear Annotations
 
     //- Feedback Modal
-    if signedIn
+    if currentUser
       +feedback
