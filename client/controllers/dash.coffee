@@ -5,7 +5,15 @@ Template.dash.created = ->
   @dashView = new ReactiveVar 'text'
 
 Template.dash.rendered = ->
-  Session.set('features', @data.features)
+  # Filter out dates too far into the future
+  features = _.filter @data.features, (feature) ->
+    if feature.type is 'datetime'
+      if grits.services.dates.isWithinRange(new Date(feature.value))
+        feature
+    else
+      feature
+
+  Session.set('features', features)
   @$('[data-toggle="tooltip"]').tooltip()
 
 DISABLE_MULTI_HIGHLIGHT = true
@@ -190,6 +198,13 @@ Template.dash.helpers
 
   featuresSelected: ->
     Session.get('features')?.length
+
+  dates: ->
+    dates = _.chain Template.instance().data.features
+      .where type: 'datetime'
+      .sortBy (feature) ->
+        new Date(feature.value)
+      .value()
 
 Template.dash.events
   "click .diagnosis .reactive-table tbody tr" : (event) ->
