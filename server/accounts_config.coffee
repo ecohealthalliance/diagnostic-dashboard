@@ -1,5 +1,5 @@
 Accounts.emailTemplates.siteName = "GRITS"
-Accounts.emailTemplates.from = "GRITS <no-reply@grits>"
+Accounts.emailTemplates.from = "GRITS <no-reply@grits.eha.io>"
 
 Meteor.methods(
   ###
