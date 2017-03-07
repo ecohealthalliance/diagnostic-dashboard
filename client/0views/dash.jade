@@ -134,11 +134,11 @@ template(name="dash")
                     pillColor=color
                     class="{{featureSelected this}}") #{value}
         if showCategory 'datetime'
-          .feature-section.dates
-            .feature-section--header(data-category='datetime')
-              h4 Dates
-            each features
-              if eq type "datetime"
+          if dates.length
+            .feature-section.dates
+              .feature-section--header(data-category='datetime')
+                h4 Dates
+              each dates
                 .label(id="{{getIdKey}}"
                   style="background-color:{{color}};"
                   pillColor=color

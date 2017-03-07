@@ -1,4 +1,5 @@
-Results = @grits.Results
+grits = @grits
+Results = grits.Results
 
 redirectIfNotSignedIn = (router) ->
   if Meteor.userId()
@@ -64,35 +65,28 @@ Router.map () ->
 
       # Set dates/locations session variables for visualizations
       features = data?.features or []
-
-      Session.set('dates',
+      Session.set 'dates',
         _.chain(features)
-          .where({type : 'datetime'})
-          .map((feature) ->
-            dateValue = new Date(feature.value)
-            if dateValue.toString() != "Invalid Date"
-              {
-                date: dateValue
-                latitude: null
-                longitude: null
-                location: null
-              }
-          ).filter(_.identity).value()
-      )
+          .where(type: 'datetime')
+          .filter (feature) ->
+            date = new Date(feature.value)
+            if grits.services.dates.isWithinRange(date)
+              date: date
+              latitude: null
+              longitude: null
+              location: null
+          .filter(_.identity).value()
 
-      Session.set('locations',
+      Session.set 'locations',
         _.chain(features)
-          .where({type : 'location'})
-          .map((location) ->
-            {
-              date: null
-              latitude: location.geoname.latitude
-              longitude: location.geoname.longitude
-              location: location.name
-              color: @grits.services.color(@grits.services.getIdKeyFromFeature(location))
-            }
-          ).value()
-      )
+          .where(type : 'location')
+          .map (location) ->
+            date: null
+            latitude: location.geoname.latitude
+            longitude: location.geoname.longitude
+            location: location.name
+            color: @grits.services.color(@grits.services.getIdKeyFromFeature(location))
+          .value()
       return data
 
     onAfterAction: () ->
